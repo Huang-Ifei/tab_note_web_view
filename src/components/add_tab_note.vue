@@ -91,7 +91,7 @@ input {
   margin-right: 10px;
   width: fit-content;
   padding: 12px 45px;
-  background: #646cff;
+  background: #0f71e2;
 }
 
 textarea {
