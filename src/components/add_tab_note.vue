@@ -26,7 +26,7 @@ async function getClasses(){
 
 async function insertTabNote(){
   if(title.value==""||class_name.value==""||content.value==""||title.value==" "||class_name.value==" "||content.value==" "){
-    showText.value="标题，分类，内容是必填项"
+    alert("标题，分类，内容是必填项")
     return
   }
   const axiosResponse = await axios.post(getAddress() + "/tab_note_add", {
@@ -41,9 +41,9 @@ async function insertTabNote(){
     showText.value="成功"
     await router.push("/")
   }else if(axiosResponse.data.response == "token_check_failed") {
-    showText.value="登录凭证验证失效"
+    alert("登录凭证验证失效")
   }else if(axiosResponse.data.response == "failed") {
-    showText.value="服务器操作失败"
+    alert("服务器操作失败")
   }
 }
 
@@ -53,22 +53,27 @@ async function insertTabNote(){
   <div id="background">
     <icon_to_home/>
     <div id="items">
-      <h1 style="font-size: 38px">
+      <h1 style="font-size: 30px">
         创建您的贴文
       </h1>
-      标题
-      <input v-model="title">
+      标题：
+      <input v-model="title" class="tab_note_title" type="text" placeholder="贴文标题">
       分类:{{class_name}}
       <div style="display: flex;flex-direction: row;margin-bottom: 10px;overflow-y: auto;align-items: center">
-        <button @click="class_name=className"  v-for="className in classes" style="color: #1c1c1c;background: #ebebeb;margin-right: 10px;white-space: nowrap">
-          {{className}}
-        </button>
+        <div  v-for="className in classes">
+          <button v-if="className!=class_name" @click="class_name=className" class="class_choice">
+            {{className}}
+          </button>
+          <button v-if="className==class_name" @click="class_name=className"  class="class_choiced">
+            {{className}}
+          </button>
+        </div>
       </div>
-      标签（可选）
-      <input v-model="tags">
-      附件（功能维护中）
-      <input type="file">
-      内容
+      标签（可选）：
+      <input v-model="tags" class="tags_input" type="text" placeholder="标签">
+      附件（功能维护中）：
+      <input type="file" class="file_input">
+      <div>内容：<a href="/manual" style="display: inline-block;cursor: pointer">(点击查看贴文特殊字符手册)</a></div>
       <textarea v-model="content">
 
         </textarea>
@@ -83,6 +88,45 @@ async function insertTabNote(){
 </template>
 
 <style scoped>
+.tab_note_title{
+  width: 70%;
+  min-width: 300px;
+  padding: 10px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #213547;
+}
+.class_choice{
+  margin-right: 10px;
+  border-radius: 50px;
+  white-space: nowrap;
+  background: white;
+  border: 1px solid #dfdfdf;
+  color: #1c1c1c;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.class_choiced{
+  margin-right: 10px;
+  border-radius: 50px;
+  white-space: nowrap;
+  background: white;
+  border: 1px solid #1c99ee;
+  color: #1c1c1c;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.tags_input{
+  width: 70%;
+  min-width: 300px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #0990e9;
+}
+.file_input{
+  width: fit-content;
+}
 input {
   margin-bottom: 8px;
 }
@@ -91,19 +135,27 @@ input {
   margin-right: 10px;
   width: fit-content;
   padding: 12px 45px;
-  background: #0f71e2;
+  color: rgba(255,255,255,0.9);
+  border: transparent;
+  background: linear-gradient(45deg, #1c99ee, #67c1ff);
+  box-shadow: #85cfff 0 0 8px;
+}
+#submit:hover,
+#submit:focus{
+  outline: none;
 }
 
 textarea {
   width: auto;
-  height: 1200px;
+  min-height: 500px;
+  height: 500px;
 }
 
 #items {
   display: flex;
   flex-direction: column;
-  padding: 10px 15%;
-  width: 70%;
+  padding: 10px 30px;
+  width: calc(100% - 60px );
 }
 
 #background {
@@ -113,5 +165,6 @@ textarea {
   overflow: auto;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
 }
 </style>

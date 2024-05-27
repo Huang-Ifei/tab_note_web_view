@@ -95,6 +95,7 @@ async function getMessMess(i:number,from_tab_mess:string) {
   }
   if (start.value>0){
     messages.value[i].reply_messages=[]
+    messages.value[i].can_not_show_more_reply = false
     return
   }
   const axiosResponse = await axios.post(getAddress() + "/mess_mess", {
@@ -218,7 +219,7 @@ async function insertMessage() {
           &nbsp;{{mess.usr_name }}&nbsp;
         </div>
 
-        <div style="margin: 5px 10px" v-html="escapeHTMLWithOutConsole(mess.message)">
+        <div style="margin: 3px 10px;font-size: 14px" v-html="escapeHTMLWithOutConsole(mess.message)">
         </div>
 
         <div style="display: flex;flex-direction: row;">
@@ -247,9 +248,9 @@ async function insertMessage() {
             <img alt="" :src="getIdImg(messMess.usr_id)">
             &nbsp;{{ messMess.usr_name }}&nbsp;
           </div>
-          <div style="display: inline-block; margin: 0 5px; padding: 5px;">
+          <div style="display: inline-block; margin: 0 8px; padding: 3px;">
             <div v-if="messMess.reply_usr!=''" style="color: #1c1c1c;display: inline-block;font-weight: bold">回复[{{messMess.reply_usr}}]:&nbsp;</div>
-            <div style="margin: 0;display: inline-block" v-html="escapeHTMLWithOutConsole(messMess.message)"></div>
+            <div style="margin: 0;font-size: 14px;display: inline-block" v-html="escapeHTMLWithOutConsole(messMess.message)"></div>
           </div>
           <div style="display: flex;flex-direction: row;">
             <div class="value_click" @click="like_mess('/mess_mess_like',messMess.message_id);messMess.like_this++">
@@ -268,20 +269,28 @@ async function insertMessage() {
             </button>
           </div>
         </div>
-        <div v-if="!mess.can_not_show_more_reply&& typeof mess.reply_messages !='undefined' &&mess.reply_messages.length>0" @click="getMoreMessMess(i,mess.message_id)" style="margin-left: 40px;margin-bottom: 10px;cursor: pointer;color: #646cff">
+        <div v-if="!mess.can_not_show_more_reply&& typeof mess.reply_messages !='undefined' &&mess.reply_messages.length>0" @click="getMoreMessMess(i,mess.message_id)" class="more_mess" style="margin-left: 38px;margin-bottom: 10px">
           获取更多回复
         </div>
         <!-- 留言的留言  -->
       </div>
     </div>
 
-    <div v-if="can_add_more_tab_mess&&messages.length>0" @click="getMoreMessages" style="margin-left: 10px;cursor: pointer;color: #646cff">
+    <div v-if="can_add_more_tab_mess&&messages.length>0" @click="getMoreMessages" style="margin-left: 8px;" class="more_mess">
       获取更多留言
     </div>
   </div>
 </template>
 
 <style scoped>
+.more_mess{
+  cursor: pointer;
+  color:#1c99ee;
+  font-weight: bold
+}
+.more_mess:hover{
+  text-shadow: #b6deff 0 0 2px
+}
 .value_click {
   padding: 10px;
   background: transparent;
@@ -294,17 +303,20 @@ async function insertMessage() {
   height: fit-content;
   margin-right: 10px;
   cursor: pointer;
+  font-size: 14px;
+  border: transparent solid 1px;
 }
 
 .value_click:hover {
-  outline: 4px auto #646cff;
+  box-shadow: 0 0 8px #c6e9ff;
+  outline: #1a98ee solid 1px;
 }
 
 .value {
   padding: 10px;
-  background: #ebebeb;
+  background: #f5f5f5;
   border-radius: 100px;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -312,11 +324,12 @@ async function insertMessage() {
   height: fit-content;
   margin-right: 10px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .value img {
   border-radius: 100px;
-  height: 25px;
+  height: 20px;
   padding: 0;
   margin: 0;
 }
@@ -324,43 +337,30 @@ async function insertMessage() {
 .message_message {
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
+  margin-bottom: 0;
   margin-left: 30px;
 }
 
 .messages {
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px
+  margin-bottom: 10px
 }
 
 #submit {
+  border: transparent;
   height: fit-content;
   width: fit-content;
   padding: 11px 28px;
   border-radius: 50px;
   margin-top: 5px;
-  background: rgb(28, 28, 28);
+  box-shadow: 0 0 8px #9bd6ff;
 }
 
 .background {
   font-size: 15px;
   padding-top: 20px;
   padding-bottom: 50px;
-}
-
-.mess_mess_textarea {
-  border: 0 transparent;
-  background: #f0f0f0;
-  height: 50px;
-}
-
-.mess_mess_textarea:focus {
-  outline: 0;
-}
-
-.mess_mess_textarea:hover {
-  outline: 0;
 }
 
 .input_message{
@@ -373,16 +373,10 @@ async function insertMessage() {
 }
 
 .message_textarea {
-  border: 0 transparent;
-  background: #f0f0f0;
   height: 100px;
 }
-
-.message_textarea:focus {
-  outline: 0;
+.mess_mess_textarea{
+  height: 60px;
 }
 
-.message_textarea:hover {
-  outline: 0;
-}
 </style>

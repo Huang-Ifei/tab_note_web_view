@@ -98,7 +98,7 @@ async function likeThis() {
       </div>
     </div>
     <div style="display: flex;flex-direction: row">
-      <div class="value" @click="likeThis">
+      <div class="click_value" @click="likeThis">
         <img src="../assets/thumb_up.svg">
         &nbsp;{{ like_this }}&nbsp;
       </div>
@@ -132,11 +132,28 @@ img {
   display: flex;
   flex-direction: row;
   margin: 10px;
+  font-weight: bold;
 }
-
+.click_value:hover{
+  box-shadow: 0 0 8px #c6e9ff;
+  outline: #1a98ee solid 1px;
+}
+.click_value {
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 100px;
+  margin-bottom: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: fit-content;
+  height: fit-content;
+  margin-right: 10px;
+  cursor: pointer;
+}
 .value {
   padding: 10px;
-  background: #ebebeb;
+  background: #f5f5f5;
   border-radius: 100px;
   margin-bottom: 5px;
   display: flex;
@@ -155,7 +172,7 @@ h2 {
 #background {
   width: 94%;
   padding: 10px 3%;
-  height: calc(100% - 78px);
+  height: calc(100% - 74px);
   overflow: auto;
   position: absolute;
   display: flex;

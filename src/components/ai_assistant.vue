@@ -373,6 +373,7 @@ function send(s: string) {
   margin-left: 10px;
   margin-right: 10px;
   color: #000000;
+  background: white;
   margin-bottom: 8px;
 }
 
@@ -430,6 +431,7 @@ function send(s: string) {
   padding: 15px 10%;
   display: flex;
   flex-direction: row;
+  background: white;
 }
 
 #usr {
@@ -443,12 +445,14 @@ function send(s: string) {
   height: 52px;
   align-items: center;
   justify-items: center;
+  background: #ffffff;
 }
 
 #usr button {
   border-radius: 50%;
   width: 42px;
   height: 42px;
+  background: #e5e5e5;
   padding: 1px;
 }
 

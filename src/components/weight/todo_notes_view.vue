@@ -92,6 +92,7 @@ function newPlan() {
     np.style.width = "255px";
     np.style.height = "300px";
     np.style.top = "calc(100% - 340px)";
+    np.style.color = "rgba(0, 0, 0, 0.9)"
     np.style.cursor = "auto"
     np.style.padding = "10px"
     np.style.background = "#ffffff"
@@ -105,12 +106,6 @@ async function closeNewPlan() {
     new_plan_div.value = false
     await delay(100)
     new_plan_div.value = true
-    np.style.width = "fit-content";
-    np.style.height = "fit-content";
-    np.style.top = "calc(100% - 58px)";
-    np.style.cursor = "pointer"
-    np.style.padding = "13px 15px"
-    np.style.background = "linear-gradient(45deg, #f5c1ff, #a5f1ff)"
   }
 }
 
@@ -206,7 +201,7 @@ function openNewWindow(s:string) {
           <div style="width: 100%;font-size: 16px">
             变更这个计划
           </div>
-          <button @click="edit_plan_id=''" style="cursor: pointer;color: #1a1a1a;padding: 0;height: 25px;">
+          <button @click="edit_plan_id=''" style="cursor: pointer;color: #1a1a1a;background: transparent;padding: 0;height: 25px;">
             <img @click="edit_plan_id=''" src="../../assets/close.svg" style="">
           </button>
         </div>
@@ -223,10 +218,10 @@ function openNewWindow(s:string) {
           链接（可选）
         </div>
         <input class="date_picker" type="text" v-model="edit_link">
-        <button @click="updatePlan" style="background: #4495ff;margin-top: 10px;padding: 11px">
+        <button @click="updatePlan" style="margin-top: 10px;padding: 11px;  border:transparent;">
           {{ edit_button }}
         </button>
-        <button @click="deletePlan" style="background: #1c1c1c;margin-top: 10px;padding: 11px">
+        <button @click="deletePlan" style="background: linear-gradient(45deg, #1e1e1e, #313131) ;margin-top: 10px;padding: 11px;margin-bottom: 8px;  border:transparent;">
           {{ delete_button }}
         </button>
       </div>
@@ -259,14 +254,14 @@ function openNewWindow(s:string) {
             <div style="text-align: left;font-size: 12px">
               {{ JSON.parse(JSON.stringify(plan)).date }}
             </div>
-            <div class="open_window" v-if=" JSON.parse(JSON.stringify(plan)).link!=''&& JSON.parse(JSON.stringify(plan)).link!=' '" @click.stop="openNewWindow(JSON.parse(JSON.stringify(plan)).link)" style="margin-left: 5px;text-align: left;font-size: 12px;color: #646cff">
+            <div class="open_window" v-if=" JSON.parse(JSON.stringify(plan)).link!=''&& JSON.parse(JSON.stringify(plan)).link!=' '" @click.stop="openNewWindow(JSON.parse(JSON.stringify(plan)).link)" style="margin-left: 5px;text-align: left;font-size: 12px;color: #1a98ee">
               打开链接
             </div>
           </div>
         </div>
         <button
             @click="finishPlan(JSON.parse(JSON.stringify(plan)).plan_id,JSON.parse(JSON.stringify(plan)).content,JSON.parse(JSON.stringify(plan)).link,JSON.parse(JSON.stringify(plan)).date)"
-            style="cursor: pointer;color: #1a1a1a;padding: 0;height: 25px;margin-left: auto">
+            class="check_icon">
           <img src="../../assets/check.svg" style="">
         </button>
       </button>
@@ -283,7 +278,7 @@ function openNewWindow(s:string) {
           <div style="width: 100%;font-size: 16px">
             添加一个计划
           </div>
-          <button @click="closeNewPlan()" style="cursor: pointer;color: #1a1a1a;padding: 0;height: 25px;">
+          <button @click="closeNewPlan()" style="cursor: pointer;color: #1a1a1a;background: transparent;padding: 0;height: 25px;">
             <img @click="closeNewPlan()" src="../../assets/close.svg" style="">
           </button>
         </div>
@@ -295,12 +290,12 @@ function openNewWindow(s:string) {
         <div style="font-size: 12px;margin-left: 5px">
           日期
         </div>
-        <input class="date_picker" type="date" v-model="new_date" value="">
+        <input class="date_picker" type="date" v-model="new_date">
         <div style="font-size: 12px;margin-left: 5px">
           链接（可选）
         </div>
         <input class="date_picker" type="text" v-model="new_link">
-        <button @click="insertNewPlan" style="background: #4495ff;margin-top: 10px;padding: 11px">
+        <button @click="insertNewPlan" style="margin-top: 10px;padding: 12px;border:transparent;">
           {{ add_button }}
         </button>
       </div>
@@ -309,9 +304,18 @@ function openNewWindow(s:string) {
 </template>
 
 <style scoped>
-.open_window:hover{
-  outline: 4px auto #646cff;
+.check_icon{
+  cursor: pointer;
+  color: #1a1a1a;
+  padding: 0;
+  height: 25px;
+  margin-left: auto;
+  background: transparent;
 }
+.check_icon:hover{
+  box-shadow: none;
+}
+
 #new_plan_background {
   position: absolute;
   width: 300px;
@@ -337,14 +341,22 @@ function openNewWindow(s:string) {
   position: absolute;
   width: 255px;
   background: #ffffff;
-  box-shadow: 1px 1px 8px #a6b7ff;
+  box-shadow: none;
   padding: 10px;
   border-radius: 10px;
+  border:transparent;
 }
 
-.date_picker {
-  border: transparent;
-  background: #f0f0f0;
+#edit_plan:hover{
+  box-shadow: 0 0 8px #98daff;
+}
+
+button:hover{
+  border: #1c99ee solid 1px;
+}
+
+.open_window:hover{
+  text-shadow: #b0ddff 0 0 8px;
 }
 
 #items {
@@ -363,6 +375,7 @@ function openNewWindow(s:string) {
   color: #1c1c1c;
   margin-top: 10px;
   padding: 15px 12px;
+  background: white;
 }
 
 #add_plan {
@@ -371,13 +384,16 @@ function openNewWindow(s:string) {
   position: absolute;
   top: calc(100% - 58px);
   font-size: 14px;
-  color: #1c1c1c;
   width: fit-content;
   z-index: 4;
   padding: 13px 20px;
-  box-shadow: 1px 1px 8px #a6b7ff;
-  background: linear-gradient(45deg, #f5c1ff, #a5f1ff);
-  border: #ffffff;
+  background: linear-gradient(45deg, #249bf1, #55bafb);
+  color: rgba(255, 255, 255, 0.9);
+  border:transparent;
+  box-shadow: 0 0 5px #89d3ff;
+}
+#add_plan:hover{
+  box-shadow: 0 0 12px #98daff;
 }
 
 #todo-plans {

@@ -270,6 +270,7 @@ async function deleteAccount() {
 
 button {
   color: #000000;
+  background: white;
   width: calc(100% - 20px);
   margin-left: 10px;
   margin-right: 10px;

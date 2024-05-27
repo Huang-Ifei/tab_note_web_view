@@ -33,8 +33,7 @@ function send() {
 
 <style scoped>
 #textareaEl {
-  font-family: Ubuntu;
-  border: rgb(220, 220, 220) 2px solid;
+  border: rgb(220, 220, 220) 1px solid;
   width: 100%;
   resize: none;
   padding: 10px;
@@ -42,17 +41,27 @@ function send() {
   overflow: auto;
   max-height: 300px;
 }
+#textareaEl::-webkit-scrollbar,
+#textareaEl:hover,
+#textareaEl:focus,
 #textareaEl:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border: #1c99ee solid 1px;
+  box-shadow: #abdeff 0 0 8px;
 }
 button {
   position: relative;
   top: calc(100% - 45px);
   height: 45px;
-  background: #1e1e1e;
   width: 150px;
   margin-left: 5px;
   padding: 5px;
+  color: rgba(255,255,255,0.9);
   border-radius: 10px;
+  border: transparent;
+}
+button:hover {
+  box-shadow: 0 0 8px #bbe6ff;
+  border: none;
+  outline: none;
 }
 </style>

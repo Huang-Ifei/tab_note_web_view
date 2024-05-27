@@ -8,6 +8,7 @@ import account from "../components/account.vue";
 import {ComponentOptionsMixin, DefineComponent, ExtractPropTypes, PublicProps} from "vue";
 import {loginCheck} from "../operation/dataOperation.ts";
 import Tab_note_view from '../components/tab_note_view.vue'
+import Tab_note_content_manual from '../components/tab_note_content_manual.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -35,6 +36,10 @@ const router = createRouter({
         {
             path:"/tab_note_view",
             component: Tab_note_view
+        },
+        {
+            path:"/manual",
+            component: Tab_note_content_manual
         },
     ]
 })
