@@ -1,6 +1,5 @@
 import * as Cookies from "js-cookie";
 import {getAddress} from "./address.ts"
-import {ref} from "vue";
 
 export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -87,74 +86,81 @@ export function escapeHTML(str: string): string {
 
 
     const n: number = htmlString.length
-    const i = ref(0)
+    let i = 0
     //新语句存储器
-    const newString = ref("")
+    let newString = ""
     //遍历
-    while (i.value < n) {
+    while (i < n) {
         //当找到```时，记录代码名称
-        if (htmlString[i.value] === '`' && htmlString[i.value + 1] === '`' && htmlString[i.value + 2] === '`') {
-            const name = ref("")
-            const content = ref("")
-            const x = ref(i.value + 3);
+        if (htmlString[i] === '`' && htmlString[i + 1] === '`' && htmlString[i + 2] === '`') {
+            let name = ""
+            let content = ""
+            let x = i + 3
             //将回车之前的内容并为代码名称
-            while (x.value < n && htmlString[x.value] != '\n') {
-                name.value += htmlString[x.value];
-                x.value++
+            while (x < n && htmlString[x] != '\n') {
+                name += htmlString[x];
+                x++
             }
             //剩余内容遍历
-            while (x.value < n) {
+            while (x < n) {
                 //若找到结尾更改
-                if ((htmlString[x.value] === '`' && htmlString[x.value + 1] === '`' && htmlString[x.value + 2] === '`' && htmlString[x.value + 3] === '\n') || (htmlString[x.value] === '`' && htmlString[x.value + 1] === '`' && htmlString[x.value + 2] === '`' && x.value + 3 == n)) {
-                    newString.value += "<div style='background: #1e1f22;color: #ffffff;padding: 10px;border-radius: 8px;font-family: Consolas, Inter ,system-ui, Avenir, Helvetica, Arial, sans-serif;max-width: calc(100% - 20px);min-width: 50%;width: fit-content;font-size: 14px;overflow-wrap: break-word;'>"
-                    if (name.value != '') {
-                        newString.value += "<div style='background: #3c3f41;color: #ffffff;padding: 4px 10px;margin-bottom: 5px;border-radius: 5px;width: fit-content;display: inline-block;'>" + name.value + "</div>"
-                        newString.value += content.value;
-                        newString.value += "</div>";
-                        i.value = x.value + 3
+                if ((htmlString[x] === '`' && htmlString[x + 1] === '`' && htmlString[x + 2] === '`' && htmlString[x + 3] === '\n') || (htmlString[x] === '`' && htmlString[x + 1] === '`' && htmlString[x + 2] === '`' && x + 3 == n)) {
+                    newString += "<div style='background: #1e1f22;color: #ffffff;padding: 10px;border-radius: 8px;font-family: Consolas, Inter ,system-ui, Avenir, Helvetica, Arial, sans-serif;max-width: calc(100% - 20px);min-width: 50%;width: fit-content;font-size: 14px;overflow-wrap: break-word;'>"
+                    if (name != '') {
+                        newString += "<div style='background: #3c3f41;color: #ffffff;padding: 4px 10px;margin-bottom: 5px;border-radius: 5px;width: fit-content;display: inline-block;'>" + name + "</div>"
+                        newString += content;
+                        newString += "</div>";
+                        i = x + 3
                     } else {
-                        if (content.value.startsWith("\n")) {
-                            newString.value += content.value.substring(1, content.value.length);
+                        if (content.startsWith("\n")) {
+                            newString += content.substring(1, content.length);
                         } else {
-                            newString.value += content.value
+                            newString += content
                         }
-                        newString.value += "</div>";
-                        i.value = x.value + 2
+                        newString += "</div>";
+                        i = x + 2
                     }
                     break
                 } else {
-                    content.value += htmlString[x.value];
+                    content += htmlString[x];
                 }
-                x.value++
+                x++
             }
-        } else if (htmlString[i.value] === '\n' && htmlString[i.value + 1] === '*' && htmlString.substring(i.value + 2, i.value + 8) === '&nbsp;') {
-            newString.value += "\n·&nbsp;"
-            i.value = i.value + 7
-        } else if (htmlString.substring(i.value, i.value + 32) === '\n&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;') {
-            newString.value += '\n&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp;'
-            i.value = i.value + 31
-        } else if (htmlString[i.value] + htmlString[i.value + 1] === '**') {
-            const name = ref("")
-            const x = ref(i.value + 2);
-            const isTitle = ref(false)
-            while (x.value < n && htmlString[x.value] != '\n') {
-                if (htmlString[x.value] + htmlString[x.value + 1] == '**') {
-                    newString.value += "<div style='font-weight: bold;display: inline-block;'>" + name.value + "</div>"
-                    i.value = x.value + 1;
-                    isTitle.value = true
+            if (x > n) {
+                newString += "`".repeat(3) + name + "\n" + content;
+                break
+            }
+        } else if (htmlString[i] === '\n' && htmlString[i + 1] === '*' && htmlString.substring(i + 2, i + 8) === '&nbsp;') {
+            newString += "\n·&nbsp;"
+            i = i + 7
+        } else if (htmlString.substring(i, i + 32) === '\n&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;') {
+            newString += '\n&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp;'
+            i = i + 31
+        } else if (htmlString[i] + htmlString[i + 1] === '**') {
+            let name = ""
+            let x = i+2
+            let isTitle = false
+            while (x < n && htmlString[x] != '\n') {
+                if (htmlString[x] + htmlString[x + 1] == '**') {
+                    newString += "<div style='font-weight: bold;display: inline-block;'>" + name + "</div>"
+                    i = x + 1;
+                    isTitle = true
                     break
                 }
-                name.value += htmlString[x.value];
-                x.value++
+                name += htmlString[x];
+                x++
+            }
+            if (x > n) {
+                break
             }
             if (!isTitle) {
-                newString.value += htmlString[i.value];
+                newString += htmlString[i];
             }
         } else {
-            newString.value += htmlString[i.value]
+            newString += htmlString[i]
         }
-        i.value++
+        i++
     }
     //最后变更回车交还
-    return newString.value.replace(/\n/g, "<br>")
+    return newString.replace(/\n/g, "<br>")
 }

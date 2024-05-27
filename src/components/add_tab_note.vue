@@ -47,6 +47,10 @@ async function insertTabNote(){
   }
 }
 
+async function watch_manual(){
+  await router.push("/tab_manual")
+}
+
 </script>
 
 <template>
@@ -73,7 +77,7 @@ async function insertTabNote(){
       <input v-model="tags" class="tags_input" type="text" placeholder="标签">
       附件（功能维护中）：
       <input type="file" class="file_input">
-      <div>内容：<a href="/tab_manual" style="display: inline-block;cursor: pointer">(点击查看贴文特殊字符手册)</a></div>
+      <div>内容：<a @click="watch_manual" style="display: inline-block;cursor: pointer">(点击查看贴文特殊字符手册)</a></div>
       <textarea v-model="content">
 
         </textarea>
