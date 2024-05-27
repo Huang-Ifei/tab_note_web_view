@@ -452,7 +452,7 @@ function send(s: string) {
   border-radius: 50%;
   width: 42px;
   height: 42px;
-  background: #e5e5e5;
+  background: #ffffff;
   padding: 1px;
 }
 
