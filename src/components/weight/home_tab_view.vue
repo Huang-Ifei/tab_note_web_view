@@ -49,8 +49,8 @@ function show_tab_note(tab_note_id:string) {
     <div id="page_tab_notes">
 
       <div v-if="page_list.length%2==0" class="tab_note_row" v-for="i in page_list.length/2">
-        <div class="tab_note" @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_id)">
-          <div style="font-size: 18px;font-weight: bold">
+        <div class="tab_note" style="width: calc(45% - 20px)" @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_id)">
+          <div class="tab_note_title">
             {{ JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_name }}
           </div>
           <div style="font-size: 12px">
@@ -60,8 +60,8 @@ function show_tab_note(tab_note_id:string) {
           </div>
         </div>
 
-        <div v-if="(i*2-1)<page_list.length" class="tab_note" @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_id)">
-          <div style="font-size: 18px;font-weight: bold">
+        <div v-if="(i*2-1)<page_list.length" class="tab_note" @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_id)" style="width: calc(45% - 20px)">
+          <div class="tab_note_title">
             {{ JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_name }}
           </div>
           <div style="font-size: 12px">
@@ -73,8 +73,8 @@ function show_tab_note(tab_note_id:string) {
       </div>
 
       <div v-if="page_list.length%2==1" class="tab_note_row" v-for="i in page_list.length/2+0.5">
-        <div class="tab_note" style="width: 50%;" @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_id)">
-          <div style="font-size: 18px;font-weight: bold">
+        <div class="tab_note" style="width: calc(45% - 20px)" @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_id)">
+          <div class="tab_note_title">
             {{ JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_name }}
           </div>
           <div style="font-size: 12px">
@@ -84,8 +84,8 @@ function show_tab_note(tab_note_id:string) {
           </div>
         </div>
 
-        <div v-if="(i*2-1)<page_list.length" class="tab_note" @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_id)" style="width: 50%;">
-          <div style="font-size: 18px;font-weight: bold">
+        <div v-if="(i*2-1)<page_list.length" class="tab_note" @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_id)" style="width: calc(45% - 20px)">
+          <div class="tab_note_title">
             {{ JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_name }}
           </div>
           <div style="font-size: 12px">
@@ -117,6 +117,14 @@ function show_tab_note(tab_note_id:string) {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+}
+
+.tab_note_title{
+  font-size: 18px;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tab_note {
