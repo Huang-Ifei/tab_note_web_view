@@ -3,8 +3,8 @@
 import {useRoute} from "vue-router";
 import axios from "axios";
 import {getAddress} from "../operation/address.ts";
-import {ref} from "vue";
-import {escapeHTML, getIdImg, getLocalData} from "../operation/dataOperation.ts";
+import {Ref, ref} from "vue";
+import {escapeTabNoteToHTML, getIdImg, getLocalData} from "../operation/dataOperation.ts";
 import Icon_to_home from "./weight/icon_to_home.vue";
 import Messages_view from "./weight/messages_view.vue";
 
@@ -18,9 +18,11 @@ const tab_note = ref("")
 const click = ref(0)
 const like_this = ref(0)
 const date_time = ref("")
+const imgs: Ref<string[]> = ref([])
+const escapeString = ref("")
+const file = ref("")
 
 const route = useRoute()
-console.log(route.query.tab_note_id)
 
 getTabNote()
 
@@ -29,21 +31,24 @@ async function getTabNote() {
 
   if (axiosResponse.data.response == "success") {
     try {
-      usr_name.value = axiosResponse.data.usr_name;
-      usr_id.value = axiosResponse.data.usr_id;
-      ip_address.value = axiosResponse.data.ip_address;
-      class_name.value = axiosResponse.data.class_name;
-      tab_note_name.value = axiosResponse.data.tab_note_name;
-      tags.value = axiosResponse.data.tags;
-      tab_note.value = axiosResponse.data.tab_note;
-      click.value = axiosResponse.data.click;
-      like_this.value = axiosResponse.data.like_this;
-      date_time.value = axiosResponse.data.date_time;
-
-      const c = document.getElementById("content")
-      if (c != null) {
-        c.innerHTML = escapeHTML(tab_note.value);
+      usr_name.value = axiosResponse.data.usr_name
+      usr_id.value = axiosResponse.data.usr_id
+      ip_address.value = axiosResponse.data.ip_address
+      class_name.value = axiosResponse.data.class_name
+      tab_note_name.value = axiosResponse.data.tab_note_name
+      tags.value = axiosResponse.data.tags
+      tab_note.value = axiosResponse.data.tab_note
+      click.value = axiosResponse.data.click
+      like_this.value = axiosResponse.data.like_this
+      date_time.value = axiosResponse.data.date_time
+      file.value = axiosResponse.data.file
+      let imgArray = axiosResponse.data.imgs.images
+      if (typeof imgArray != 'undefined' &&imgArray.length>0){
+        for (let imgValue of imgArray) {
+          imgs.value.push(getAddress() + "/tabNoteImg?name=" + imgValue)
+        }
       }
+      escapeString.value = escapeTabNoteToHTML(tab_note.value, imgs.value);
 
       await axios.post(getAddress() + "/tab_note_click", {
         tab_note_id: route.query.tab_note_id,
@@ -67,6 +72,10 @@ async function likeThis() {
     id: getLocalData("id"),
     token: getLocalData("token")
   })
+}
+
+function download_this(s:string) {
+  window.open(getAddress()+"/file_select?name="+s)
 }
 
 </script>
@@ -102,11 +111,15 @@ async function likeThis() {
         <img src="../assets/thumb_up.svg">
         &nbsp;{{ like_this }}&nbsp;
       </div>
+      <div class="click_value" v-if="file!=''" @click="download_this(file)">
+        <img src="../assets/download.svg">
+        &nbsp;下载附件&nbsp;
+      </div>
     </div>
     <a class="tags">
       {{ tags }}
     </a>
-    <div id="content">
+    <div id="content" v-html="escapeString">
 
     </div>
     <messages_view :tab_note_id="route.query.tab_note_id"/>
@@ -135,13 +148,15 @@ img {
   margin: 10px;
   font-weight: bold;
 }
-.click_value:hover{
-  box-shadow: 0 0 8px #c6e9ff;
-  outline: #1a98ee solid 1px;
+
+.click_value:hover {
+  border: #1a98ee solid 1px;
 }
+
 .click_value {
   padding: 10px;
-  background: #f5f5f5;
+  background: #ffffff;
+  border: #bcbcbc solid 1px;
   border-radius: 100px;
   margin-bottom: 5px;
   display: flex;
@@ -152,6 +167,7 @@ img {
   margin-right: 10px;
   cursor: pointer;
 }
+
 .value {
   padding: 10px;
   background: #f5f5f5;

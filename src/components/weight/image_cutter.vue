@@ -67,7 +67,7 @@ function handleFileChange(event: Event) {
     // 如果没有选择文件，重置图片 URL
     imageUrl.value = null;
   }
-};
+}
 </script>
 
 <template>
@@ -82,16 +82,11 @@ function handleFileChange(event: Event) {
 img {
   margin-left: 10px;
 }
-
 button {
   color: #1a1a1a;
   background: white;
   margin-left: 10px;
   position: relative;
   top: -15px;
-}
-
-input {
-  border: none;
 }
 </style>

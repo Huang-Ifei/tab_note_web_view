@@ -63,9 +63,9 @@ function valueChange(){
 
 <template>
   <div id="main_tab_notes_view">
-    <div style="font-size: 26px;margin: 25px 10px 10px 10px;font-weight: bold;display: flex;flex-direction: row;">
-      TabNote贴文&nbsp;&nbsp;
-      <img src="../../assets/forward_media.svg" style="cursor: pointer" @click="search_value='';class_name='';searchTabNotePage()">
+    <div style="font-size: 26px;margin: 25px 10px 10px 10px;font-weight: bold;display: flex;flex-direction: row;align-items: center">
+      TabNote贴文&nbsp;
+      <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 26px" @click="search_value='';class_name='';searchTabNotePage()">
       <div style=" display: flex;flex-direction: row;border-radius: 30px;margin-left: auto">
         <input id="search_input" v-model="search_value" placeholder="搜索内容" @change="valueChange"/>
         <button id="search_button" @click="searchTabNotePage()">
@@ -162,7 +162,7 @@ function valueChange(){
 }
 
 #search_input {
-  width: 250px;
+  width: 200px;
   font-size: 16px;
   padding: 10px 20px;
   border-radius: 30px;

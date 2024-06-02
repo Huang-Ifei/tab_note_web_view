@@ -18,13 +18,12 @@ async function getClasses(){
     console.log(axiosResponse.data.response)
   }
 }
-
 </script>
 
 <template>
-  <div id="classes" style="display: flex;flex-direction: row;overflow-x: scroll;align-items: center;padding-left: 2px;scroll-behavior: smooth">
+  <div id="classes" style="display: flex;flex-direction: row;overflow-x: scroll;align-items: center;padding-left: 2px;">
     <div  v-for="className in classes">
-      <button v-if="className!=class_name" @click="emit('doChoice',className);" class="class_choice">
+      <button v-if="className!=class_name"  @click="emit('doChoice',className);" class="class_choice">
         {{className}}
       </button>
       <button v-if="className==class_name" @click="emit('doChoice','')"  class="class_choiced">

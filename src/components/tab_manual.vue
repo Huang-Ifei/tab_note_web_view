@@ -4,7 +4,8 @@ import Icon_to_home from "./weight/icon_to_home.vue";
 import {escapeHTML} from "../operation/dataOperation.ts";
 
 const sourceCode = "```typescript\n" +
-    "export function escapeHTML(str: string): string {\n" +
+    "export function escapeTabNoteToHTML(str: string, pics: string[]): string {\n" +
+    "    let count = 0;\n" +
     "    if (str.length == 0) {\n" +
     "        return str\n" +
     "    }\n" +
@@ -66,13 +67,13 @@ const sourceCode = "```typescript\n" +
     "            }\n" +
     "        } else if (htmlString[i] === '\\n' && htmlString[i + 1] === '*' && htmlString.substring(i + 2, i + 8) === '&nbsp;') {\n" +
     "            newString += \"\\n·&nbsp;\"\n" +
-    "            i = i + 8\n" +
+    "            i = i + 7\n" +
     "        } else if (htmlString.substring(i, i + 32) === '\\n&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;') {\n" +
     "            newString += '\\n&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp;'\n" +
-    "            i = i + 32\n" +
+    "            i = i + 31\n" +
     "        } else if (htmlString[i] + htmlString[i + 1] === '**') {\n" +
     "            let name = \"\"\n" +
-    "            let x = i+2\n" +
+    "            let x = i + 2\n" +
     "            let isTitle = false\n" +
     "            while (x < n && htmlString[x] != '\\n') {\n" +
     "                if (htmlString[x] + htmlString[x + 1] == '**') {\n" +
@@ -90,6 +91,10 @@ const sourceCode = "```typescript\n" +
     "            if (!isTitle) {\n" +
     "                newString += htmlString[i];\n" +
     "            }\n" +
+    "        } else if (htmlString.substring(i, i + 8) === '{[#pic]}') {\n" +
+    "            newString += \"<img alt='\"+count+\"' src='\" + pics[count] + \"' style='max-height: 500px;max-width:80%' />\"\n" +
+    "            count++\n" +
+    "            i = i + 7\n" +
     "        } else {\n" +
     "            newString += htmlString[i]\n" +
     "        }\n" +
@@ -113,7 +118,8 @@ const sourceCode = "```typescript\n" +
       本网站提供以下字符串解析：<br>
       1.```<br>
       2.*<br>
-      3.**<br><br>
+      3.**<br>
+      4.{[#pic]}<br><br>
       <div v-html="escapeHTML('**具体规则**')"></div>
       1.当读取到连续的三个 ` 字符（```字符串）时将会读取本行后面的内容作为代码类型的名字，如果在文章的后续内容包含有三个 `
       字符及换行字符（```\n字符串）时，中间的内容将会被识别为代码内容，将以代码形式展现
@@ -133,8 +139,9 @@ const sourceCode = "```typescript\n" +
       4.当读取到**且本行内还存在**，那么这段语句将会被加粗，例如"**加粗**"，会被解析为：
       <div v-html="escapeHTML('**加粗**')"></div>
       <br>
+      5.当读取到{[#pic]}时将会按照顺序读取图片内容，例如：{[#pic]}这是一张图片{[#pic]}，就分别读取了您上传的第0张和第1张图片
       <br><br>
-      附：（本网站内容字符串解析源代码）
+      附：（本网站TabNote字符串解析HTML源代码）
       <div v-html="escapeHTML(sourceCode)"></div>
     </div>
   </div>
