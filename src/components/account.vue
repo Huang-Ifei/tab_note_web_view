@@ -155,7 +155,7 @@ async function deleteAccount() {
   deleteLocalData('token')
   console.log(deleteRequest.data.response)
 
-  router.push("/")
+  await router.push("/")
 }
 </script>
 

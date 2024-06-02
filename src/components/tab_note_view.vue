@@ -117,6 +117,7 @@ async function likeThis() {
 img {
   border-radius: 100px;
   height: 25px;
+  width: 25px;
   padding: 0;
   margin: 0;
 }

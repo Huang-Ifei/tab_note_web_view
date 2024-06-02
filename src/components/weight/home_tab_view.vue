@@ -4,43 +4,29 @@ import {Ref, ref} from "vue";
 import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
 import router from "../../router";
+import Classes_bar from "./classes_bar.vue";
+import {getLocalData} from "../../operation/dataOperation.ts";
 
 const page_count = ref(0)
 const page_size = ref(1)
 const page_list: Ref<{}[]> = ref([])
 const search_value = ref("")
+const class_name = ref("")
 
-getTabNotePage()
-
-async function getTabNotePage() {
-  const axiosResponse = await axios.post(getAddress() + "/tab_note_page",{
-    type: "main",
-    page:page_size.value,
-  });
-
-  if (axiosResponse.data.response == "success") {
-    try {
-      page_list.value = axiosResponse.data.list;
-      page_count.value =axiosResponse.data.pages;
-    } catch (e) {
-      console.error(e)
-    }
-  } else if (axiosResponse.data.response == "token_check_failed") {
-    console.error("token_check_failed")
-  } else if (axiosResponse.data.response == "failed") {
-    console.error("failed")
-  } else {
-
-  }
-}
+search_value.value=getLocalData("search_value")
+class_name.value=getLocalData("class_name")
+searchTabNotePage()
 
 async function searchTabNotePage() {
   page_size.value = 1;
 
+  sessionStorage.setItem("class_name", class_name.value);
+  sessionStorage.setItem("search_value",search_value.value);
+
   const axiosResponse = await axios.post(getAddress() + "/tab_note_page",{
-    type: "search",
     page:page_size.value,
-    key_word: search_value.value
+    key_word: search_value.value,
+    class_name: class_name.value
   });
 
   if (axiosResponse.data.response == "success") {
@@ -63,20 +49,33 @@ function show_tab_note(tab_note_id: string) {
   router.push({path: "/tab_note_view", query: {tab_note_id: tab_note_id}})
 }
 
+async function doChoice(s:string){
+  class_name.value = s
+  searchTabNotePage()
+}
+
+function valueChange(){
+  if (search_value.value==""){
+    searchTabNotePage()
+  }
+}
 </script>
 
 <template>
   <div id="main_tab_notes_view">
     <div style="font-size: 26px;margin: 25px 10px 10px 10px;font-weight: bold;display: flex;flex-direction: row;">
-      TabNote贴文
+      TabNote贴文&nbsp;&nbsp;
+      <img src="../../assets/forward_media.svg" style="cursor: pointer" @click="search_value='';class_name='';searchTabNotePage()">
       <div style=" display: flex;flex-direction: row;border-radius: 30px;margin-left: auto">
-        <input id="search_input" v-model="search_value" placeholder="搜索内容">
+        <input id="search_input" v-model="search_value" placeholder="搜索内容" @change="valueChange"/>
         <button id="search_button" @click="searchTabNotePage()">
           搜索
         </button>
       </div>
     </div>
     <div id="page_tab_notes">
+
+      <classes_bar :class_name="class_name" @doChoice="doChoice"/>
 
       <div v-if="page_list.length%2==0" class="tab_note_row" v-for="i in page_list.length/2">
         <div class="tab_note" style="width: calc(45% - 20px)"
@@ -134,12 +133,12 @@ function show_tab_note(tab_note_id: string) {
     </div>
 
     <div id="page_choice">
-      <button style="background: #f5f5f5;margin-right: 10px" v-if="page_size>1" @click="page_size--;getTabNotePage()">
+      <button style="background: #f5f5f5;margin-right: 10px" v-if="page_size>1" @click="page_size--;searchTabNotePage()">
         上一页
       </button>
       第{{ page_size }}页/共{{ page_count }}页
       <button style="background: #f5f5f5;margin-left: 10px" v-if="page_size<page_count"
-              @click="page_size++;getTabNotePage()">
+              @click="page_size++;searchTabNotePage()">
         下一页
       </button>
     </div>

@@ -330,6 +330,7 @@ async function insertMessage() {
 .value img {
   border-radius: 100px;
   height: 20px;
+  width: 20px;
   padding: 0;
   margin: 0;
 }

@@ -1,32 +1,24 @@
 <script setup lang="ts">
 import Icon_to_home from "./weight/icon_to_home.vue";
-import {Ref, ref} from "vue";
+import {ref} from "vue";
 import axios from "axios";
 import {getAddress} from "../operation/address.ts";
 import {getLocalData} from "../operation/dataOperation.ts";
 import router from "../router";
+import Classes_bar from "./weight/classes_bar.vue";
 const title = ref("")
 const class_name = ref("")
 const tags = ref("")
 const content = ref("")
 const showText = ref("")
 
-const classes:Ref<[]> = ref([])
-
-getClasses()
-
-async function getClasses(){
-  const axiosResponse = await axios.get(getAddress() + "/getClasses")
-  if (axiosResponse.data.response == "success") {
-    classes.value = axiosResponse.data.classes
-  }else {
-    console.log(axiosResponse.data.response)
-  }
-}
-
 async function insertTabNote(){
   if(title.value==""||class_name.value==""||content.value==""||title.value==" "||class_name.value==" "||content.value==" "){
     alert("标题，分类，内容是必填项")
+    return
+  }
+  if(tags.value!=""&&!tags.value.startsWith("#")){
+    alert("每个标签应当以#号开头")
     return
   }
   const axiosResponse = await axios.post(getAddress() + "/tab_note_add", {
@@ -51,6 +43,10 @@ async function watch_manual(){
   await router.push("/tab_manual")
 }
 
+function doChoice(s:string){
+  class_name.value = s;
+}
+
 </script>
 
 <template>
@@ -63,16 +59,7 @@ async function watch_manual(){
       标题：
       <input v-model="title" class="tab_note_title" type="text" placeholder="贴文标题">
       分类:{{class_name}}
-      <div style="display: flex;flex-direction: row;margin-bottom: 10px;overflow-y: auto;align-items: center">
-        <div  v-for="className in classes">
-          <button v-if="className!=class_name" @click="class_name=className" class="class_choice">
-            {{className}}
-          </button>
-          <button v-if="className==class_name" @click="class_name=className"  class="class_choiced">
-            {{className}}
-          </button>
-        </div>
-      </div>
+      <classes_bar :class_name="class_name" @doChoice="doChoice"/>
       标签（可选）：
       <input v-model="tags" class="tags_input" type="text" placeholder="标签">
       附件（功能维护中）：
@@ -84,6 +71,9 @@ async function watch_manual(){
       <div style="display: flex; flex-direction: row;align-items: center;margin-top: 15px;margin-bottom: 100px">
         <button id="submit" @click="insertTabNote">
           提交
+        </button>
+        <button id="display" >
+          预览
         </button>
         {{showText}}
       </div>
@@ -100,26 +90,6 @@ async function watch_manual(){
   font-weight: bold;
   color: #213547;
 }
-.class_choice{
-  margin-right: 10px;
-  border-radius: 50px;
-  white-space: nowrap;
-  background: white;
-  border: 1px solid #dfdfdf;
-  color: #1c1c1c;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-.class_choiced{
-  margin-right: 10px;
-  border-radius: 50px;
-  white-space: nowrap;
-  background: white;
-  border: 1px solid #1c99ee;
-  color: #1c1c1c;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
 .tags_input{
   width: 70%;
   min-width: 300px;
@@ -134,7 +104,14 @@ async function watch_manual(){
 input {
   margin-bottom: 8px;
 }
-
+#display {
+  margin-right: 10px;
+  width: fit-content;
+  padding: 12px 20px;
+  color: #1c99ee;
+  border: transparent;
+  background: white;
+}
 #submit {
   margin-right: 10px;
   width: fit-content;
