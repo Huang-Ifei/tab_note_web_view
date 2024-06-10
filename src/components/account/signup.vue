@@ -1,11 +1,11 @@
 <script setup lang="ts">
 
-import Icon_to_home from "./weight/icon_to_home.vue";
+import Icon_to_home from "../weight/icon_to_home.vue";
 import {ref} from "vue";
 import axios from "axios";
-import router from "../router";
+import router from "../../router";
 import * as Cookies from "js-cookie";
-import {getAddress} from "../operation/address.ts";
+import {getAddress} from "../../operation/address.ts";
 
 const placeholder = ref("账号")
 const waitText = ref("")

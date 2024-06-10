@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import Icon_to_home from "./weight/icon_to_home.vue";
+import Icon_to_home from "../weight/icon_to_home.vue";
 import {Ref, ref} from "vue";
 import axios from "axios";
-import {getAddress} from "../operation/address.ts";
-import {escapeTabNoteToHTML, getLocalData} from "../operation/dataOperation.ts";
-import router from "../router";
-import Classes_bar from "./weight/classes_bar.vue";
-import Choice_pic from "./weight/choice_pic.vue";
+import {getAddress} from "../../operation/address.ts";
+import {escapeTabNoteToHTML, getLocalData} from "../../operation/dataOperation.ts";
+import router from "../../router";
+import Classes_bar from "../weight/classes_bar.vue";
+import Choice_pic from "../weight/choice_pic.vue";
 
 
 const title = ref("")

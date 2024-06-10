@@ -2,11 +2,11 @@
 
 import {useRoute} from "vue-router";
 import axios from "axios";
-import {getAddress} from "../operation/address.ts";
+import {getAddress} from "../../operation/address.ts";
 import {Ref, ref} from "vue";
-import {escapeTabNoteToHTML, getIdImg, getLocalData} from "../operation/dataOperation.ts";
-import Icon_to_home from "./weight/icon_to_home.vue";
-import Messages_view from "./weight/messages_view.vue";
+import {escapeTabNoteToHTML, getIdImg, getLocalData} from "../../operation/dataOperation.ts";
+import Icon_to_home from "../weight/icon_to_home.vue";
+import Messages_view from "./messages_view.vue";
 
 const usr_name = ref("")
 const usr_id = ref("")
@@ -90,7 +90,7 @@ function download_this(s:string) {
     </h2>
     <div style="display: flex;flex-direction: row">
       <div class="value">
-        <img src="../assets/visibility.svg">
+        <img src="../../assets/visibility.svg">
         &nbsp;{{ click }}&nbsp;
       </div>
       <div class="value">
@@ -98,21 +98,21 @@ function download_this(s:string) {
         &nbsp;{{ usr_name }}&nbsp;
       </div>
       <div class="value">
-        <img src="../assets/folder.svg">
+        <img src="../../assets/folder.svg">
         &nbsp;{{ class_name }}&nbsp;
       </div>
       <div class="value">
-        <img src="../assets/calendar.svg">
+        <img src="../../assets/calendar.svg">
         &nbsp;{{ date_time }}&nbsp;
       </div>
     </div>
     <div style="display: flex;flex-direction: row">
       <div class="click_value" @click="likeThis">
-        <img src="../assets/thumb_up.svg">
+        <img src="../../assets/thumb_up.svg">
         &nbsp;{{ like_this }}&nbsp;
       </div>
       <div class="click_value" v-if="file!=''" @click="download_this(file)">
-        <img src="../assets/download.svg">
+        <img src="../../assets/download.svg">
         &nbsp;下载附件&nbsp;
       </div>
     </div>
@@ -150,13 +150,14 @@ img {
 }
 
 .click_value:hover {
+  background: #f8f8f8;
   border: #1a98ee solid 1px;
 }
 
 .click_value {
   padding: 10px;
-  background: #ffffff;
-  border: #bcbcbc solid 1px;
+  background: #f0f0f0;
+  border: transparent solid 1px;
   border-radius: 100px;
   margin-bottom: 5px;
   display: flex;
@@ -170,7 +171,8 @@ img {
 
 .value {
   padding: 10px;
-  background: #f5f5f5;
+  background: #f0f0f0;
+  border: transparent solid 1px;
   border-radius: 100px;
   margin-bottom: 5px;
   display: flex;

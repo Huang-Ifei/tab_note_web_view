@@ -8,6 +8,8 @@ import router from "../../router";
 const imageURL = ref("")
 imageURL.value = getAccountImg()
 
+const emit = defineEmits(['todoView'])
+
 console.log(Cookies.default.get("name"))
 
 </script>
@@ -21,10 +23,13 @@ console.log(Cookies.default.get("name"))
       <button class="none_button" onclick="location.href='/add_tab_note'">
         新建贴文
       </button>
+      <button class="none_button" @click="emit('todoView',true)">
+        计划/待办
+      </button>
       <button id="ai_button" onclick="location.href='/ai_assistant'">
         AI助手
       </button>
-        <img @click="router.push('login')" id="usrImage" :src="imageURL" alt="image"/>
+      <img @click="router.push('login')" id="usrImage" :src="imageURL" alt="image"/>
     </div>
   </div>
 </template>
@@ -42,12 +47,14 @@ console.log(Cookies.default.get("name"))
 }
 
 .icons {
+  left: auto;
   position: marker;
   width: 100%;
   display: flex;
   justify-content: right;
 }
-.none_button{
+
+.none_button {
   border-radius: 0;
   font-size: 13px;
   background: transparent;
@@ -55,20 +62,23 @@ console.log(Cookies.default.get("name"))
   color: #eaeaea;
   border: none;
 }
-.none_button:hover{
+
+.none_button:hover {
   color: #ffffff;
   background: #333333;
   outline: 0;
   border: none;
   text-shadow: 0 0 8px #c6e9ff;
 }
-.none_button:focus{
+
+.none_button:focus {
   color: #ffffff;
   background: #333333;
   outline: none;
   border: none;
   text-shadow: 0 0 8px #c6e9ff;
 }
+
 #ai_button {
   font-size: 14px;
   color: rgba(0, 0, 0, 0.8);
@@ -78,10 +88,12 @@ console.log(Cookies.default.get("name"))
   box-shadow: none;
   border: none;
 }
-#ai_button:hover{
+
+#ai_button:hover {
   box-shadow: 0 0 8px #c6e9ff;
   border: none;
 }
+
 img {
   cursor: pointer;
   outline: 2px solid white;
@@ -92,7 +104,8 @@ img {
   background: #ffffff;
   border-radius: 50%;
 }
-img:hover{
+
+img:hover {
   box-shadow: 0 0 12px #c6e9ff;
 }
 </style>

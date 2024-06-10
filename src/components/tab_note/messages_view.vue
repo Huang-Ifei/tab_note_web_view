@@ -314,7 +314,8 @@ async function insertMessage() {
 
 .value {
   padding: 10px;
-  background: #f5f5f5;
+  background: #f0f0f0;
+  border: transparent solid 1px;
   border-radius: 100px;
   margin-bottom: 2px;
   display: flex;

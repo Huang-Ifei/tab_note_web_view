@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import resize_textarea from "./weight/resize_textarea.vue";
-import Icon_to_home from "./weight/icon_to_home.vue";
+import resize_textarea from "../weight/resize_textarea.vue";
+import Icon_to_home from "../weight/icon_to_home.vue";
 import {Ref, ref} from "vue";
-import {delay, escapeHTML, getAccountImg, getLocalData} from "../operation/dataOperation.ts";
-import {getAddress} from "../operation/address.ts";
+import {delay, escapeHTML, getAccountImg, getLocalData} from "../../operation/dataOperation.ts";
+import {getAddress} from "../../operation/address.ts";
 import axios from "axios";
 
 const messages: Ref<{}[]> = ref([])

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 
-import {deleteLocalData, getAccountImg, getLocalData, setLocalData} from "../operation/dataOperation.ts";
-import Icon_to_home from "./weight/icon_to_home.vue";
-import router from "../router";
+import {deleteLocalData, getAccountImg, getLocalData, setLocalData} from "../../operation/dataOperation.ts";
+import Icon_to_home from "../weight/icon_to_home.vue";
+import router from "../../router";
 import {ref} from "vue";
 import axios from 'axios';
-import {getAddress} from "../operation/address.ts";
-import Image_cutter from "./weight/image_cutter.vue";
+import {getAddress} from "../../operation/address.ts";
+import Image_cutter from "../weight/image_cutter.vue";
 
 const show_content = ref("需要怎样操作您的账户？")
 const new_id = ref("")

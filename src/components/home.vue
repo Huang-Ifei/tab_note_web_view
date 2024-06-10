@@ -1,27 +1,40 @@
 <script setup lang="ts">
 import HelloTitle from "./weight/title.vue";
-import Home_tab_view from "./weight/home_tab_view.vue";
-import Todo_notes_view from "./weight/todo_notes_view.vue";
+import Home_tab_view from "./tab_note/home_tab_view.vue";
+import {ref} from "vue";
+import Todo_plan_view from "./todo/todo_plan_view.vue";
+
+const todo_view = ref(false)
+
+function showTodoView(active: boolean) {
+  console.log(active);
+  todo_view.value = active
+}
 </script>
 
 <template>
   <div id="home_view">
     <div class="title">
-      <HelloTitle/>
+      <HelloTitle @todoView="showTodoView"/>
     </div>
-    <div id="todo_and_notes">
-      <todo_notes_view/>
+    <transition name="todo">
+      <todo_plan_view v-if="todo_view" @doClose="showTodoView"/>
+    </transition>
       <home_tab_view/>
-    </div>
   </div>
 </template>
 
 <style scoped>
-#todo_and_notes{
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  height: calc(100% - 58px);
+.todo-enter-active{
+  transition: opacity 0.25s ease;
+}
+
+.todo-leave-active {
+  transition: opacity 0.25s ease;
+}
+.todo-enter-from,
+.todo-leave-to {
+  opacity: 0;
 }
 #home_view{
   position: absolute;

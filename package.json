@@ -18,7 +18,9 @@
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
+    "@vitejs/plugin-legacy": "^5.4.1",
     "@vitejs/plugin-vue": "^5.0.4",
+    "terser": "^5.31.0",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
     "vue-tsc": "^2.0.6"

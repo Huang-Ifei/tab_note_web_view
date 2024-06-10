@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import ai_assistant from '../components/ai_assistant.vue'
-import add_tab_note from '../components/add_tab_note.vue'
-import login from '../components/login.vue'
+import ai_assistant from '../components/ai_assistant/ai_assistant.vue'
+import add_tab_note from '../components/tab_note/add_tab_note.vue'
+import login from '../components/account/login.vue'
 import Home from '../components/home.vue'
-import signup from '../components/signup.vue'
-import account from "../components/account.vue";
+import signup from '../components/account/signup.vue'
+import account from "../components/account/account.vue";
 import {ComponentOptionsMixin, DefineComponent, ExtractPropTypes, PublicProps} from "vue";
 import {loginCheck} from "../operation/dataOperation.ts";
-import Tab_note_view from '../components/tab_note_view.vue'
+import Tab_note_view from '../components/tab_note/tab_note_view.vue'
 import Tab_manual from '../components/tab_manual.vue'
 
 const router = createRouter({

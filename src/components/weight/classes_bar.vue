@@ -48,7 +48,7 @@ async function getClasses(){
   margin-right: 10px;
   border-radius: 50px;
   white-space: nowrap;
-  background: white;
+  background: #ecf5ff;
   border: 1px solid #1c99ee;
   color: #1c1c1c;
   margin-top: 5px;

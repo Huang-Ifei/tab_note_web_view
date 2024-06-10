@@ -1,11 +1,11 @@
 <script setup lang="ts">
 
-import Icon_to_home from "./weight/icon_to_home.vue";
+import Icon_to_home from "../weight/icon_to_home.vue";
 import axios from "axios";
 import {ref} from "vue";
 import * as Cookies from "js-cookie";
-import router from "../router";
-import {getAddress} from "../operation/address.ts";
+import router from "../../router";
+import {getAddress} from "../../operation/address.ts";
 
 
 
