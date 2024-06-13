@@ -26,14 +26,14 @@ export default defineConfig({
             'web.dom-collections.for-each',
             'esnext.global-this',
             'esnext.string.match-all']
-    })],
+    },)],
     build: {
         target: ['es2015'],
         minify: 'terser',
         terserOptions: {
-            compress:{
-                drop_console:true,
-                drop_debugger:true
+            compress: {
+                drop_console: true,
+                drop_debugger: true
             }
         }
     },

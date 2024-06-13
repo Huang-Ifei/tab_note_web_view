@@ -16,6 +16,7 @@ export function getLocalData(key: string): string {
         if (typeof cs === "undefined") {
             return ""
         } else {
+            sessionStorage.setItem(key, cs)
             return cs;
         }
     } else {
@@ -68,6 +69,15 @@ export function escapeHTMLWithOutConsole(str: string): string {
         .replace(/ /g, "&nbsp;")
         .replace(/\t/g, "&#9;")
         .replace(/\n/g, "<br>")
+}
+
+export function isApp():boolean{
+    const ia = Cookies.default.get('isApp')
+    if( ia=='true'){
+        return true
+    }else{
+        return false
+    }
 }
 
 export function escapeHTML(str: string): string {
@@ -142,7 +152,7 @@ export function escapeHTML(str: string): string {
             let isTitle = false
             while (x < n && htmlString[x] != '\n') {
                 if (htmlString[x] + htmlString[x + 1] == '**') {
-                    newString += "<div style='font-weight: bold;display: inline-block;'>" + name + "</div>"
+                    newString += "<div style='font-weight: bold;display: inline-block;overflow-wrap: break-word;text-overflow: ellipsis;'>" + name + "</div>"
                     i = x + 1;
                     isTitle = true
                     break

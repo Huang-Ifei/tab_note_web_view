@@ -96,9 +96,14 @@ function handleFileChange(event: Event) {
       reader.onload = () => {
         if (reader.result!=null&&reader.result.toString().length<5*1024*1024){
           base64File.value=reader.result.toString()
+          if (!base64File.value.startsWith("data:application/x-zip-compressed;base64,")){
+            base64File.value=""
+            alert("文件格式错误,将不会被上传")
+          }
           console.log(base64File.value);
         }else {
-          alert("文件超出5mb限制")
+          alert("文件超出5mb限制,将不会被上传")
+          base64File.value=""
         }
       };
       reader.readAsDataURL(file);
@@ -172,6 +177,7 @@ function handleFileChange(event: Event) {
 
 .file_input {
   width: fit-content;
+  max-width: 70%;
 }
 
 input {

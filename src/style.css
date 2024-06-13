@@ -89,21 +89,6 @@ button:focus-visible {
   text-align: center;
 }
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-  background-color: transparent;
-  border: none;
-  outline: none;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #8a8a8a;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-}
-
 :root {
   color: #213547;
   background-color: #ffffff;

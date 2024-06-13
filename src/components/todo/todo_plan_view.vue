@@ -66,69 +66,68 @@ function openNewWindow(s: string) {
 </script>
 
 <template>
-  <div class="background">
-    <div class="todo_background">
+    <div class="background">
+      <div class="todo_background">
 
-      <div id="todo-plans">
-        <!--标题-->
-        <div class="todo-title">
-          计划/待办
-          <button @click="emit('doClose')" class="close_button">
-            <img src="../../assets/close.svg" @click="emit('doClose',false)">
+        <div id="todo-plans">
+          <!--标题-->
+          <div class="todo-title">
+            计划/待办
+            <button @click="emit('doClose')" class="close_button">
+              <img src="../../assets/close.svg" @click="emit('doClose',false)">
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow: auto;padding-bottom: 70px;">
+          <button
+              @click="edit_plan_id=JSON.parse(JSON.stringify(plan)).plan_id;edit_content=JSON.parse(JSON.stringify(plan)).content;edit_date=JSON.parse(JSON.stringify(plan)).date;edit_link=JSON.parse(JSON.stringify(plan)).link"
+              class="plans" v-if="todo_width>70"
+              v-for="plan in plans" :key="JSON.parse(JSON.stringify(plan)).plan_id">
+            <div style="display: flex;flex-direction: column;justify-content: flex-start;">
+              <div style="overflow-wrap: break-word;text-align: left">
+                {{ JSON.parse(JSON.stringify(plan)).content }}
+              </div>
+              <div style="display: flex;flex-direction: row;justify-content: flex-start;margin-top: 5px;">
+                <div style="text-align: left;font-size: 12px">
+                  {{ JSON.parse(JSON.stringify(plan)).date }}
+                </div>
+                <div class="open_window"
+                     v-if=" JSON.parse(JSON.stringify(plan)).link!=''&& JSON.parse(JSON.stringify(plan)).link!=' '"
+                     @click.stop="openNewWindow(JSON.parse(JSON.stringify(plan)).link)"
+                     style="margin-left: 5px;text-align: left;font-size: 12px;color: #1a98ee">
+                  打开链接
+                </div>
+              </div>
+            </div>
+            <button
+                @click.stop="finishPlan(JSON.parse(JSON.stringify(plan)).plan_id,JSON.parse(JSON.stringify(plan)).content,JSON.parse(JSON.stringify(plan)).link,JSON.parse(JSON.stringify(plan)).date)"
+                class="check_icon">
+              <img src="../../assets/check.svg" style="">
+            </button>
           </button>
         </div>
-      </div>
+        <div
+            v-if="plans.length==0"
+            style="width: 100%; height: 100%;color: #797979 ;display: flex;flex-direction: column;justify-content: center;align-items: center;position: absolute;">
+          请添加一项计划/待办
+        </div>
 
-      <div style="overflow: auto;padding-bottom: 70px;">
-        <button
-            @click="edit_plan_id=JSON.parse(JSON.stringify(plan)).plan_id;edit_content=JSON.parse(JSON.stringify(plan)).content;edit_date=JSON.parse(JSON.stringify(plan)).date;edit_link=JSON.parse(JSON.stringify(plan)).link"
-            class="plans" v-if="todo_width>70"
-            v-for="plan in plans" :key="JSON.parse(JSON.stringify(plan)).plan_id">
-          <div style="display: flex;flex-direction: column;justify-content: flex-start;">
-            <div style="overflow-wrap: break-word;text-align: left">
-              {{ JSON.parse(JSON.stringify(plan)).content }}
-            </div>
-            <div style="display: flex;flex-direction: row;justify-content: flex-start;margin-top: 5px;">
-              <div style="text-align: left;font-size: 12px">
-                {{ JSON.parse(JSON.stringify(plan)).date }}
-              </div>
-              <div class="open_window"
-                   v-if=" JSON.parse(JSON.stringify(plan)).link!=''&& JSON.parse(JSON.stringify(plan)).link!=' '"
-                   @click.stop="openNewWindow(JSON.parse(JSON.stringify(plan)).link)"
-                   style="margin-left: 5px;text-align: left;font-size: 12px;color: #1a98ee">
-                打开链接
-              </div>
-            </div>
-          </div>
-          <button
-              @click.stop="finishPlan(JSON.parse(JSON.stringify(plan)).plan_id,JSON.parse(JSON.stringify(plan)).content,JSON.parse(JSON.stringify(plan)).link,JSON.parse(JSON.stringify(plan)).date)"
-              class="check_icon">
-            <img src="../../assets/check.svg" style="">
-          </button>
+        <button v-if="!new_plan" class="add_button" @click="new_plan=true">
+          添加一项
         </button>
+
+        <transition name="add">
+          <add_todo_plan v-if="new_plan" @closeAdd="new_plan=false" @getAllPlans="getAllPlans" />
+        </transition>
+
+
+        <transition name="edit">
+          <edit_todo_plan v-if="edit_plan_id!=''" :id="edit_plan_id" :edit-content="edit_content" :edit-date="edit_date"
+                          :edit-link="edit_link" @getAllPlans="getAllPlans" @closeEdit="edit_plan_id=''"/>
+        </transition>
       </div>
-
-      <div
-          v-if="plans.length==0"
-          style="width: 100%; height: 100%;color: #797979 ;display: flex;flex-direction: column;justify-content: center;align-items: center;position: absolute;">
-        请添加一项计划/待办
-      </div>
-
-      <button v-if="!new_plan" class="add_button" @click="new_plan=true">
-        添加一项
-      </button>
-
-      <transition name="add">
-        <add_todo_plan v-if="new_plan" @closeAdd="new_plan=false" @getAllPlans="getAllPlans"/>
-      </transition>
-
-
-      <transition name="edit">
-        <edit_todo_plan v-if="edit_plan_id!=''" :id="edit_plan_id" :edit-content="edit_content" :edit-date="edit_date"
-                        :edit-link="edit_link" @getAllPlans="getAllPlans" @closeEdit="edit_plan_id=''"/>
-      </transition>
     </div>
-  </div>
 </template>
 
 <style scoped>
@@ -141,6 +140,7 @@ function openNewWindow(s: string) {
 .add-leave-to {
   opacity: 0;
 }
+
 .edit-enter-active,
 .edit-leave-active {
   transition: opacity 0.25s ease;
@@ -150,6 +150,7 @@ function openNewWindow(s: string) {
 .edit-leave-to {
   opacity: 0;
 }
+
 .close_button {
   cursor: pointer;
   background: transparent;
@@ -213,7 +214,7 @@ function openNewWindow(s: string) {
   padding: 15px;
   width: 110px;
   top: calc(100% - 60px);
-  left: calc(100% - 120px);
+  left: calc(100% - 130px);
   border: none;
 }
 
@@ -238,6 +239,18 @@ function openNewWindow(s: string) {
   display: flex;
   margin-bottom: 20px;
   width: 320px;
+  flex-direction: column;
+  pointer-events: visible;
+}
+
+.small_todo_background {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  box-shadow: 0 0 8px #bebebe;
+  background-color: #f4f5f6;
+  border-radius: 0;
+  display: flex;
   flex-direction: column;
   pointer-events: visible;
 }

@@ -4,7 +4,8 @@ import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
 import { escapeHTMLWithOutConsole, getIdImg, getLocalData} from "../../operation/dataOperation.ts";
 
-const props = defineProps(['tab_note_id'])
+
+const props = defineProps(['tab_note_id','smallScreen'])
 const tab_note_id = props.tab_note_id
 const message = ref("")
 const messages_show = ref(false)
@@ -200,7 +201,14 @@ async function insertMessage() {
     <div style="margin-left: 10px;font-weight: bold;font-size: 18px">
       留言
     </div>
-    <div class="input_message">
+    <div v-if="!smallScreen" class="input_message" style="min-width: 600px;width: 60%">
+      <textarea v-model="message" class="message_textarea">
+        </textarea>
+      <button id="submit" @click="insertMessage">
+        发送
+      </button>
+    </div>
+    <div v-if="smallScreen" class="input_message">
       <textarea v-model="message" class="message_textarea">
         </textarea>
       <button id="submit" @click="insertMessage">
@@ -235,12 +243,21 @@ async function insertMessage() {
           </div>
         </div>
 
-        <div v-if="mess.reply" class="input_message">
+        <!--手机端-->
+        <div v-if="mess.reply&&smallScreen" class="input_message">
           <textarea v-model="mess.reply_value" class="mess_mess_textarea">
            </textarea>
             <button id="submit" @click="insertMessMess(mess.message_id,mess.message_id,mess.reply_value,i,-1)">
               发送
             </button>
+        </div>
+        <!--电脑端-->
+        <div v-if="mess.reply&&!smallScreen" class="input_message" style="min-width: 600px;width: 60%">
+          <textarea v-model="mess.reply_value" class="mess_mess_textarea">
+           </textarea>
+          <button id="submit" @click="insertMessMess(mess.message_id,mess.message_id,mess.reply_value,i,-1)">
+            发送
+          </button>
         </div>
         <!-- 留言的留言  -->
         <div v-for="(messMess, ii) in mess.reply_messages" :key="ii" class="message_message">
@@ -261,7 +278,14 @@ async function insertMessage() {
               &nbsp;回复&nbsp;
             </div>
           </div>
-          <div v-if="messMess.reply" class="input_message">
+          <div v-if="messMess.reply&&!smallScreen" class="input_message" style="min-width: 600px;width: 60%">
+          <textarea v-model="messMess.reply_value" class="mess_mess_textarea">
+           </textarea>
+            <button id="submit" @click="insertMessMess(mess.message_id,messMess.message_id,messMess.reply_value,i,ii)">
+              发送
+            </button>
+          </div>
+          <div v-if="messMess.reply&&smallScreen" class="input_message">
           <textarea v-model="messMess.reply_value" class="mess_mess_textarea">
            </textarea>
             <button id="submit" @click="insertMessMess(mess.message_id,messMess.message_id,messMess.reply_value,i,ii)">
@@ -367,11 +391,12 @@ async function insertMessage() {
 
 .input_message{
   margin-left: 20px;
+  margin-right: 20px;
   align-items: flex-end;
   display: flex;
   flex-direction: column;
   margin-bottom: 20px;
-  width: 70%;
+  width: calc(100% - 20px);
 }
 
 .message_textarea {

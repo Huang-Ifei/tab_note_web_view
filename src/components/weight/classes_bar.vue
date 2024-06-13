@@ -22,7 +22,7 @@ async function getClasses(){
 
 <template>
   <div id="classes" style="display: flex;flex-direction: row;overflow-x: scroll;align-items: center;padding-left: 2px;">
-    <div  v-for="className in classes">
+    <div v-for="className in classes">
       <button v-if="className!=class_name"  @click="emit('doChoice',className);" class="class_choice">
         {{className}}
       </button>
@@ -53,5 +53,19 @@ async function getClasses(){
   color: #1c1c1c;
   margin-top: 5px;
   margin-bottom: 5px;
+}
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #8a8a8a;
+  border-radius: 10px;
+  border: none;
+  outline: none;
 }
 </style>

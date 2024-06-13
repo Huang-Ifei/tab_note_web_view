@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import resize_textarea from "../weight/resize_textarea.vue";
-import Icon_to_home from "../weight/icon_to_home.vue";
-import {Ref, ref} from "vue";
-import {delay, escapeHTML, getAccountImg, getLocalData} from "../../operation/dataOperation.ts";
+import {onBeforeMount, onBeforeUnmount, Ref, ref} from "vue";
+import {delay, escapeHTML, getAccountImg, getLocalData, isApp} from "../../operation/dataOperation.ts";
 import {getAddress} from "../../operation/address.ts";
 import axios from "axios";
+import Small_ai_title from "./small_ai_title.vue";
+import Wide_ai_icon_to_home from "./wide_ai_icon_to_home.vue";
+import Small_right_choice from "./small_right_choice.vue";
+import Loading from "../weight/loading.vue";
+
+const right_choice = ref(false)
 
 const messages: Ref<{}[]> = ref([])
 const aiHistory: Ref<{}[]> = ref([])
@@ -12,80 +17,111 @@ const aiHistory: Ref<{}[]> = ref([])
 const count = ref(0)
 const ai_ms_id = ref("")
 const text = ref("");
+const streamText = ref("")
 
-//发送信息并获取内容流式传输
-async function post() {
-  try {
-    // 发起 POST 请求
-    const response = await fetch(
-        getAddress() + "/Ai_Messages",
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json;charset=utf-8'},
-          body: JSON.stringify({
-            ai_ms_id: ai_ms_id.value,
-            messages: messages.value,
-            model: 'gemini-1.5-pro-latest',
-            id: getLocalData('id'),
-            token: getLocalData('token')
-          }),
-        }
-    );
-    console.log(JSON.stringify({messages: messages.value}));
-    const allValue = ref("")
-    if (response.body != null) {
-      // 请求成功，处理返回的数据
-      const reader = response.body.getReader()
-      count.value++
-      let streamId = "stream" + count.value
-      while (true) {
-        const {done, value} = await reader.read()
-        if (done) break
-        const decodeValue = new TextDecoder().decode(value)
-        console.log(decodeValue);
-        //如果语段粘黏，分开！
-        if (decodeValue.includes("}\n{")) {
-          console.log("it take's two");
-          const errDecodeValue = decodeValue.split("}\n{")
-          for (let i = 0; i < errDecodeValue.length; i++) {
-            if (i == 0) {
-              console.log(i + ":" + errDecodeValue[i] + "}");
-              decodeJsonToShow(errDecodeValue[i] + "}", allValue, streamId)
-            } else if (i > 0 && i < errDecodeValue.length - 1) {
-              console.log(i + ":" + errDecodeValue[i] + "}");
-              decodeJsonToShow("{" + errDecodeValue[i] + "}", allValue, streamId)
-            } else if (i == errDecodeValue.length - 1){
-              console.log(i + ":" + errDecodeValue[i] + "}");
-              decodeJsonToShow("{" + errDecodeValue[i], allValue, streamId)
-            }
-          }
-        } else {
-          decodeJsonToShow(decodeValue, allValue, streamId)
-        }
-      }
-      messages.value.push({role: 'model', content: allValue.value})
-      await delay(500)
-      await getAiHistory()
-    }
-  } catch (error) {
-    // 请求失败，处理错误
-    console.error('Error fetching data:', error);
+const isLoading = ref(false)
+
+//监听大小
+onBeforeMount(() => {
+  renderResize();
+  window.addEventListener("resize", renderResize);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", renderResize);
+});
+const smallScreen = ref(false);
+const renderResize = () => {
+  let width = document.documentElement.clientWidth;
+  if (width < 680 || isApp()) {
+    smallScreen.value = true;
+  } else {
+    smallScreen.value = false;
   }
 }
 
-function decodeJsonToShow(decodeValue: string, allValue: Ref<string>, streamId: string) {
+//发送信息并获取内容流式传输
+async function post() {
+  if (!isLoading.value) {
+    isLoading.value = true
+    try {
+      // 发起 POST 请求
+      const response = await fetch(
+          getAddress() + "/Ai_Messages",
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json;charset=utf-8'},
+            body: JSON.stringify({
+              ai_ms_id: ai_ms_id.value,
+              messages: messages.value,
+              model: 'gemini-1.5-pro-latest',
+              id: getLocalData('id'),
+              token: getLocalData('token')
+            }),
+          }
+      );
+      console.log(JSON.stringify({messages: messages.value}));
+      const allValue = ref("")
+      if (response.body != null) {
+        // 请求成功，处理返回的数据
+        const reader = response.body.getReader()
+        while (true) {
+          const {done, value} = await reader.read()
+          if (done) break
+          const decodeValue = new TextDecoder().decode(value)
+          console.log(decodeValue);
+          //如果语段粘黏，分开！
+          if (decodeValue.includes("}\n{")) {
+            console.log("it take's two");
+            const errDecodeValue = decodeValue.split("}\n{")
+            for (let i = 0; i < errDecodeValue.length; i++) {
+              if (i == 0) {
+                console.log(i + ":" + errDecodeValue[i] + "}");
+                decodeJsonToShow(errDecodeValue[i] + "}", allValue)
+              } else if (i > 0 && i < errDecodeValue.length - 1) {
+                console.log(i + ":" + errDecodeValue[i] + "}");
+                decodeJsonToShow("{" + errDecodeValue[i] + "}", allValue)
+              } else if (i == errDecodeValue.length - 1) {
+                console.log(i + ":" + errDecodeValue[i] + "}");
+                decodeJsonToShow("{" + errDecodeValue[i], allValue)
+              }
+            }
+          } else {
+            decodeJsonToShow(decodeValue, allValue)
+          }
+        }
+        messages.value.push({role: 'model', content: allValue.value})
+        streamText.value = ""
+        count.value = messages.value.length
+        await delay(500)
+        await getAiHistory()
+      }
+    } catch (error) {
+      // 请求失败，处理错误
+      console.error('Error fetching data:', error);
+    }
+    isLoading.value=false
+  }else{
+    alert("请等待加载完成，若出错请刷新网页")
+  }
+}
+
+function decodeJsonToShow(decodeValue: string, allValue: Ref<string>) {
   //如果是末尾条，添加返回的ai表id：
   if (decodeValue.startsWith('{"response":"')) {
     console.log(JSON.parse(decodeValue).response)
     try {
       ai_ms_id.value = JSON.parse(decodeValue).response
+
+      streamText.value = ""
+      count.value = messages.value.length
     } catch (e) {
       console.error("done but:" + e)
     }
   } else {
     try {
       allValue.value += JSON.parse(decodeValue).message.content
-      streamMess(allValue.value, streamId)
+      streamText.value = ""
+      streamText.value = allValue.value
     } catch (e) {
       console.error("get mess but:" + e)
     }
@@ -111,112 +147,48 @@ async function getAiHistory() {
 
 //新建对话
 async function newChat() {
-  const talking_view = document.getElementById("contents_view")
-  if (talking_view) {
-    talking_view.innerHTML = ""
-  }
-  count.value = 0
-  messages.value = []
-}
-
-//获取历史对话
-async function getHistoryAiMessages(aiMsId: string) {
-  try {
-    const response = await axios.post(getAddress() + "/get_history_ai_messages", {
-      id: getLocalData("id"),
-      token: getLocalData("token"),
-      ai_ms_id: aiMsId
-    });
-    //重置
-    count.value = 0
+  if (!isLoading.value){
     const talking_view = document.getElementById("contents_view")
     if (talking_view) {
       talking_view.innerHTML = ""
     }
-    messages.value = response.data.messages[0]
-    //重置所有的数据并一一添加
-    ai_ms_id.value = aiMsId
-    for (let i = 0; i < messages.value.length; i++) {
-      const jsonMes = JSON.parse(JSON.stringify(messages.value[i]))
-      addHisMess(jsonMes.content, jsonMes.role)
-      count.value++
-    }
-  } catch (error) {
-    console.error(error)
+    count.value = 0
+    text.value = ''
+    ai_ms_id.value = ''
+    messages.value = []
+  }else{
+    alert("请等待加载完成，若出错请刷新网页")
   }
 }
 
-//吧获取到的历史内容在对话框中添加一条
-function addHisMess(s: string, role: string) {
-  if (s == null) {
-    return
-  }
-  let ss = ''
-  ss = escapeHTML(s)
-  const talking_view = document.getElementById("contents_view")
-  if (talking_view != null) {
-    if (role == 'user') {
-      talking_view.innerHTML +=
-          "<div id='" + count.value + "' style='  display: flex;\n" +
-          "  flex-direction: row;\n" +
-          "  justify-content: flex-end;" +
-          "  margin-left: 80px;" +
-          "  position: relative;" +
-          "  max-width: 100%;" +
-          "  margin-right: 5%;" +
-          "  margin-bottom: 10px'>" +
-          "<div style='" +
-          "  padding: 10px 2% 10px 2%;\n" +
-          "  overflow-wrap: break-word; " +
-          "  margin-right: 5px;" +
-          "  border-radius: 10px;\n" +
-          "  max-width: calc(100% - 50px - 4%);\n" +
-          "  background: #f1f1f1;'>" + ss + "</div>" +
-          " <img id='usrImage' src=" + getAccountImg() + " alt='image' style='  width: 45px;" +
-          "  height: 45px;" +
-          "  background: #ffffff;" +
-          "  border-radius: 50%;' alt='usr'/></div>"
-    } else if (role == 'model') {
-      talking_view.innerHTML +=
-          "<div id='" + "stream" + count.value + "' style='  display: flex;" +
-          "  flex-direction: row;" +
-          "  justify-content: flex-start;" +
-          "  position: relative;" +
-          "  max-width: 100%;" +
-          "  margin: 10px 80px 10px 5%;'>" +
-          " <img id='usrImage' src=" + getAddress() + "/image?name=ai.jpg" + " alt='image' style='  width: 45px;\n" +
-          "  border: #f1f1f1 1px;" +
-          "  height: 45px;" +
-          "  background: #ffffff;" +
-          "  border-radius: 50%;' alt='usr'/>" +
-          "<div style='" +
-          "  padding: 10px 2% 10px 2%;" +
-          "  overflow-wrap: break-word; " +
-          "  margin-left: 5px;" +
-          "  border-radius: 10px;" +
-          "  max-width: calc(100% - 50px - 4%);" +
-          "  background: #f1f1f1;'>" + ss + "</div></div>"
-    } else {
-      talking_view.innerHTML +=
-          "<div id='" + "stream" + count.value + "' style='  display: flex;" +
-          "  flex-direction: row;" +
-          "  position: relative;" +
-          "  max-width: 100%;" +
-          "  justify-content: flex-start;" +
-          "  margin: 10px 80px 10px 5%;'>" +
-          " <img id='usrImage' src=" + getAddress() + "/image?name=ai.jpg" + " alt='image' style='  width: 45px;\n" +
-          "  border: #f1f1f1 1px;" +
-          "  height: 45px;" +
-          "  background: #ffffff;" +
-          "  border-radius: 50%;' alt='usr'/>" +
-          "<div style='" +
-          "  padding: 10px 2% 10px 2%;" +
-          "  overflow-wrap: break-word; " +
-          "  margin-left: 5px;" +
-          "  border-radius: 10px;" +
-          "  max-width: calc(100% - 50px - 4%);" +
-          "  background: #f1f1f1;'>" + ss + "</div></div>"
+//获取历史对话
+async function getHistoryAiMessages(aiMsId: string) {
+  if (!isLoading.value){
+    text.value = ''
+    try {
+      const response = await axios.post(getAddress() + "/get_history_ai_messages", {
+        id: getLocalData("id"),
+        token: getLocalData("token"),
+        ai_ms_id: aiMsId
+      });
+      //重置
+      count.value = 0
+      const talking_view = document.getElementById("contents_view")
+      if (talking_view) {
+        talking_view.innerHTML = ""
+      }
+      messages.value = response.data.messages[0]
+      //重置所有的数据并一一添加
+      ai_ms_id.value = aiMsId
+      for (let i = 0; i < messages.value.length; i++) {
+        await delay(200)
+        count.value++
+      }
+    } catch (error) {
+      console.error(error)
     }
+  }else{
+    alert("请等待加载完成，若出错请刷新网页")
   }
 }
 
@@ -224,96 +196,97 @@ function setText(value: string) {
   text.value = value;
 }
 
-function addUsrMess(s: string) {
-  let ss = ''
-  ss = escapeHTML(s)
+async function addUsrMess(s: string) {
   //添加到messages里面
   messages.value.push({role: 'user', content: s})
-  const talking_view = document.getElementById("contents_view")
-  console.log(messages.value)
-  if (talking_view != null) {
-    count.value++
-    talking_view.innerHTML +=
-        "<div id='" + count.value + "' style='  display: flex;\n" +
-        "  flex-direction: row;\n" +
-        "  justify-content: flex-end;" +
-        "  margin-left: 80px;" +
-        "  margin-right: 5%;" +
-        "  position: relative;" +
-        "  max-width: 100%;" +
-        "  margin-bottom: 10px'>" +
-        "<div style='" +
-        "  position: relative;" +
-        "  padding: 10px 2% 10px 2%;\n" +
-        "  overflow-wrap: break-word; " +
-        "  margin-right: 5px;" +
-        "  border-radius: 10px;\n" +
-        "  max-width: calc(100% - 50px - 4%);\n" +
-        "  background: #f1f1f1;'>" + ss + "</div>" +
-        " <img id='usrImage' src=" + getAccountImg() + " alt='image' style='  width: 45px;" +
-        "  height: 45px;" +
-        "  background: #ffffff;" +
-        "  border-radius: 50%;' alt='usr'/></div>"
+  await delay(200)
+  count.value = messages.value.length
+}
+
+async function send(s: string) {
+  if (!isLoading.value){
+    text.value = s;
+    await addUsrMess(s)
+    await post()
+  }else{
+    alert("请等待加载完成，若出错请刷新网页")
   }
 }
 
-function streamMess(s: string, id: string) {
-  let ss = ''
-  ss = escapeHTML(s)
-  const talking_view = document.getElementById("contents_view")
-  const streamModule = document.getElementById(id)
-  if (talking_view != null) {
-    if (streamModule) {
-      streamModule.innerHTML = " <img id='usrImage' src=" + getAddress() + "/image?name=ai.jpg" + " alt='image' style='  width: 45px;\n" +
-          "  border: #f1f1f1 1px;" +
-          "  height: 45px;" +
-          "  background: #ffffff;" +
-          "  border-radius: 50%;' alt='usr'/>" +
-          "<div style='" +
-          "  position: relative;" +
-          "  padding: 10px 2% 10px 2%;" +
-          "  overflow-wrap: break-word; " +
-          "  margin-left: 5px;" +
-          "  border-radius: 10px;" +
-          "  max-width: calc(100% - 50px - 4%);" +
-          "  background: #f1f1f1;'>" + ss + "</div>"
-    } else {
-      talking_view.innerHTML +=
-          "<div id='" + id + "' style='  display: flex;" +
-          "  position: relative;" +
-          "  max-width: 100%;" +
-          "  flex-direction: row;" +
-          "  justify-content: flex-start;" +
-          "  margin: 10px 80px 10px 5%;'>" +
-          " <img id='usrImage' src=" + getAddress() + "/image?name=ai.jpg" + " alt='image' style='  width: 45px;\n" +
-          "  border: #f1f1f1 1px;" +
-          "  height: 45px;" +
-          "  background: #ffffff;" +
-          "  border-radius: 50%;' alt='usr'/>" +
-          "<div style='" +
-          "  position: relative;" +
-          "  padding: 10px 2% 10px 2%;" +
-          "  overflow-wrap: break-word; " +
-          "  margin-left: 5px;" +
-          "  border-radius: 10px;" +
-          "  max-width: calc(100% - 50px - 4%);" +
-          "  background: #f1f1f1;'>" + ss + "</div></div>"
+function copyText(s: string) {
+  //创建一个textarea并且放在-100层，并且提交一个copy操作
+  const el = document.createElement('textarea');
+  el.value = s;
+  el.setAttribute('readonly', '');
+  el.style.position = 'absolute';
+  el.style.zIndex = '-100'
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+  alert('复制成功')
+}
+
+async function redoUsrMessage(ii: number) {
+  if (!isLoading.value){
+    let newMessage: {}[] = []
+    for (let i = 0; i < messages.value.length; i++) {
+      if (i < ii) {
+        newMessage.push(messages.value[i])
+      } else if (i == ii) {
+        setText(JSON.parse(JSON.stringify(messages.value[i])).content)
+      } else {
+        if (count.value - newMessage.length > 3) {
+          count.value = newMessage.length + 3
+        }
+        for (let i = count.value; i > newMessage.length; i--) {
+          await delay(200)
+          count.value--
+        }
+        await delay(250)
+        messages.value = newMessage
+        break;
+      }
     }
+  }else{
+    alert("请等待加载完成，若出错请刷新网页")
   }
 }
 
-function send(s: string) {
-  text.value = s;
-  addUsrMess(s)
-  post()
+async function redoAiMessage(ii: number) {
+  if (!isLoading.value){
+    let newMessage: {}[] = []
+    for (let i = 0; i < messages.value.length; i++) {
+      if (i < ii - 1) {
+        newMessage.push(messages.value[i])
+      } else if (i == ii - 1) {
+        newMessage.push(messages.value[i])
+        if (count.value - newMessage.length > 3) {
+          count.value = newMessage.length + 3
+        }
+        for (let iii = count.value; iii > newMessage.length; iii--) {
+          await delay(200)
+          count.value--
+        }
+        await delay(250)
+        messages.value = newMessage
+        await post()
+      } else {
+        break;
+      }
+    }
+  }else{
+    alert("请等待加载完成，若出错请刷新网页")
+  }
 }
 
 </script>
 
 <template>
-  <div id="ai_view">
+  <!--电脑端-->
+  <div id="ai_view" v-if="!smallScreen">
     <div class="left_items">
-      <icon_to_home/>
+      <wide_ai_icon_to_home/>
       <div id="usrTalkHistory">
         <button @click="newChat">
           +新建对话+
@@ -333,24 +306,165 @@ function send(s: string) {
       </button>
     </div>
     <div class="ai_talking">
-      <div id="talking_view" style="  padding-top: 20px;">
-        <div v-if="messages.length==0">
+      <div id="talking_view" style=" padding-top: 20px;">
+        <div v-if="messages.length==0&&ai_ms_id==''">
           <div id="hello1">你好，{{ getLocalData("name") }}</div>
           <div id="hello2">欢迎使用AI助手，当Gemini 1.5 Pro受支持时，我们将优先为您分配</div>
         </div>
-        <div id="contents_view">
-        </div>
-        <div id="stream_ai_mess">
+        <div class="contents_view" style="padding: 0 7%">
+          <div v-for="(value,ii) in messages" :key="ii">
+            <transition>
+              <div v-if="JSON.parse(JSON.stringify(value)).role=='model'&&count>ii" class="model_talk">
+                <div style="display: flex;flex-direction: row;align-items: center;">
+                  <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
+                  <img @click="copyText(JSON.parse(JSON.stringify(value)).content)" class="copy_img"
+                       src="../../assets/content_copy.svg" alt="copy"/>
+                  <img @click="redoAiMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
+                       alt="copy"/>
+                </div>
+                <div v-html="escapeHTML(JSON.parse(JSON.stringify(value)).content)" class="content">
+                </div>
+              </div>
+            </transition>
+            <transition>
+              <div v-if="JSON.parse(JSON.stringify(value)).role=='user'&&count>ii" class="usr_talk">
+                <div style="display: flex;flex-direction: row;align-items: center;">
+                  <img @click="redoUsrMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
+                       alt="copy"/>
+                  <img @click="copyText(JSON.parse(JSON.stringify(value)).content)" class="copy_img"
+                       src="../../assets/content_copy.svg" alt="copy"/>
+                  <img class="usr_img" :src="getAccountImg()" alt="usr"/>
+                </div>
+                <div v-html="escapeHTML(JSON.parse(JSON.stringify(value)).content)" class="content">
+                </div>
+              </div>
+            </transition>
+          </div>
+          <loading v-if="isLoading"/>
+          <div v-if="streamText!=''" class="model_talk">
+            <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
+            <div v-html="escapeHTML(streamText)" class="content">
+            </div>
+          </div>
         </div>
       </div>
       <div class="bottomInput">
-        <resize_textarea :setText="setText" @doSend="send"/>
+        <resize_textarea :setText="setText" @doSend="send" :smallScreen="smallScreen" :value="text"/>
       </div>
     </div>
   </div>
+
+  <!--手机端-->
+  <div v-if="smallScreen"
+       style="width: 100%;max-height: 100%;height: 100%;position: absolute;flex-direction: column;display: flex">
+    <small_ai_title :smallScreen="smallScreen" @rightChoice="right_choice=true"/>
+    <div class="ai_talking" style="width: 100%;position: relative;max-height: calc(100% - 60px)">
+      <div id="talking_view">
+        <div v-if="messages.length==0&&ai_ms_id==''">
+          <div id="hello1" style="font-size: 40px;font-weight: bold">{{ getLocalData("name") }}</div>
+          <div id="hello2" style="font-size: 30px">你好，AI助手随时待命</div>
+        </div>
+        <div class="contents_view">
+          <div v-for="(value,ii) in messages" :key="ii">
+            <transition>
+              <div v-if="JSON.parse(JSON.stringify(value)).role=='model'&&count>ii" class="model_talk">
+                <div style="display: flex;flex-direction: row;align-items: center;">
+                  <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
+                  <img @click="copyText(JSON.parse(JSON.stringify(value)).content)" class="copy_img"
+                       src="../../assets/content_copy.svg" alt="copy"/>
+                  <img @click="redoAiMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
+                       alt="copy"/>
+                </div>
+                <div v-html="escapeHTML(JSON.parse(JSON.stringify(value)).content)" class="content">
+                </div>
+              </div>
+            </transition>
+            <transition>
+              <div v-if="JSON.parse(JSON.stringify(value)).role=='user'&&count>ii" class="usr_talk">
+                <div style="display: flex;flex-direction: row;align-items: center;">
+                  <img @click="redoUsrMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
+                       alt="copy"/>
+                  <img @click="copyText(JSON.parse(JSON.stringify(value)).content)" class="copy_img"
+                       src="../../assets/content_copy.svg" alt="copy"/>
+                  <img class="usr_img" :src="getAccountImg()" alt="usr"/>
+                </div>
+                <div v-html="escapeHTML(JSON.parse(JSON.stringify(value)).content)" class="content">
+                </div>
+              </div>
+            </transition>
+          </div>
+          <loading v-if="isLoading"/>
+          <div v-if="streamText!=''" class="model_talk">
+            <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
+            <div v-html="escapeHTML(streamText)" class="content">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottomInput" style="width: calc(100% - 20px);padding-left: 10px;padding-right: 10px">
+        <resize_textarea :setText="setText" @doSend="send" :smallScreen="smallScreen" :value="text"/>
+      </div>
+    </div>
+  </div>
+  <transition name="small_right_choice">
+    <small_right_choice v-if="right_choice" @getHistoryAiMessages="getHistoryAiMessages"
+                        @rightClose="right_choice=false" @newChat="newChat" :mess_list="aiHistory"/>
+  </transition>
 </template>
 
 <style scoped>
+.small_right_choice-enter-active,
+.small_right_choice-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.small_right_choice-enter-from,
+.small_right_choice-leave-to {
+  opacity: 0;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
+.model_talk {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+  max-width: 100%;
+  margin: 10px 20px 10px 10px;
+}
+
+.usr_talk {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: end;
+  position: relative;
+  max-width: 100%;
+  margin: 10px 10px 10px 20px;
+}
+
+.content {
+  position: relative;
+  padding: 10px 10px 10px 10px;
+  overflow-wrap: break-word;
+  overflow-x: hidden;
+  width: fit-content;
+  max-width: calc(100% - 30px);
+  display: inline;
+  margin: 5px;
+  border-radius: 10px;
+  background: #f1f1f1;
+}
+
 #hello1 {
   padding: 1% 5% 0 5%;
   font-size: 60px;
@@ -397,12 +511,12 @@ function send(s: string) {
   display: flex;
   flex-direction: column;
   width: 100%;
-  overflow: auto;
 }
 
 #talking_view {
   max-width: 100%;
   height: 100%;
+  padding-top: 10px;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -423,6 +537,7 @@ function send(s: string) {
   flex-direction: column;
   width: calc(100% - 260px);
   height: 100%;
+  overflow: auto;
   vertical-align: bottom;
 }
 
@@ -460,5 +575,20 @@ function send(s: string) {
   border-radius: 50%;
   width: 38px;
   height: 38px;
+}
+
+.usr_img {
+  border-radius: 50%;
+  margin: 2px 5px;
+  width: 40px;
+  height: 40px;
+}
+
+.copy_img {
+  cursor: pointer;
+  border-radius: 50%;
+  margin: 10px 5px 2px 5px;
+  width: 22px;
+  height: 22px;
 }
 </style>

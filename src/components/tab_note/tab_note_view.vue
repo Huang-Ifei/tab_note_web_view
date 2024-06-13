@@ -3,8 +3,8 @@
 import {useRoute} from "vue-router";
 import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
-import {Ref, ref} from "vue";
-import {escapeTabNoteToHTML, getIdImg, getLocalData} from "../../operation/dataOperation.ts";
+import {onBeforeMount, onBeforeUnmount, Ref, ref} from "vue";
+import {escapeTabNoteToHTML, getIdImg, getLocalData, isApp} from "../../operation/dataOperation.ts";
 import Icon_to_home from "../weight/icon_to_home.vue";
 import Messages_view from "./messages_view.vue";
 
@@ -78,6 +78,26 @@ function download_this(s:string) {
   window.open(getAddress()+"/file_select?name="+s)
 }
 
+
+//监听大小
+onBeforeMount(() => {
+  renderResize();
+  window.addEventListener("resize", renderResize);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", renderResize);
+});
+const smallScreen = ref(false);
+const renderResize = () => {
+  let width = document.documentElement.clientWidth;
+  if (width < 680||isApp()) {
+    smallScreen.value = true;
+  }
+  else {
+    smallScreen.value = false;
+  }
+}
+
 </script>
 
 <template>
@@ -88,7 +108,35 @@ function download_this(s:string) {
     <h2>
       {{ tab_note_name }}
     </h2>
-    <div style="display: flex;flex-direction: row">
+    <!--手机端小按钮-->
+    <div class="value" v-if="smallScreen">
+      <img :src="getIdImg(usr_id)">
+      &nbsp;{{ usr_name }}&nbsp;
+    </div>
+    <div class="value" v-if="smallScreen" >
+      <img src="../../assets/calendar.svg">
+      &nbsp;{{ date_time }}&nbsp;
+    </div>
+    <div style="display: flex;flex-direction: row;overflow: auto" v-if="smallScreen">
+      <div class="click_value" @click="likeThis">
+        <img src="../../assets/thumb_up.svg">
+        &nbsp;{{ like_this }}&nbsp;
+      </div>
+      <div class="click_value" v-if="file!=''" @click="download_this(file)">
+        <img src="../../assets/download.svg">
+        &nbsp;下载附件&nbsp;
+      </div>
+      <div class="value">
+        <img src="../../assets/visibility.svg">
+        &nbsp;{{ click }}&nbsp;
+      </div>
+      <div class="value">
+        <img src="../../assets/folder.svg">
+        &nbsp;{{ class_name }}&nbsp;
+      </div>
+    </div>
+    <!--电脑端小按钮-->
+    <div style="display: flex;flex-direction: row" v-if="!smallScreen">
       <div class="value">
         <img src="../../assets/visibility.svg">
         &nbsp;{{ click }}&nbsp;
@@ -106,7 +154,7 @@ function download_this(s:string) {
         &nbsp;{{ date_time }}&nbsp;
       </div>
     </div>
-    <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: row" v-if="!smallScreen">
       <div class="click_value" @click="likeThis">
         <img src="../../assets/thumb_up.svg">
         &nbsp;{{ like_this }}&nbsp;
@@ -122,11 +170,19 @@ function download_this(s:string) {
     <div id="content" v-html="escapeString">
 
     </div>
-    <messages_view :tab_note_id="route.query.tab_note_id"/>
+    <messages_view :tab_note_id="route.query.tab_note_id" :smallScreen="smallScreen"/>
   </div>
 </template>
 
 <style scoped>
+::-webkit-scrollbar {
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: none;
+  display: none;
+  outline: none;
+}
 img {
   border-radius: 100px;
   height: 25px;
@@ -165,6 +221,7 @@ img {
   align-items: center;
   width: fit-content;
   height: fit-content;
+  white-space: nowrap;
   margin-right: 10px;
   cursor: pointer;
 }
@@ -179,6 +236,7 @@ img {
   flex-direction: row;
   align-items: center;
   width: fit-content;
+  white-space: nowrap;
   height: fit-content;
   margin-right: 10px;
   cursor: pointer;
@@ -191,9 +249,7 @@ h2 {
 #background {
   width: 94%;
   padding: 10px 3%;
-  height: calc(100% - 74px);
-  overflow: auto;
-  position: absolute;
+  position: relative;
   display: flex;
   flex-direction: column;
 }

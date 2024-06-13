@@ -42,12 +42,12 @@ async function insertNewPlan() {
 
 <template>
   <div
-       style="color: #1c1c1c;width: 100%; height: 100%;background: rgba(28,28,28,0.5);border-radius: 10px;position: absolute;display: flex;flex-direction: column;justify-content: center;align-items: center;padding: 0">
+      style="color: #1c1c1c;width: 100%; height: 100%;background: rgba(28,28,28,0.5);border-radius: 0;position: absolute;display: flex;flex-direction: column;justify-content: center;align-items: center;padding: 0">
     <div
-        style="display: flex;flex-direction: column;justify-content: flex-start;z-index: 120;background: white;padding:  15px 0.8rem 20px 0.8rem;margin: 3rem;border-radius: 6px;width: calc(100% - 3rem)">
+        style="display: flex;flex-direction: column;justify-content: flex-start;z-index: 120;background: white;padding:  15px 0.8rem 20px 0.8rem;margin: 4rem;border-radius: 10px;width: calc(100% - 4rem)">
       <div
           style="width: 100%;display: flex;flex-direction: row;justify-content: flex-end;margin-bottom: 10px;justify-items: center">
-        <div style="width: 100%;font-size: 1rem">
+        <div style="width: 100%;font-size: 1.2rem">
           添加一项计划/待办
         </div>
         <button @click="emit('closeAdd')"
@@ -55,20 +55,20 @@ async function insertNewPlan() {
           <img src="../../assets/close.svg" style="left: auto">
         </button>
       </div>
-      <div style="font-size: 12px;margin-left: 5px">
+      <div style="font-size: 0.9rem;margin-left: 5px">
         内容
       </div>
-      <textarea rows="3" style="width: auto;overflow: auto" v-model="new_content">
+      <textarea rows="4" style="width: auto;overflow: auto" v-model="new_content">
         </textarea>
-      <div style="font-size: 12px;margin-left: 5px">
+      <div style="font-size: 0.9rem;margin-left: 5px">
         日期
       </div>
       <input class="date_picker" type="date" v-model="new_date">
-      <div style="font-size: 12px;margin-left: 5px">
+      <div style="font-size: 0.9rem;margin-left: 5px">
         链接（可选）
       </div>
       <input class="date_picker" type="text" v-model="new_link">
-      <button @click="insertNewPlan" style="margin-top: 10px;padding: 12px;font-size: 0.9rem; border:transparent;">
+      <button @click="insertNewPlan" style="margin-top: 10px;padding: 12px;font-size: 1rem; border:transparent;">
         {{ add_button }}
       </button>
     </div>

@@ -72,7 +72,7 @@ function handleFileChange(event: Event) {
 
 <template>
   <div>
-    <input type="file" @change="handleFileChange($event)" accept="image/*"><br>
+    <input type="file" @change="handleFileChange($event)" accept="image/*" style="max-width: 90%"><br>
     <img v-if="imageUrl" :src="imageUrl" alt="Image" style="max-width: 150px; max-height: 150px;">
     <button v-if="imageUrl" @click="setAccountImg">提交</button>
   </div>

@@ -67,44 +67,45 @@ async function updatePlan() {
 </script>
 
 <template>
+  <div
+      style="color: #1c1c1c;width: 100%; height: 100%;background: rgba(28,28,28,0.5);border-radius: 0;position: absolute;display: flex;flex-direction: column;justify-content: center;align-items: center;padding: 0">
     <div
-         style="color: #1c1c1c;width: 100%; height: 100%;background: rgba(28,28,28,0.5);border-radius: 10px;position: absolute;display: flex;flex-direction: column;justify-content: center;align-items: center;padding: 0">
-      <div
-          style="display: flex;flex-direction: column;justify-content: flex-start;z-index: 120;background: white;padding:  15px 0.8rem 20px 0.8rem;margin: 3rem;border-radius: 6px;width: calc(100% - 3rem)">
-        <div style="display: flex;flex-direction: column;justify-content: flex-start;">
-          <div
-              style="width: 100%;display: flex;flex-direction: row;justify-content: flex-end;margin-bottom: 10px;justify-items: center">
-            <div style="width: 100%;font-size: 1rem">
-              变更这项计划/待办
-            </div>
-            <button @click="emit('closeEdit')"
-                    style="cursor: pointer;color: #1a1a1a;background: transparent;padding: 0;height: 25px;">
-              <img @click="emit('closeEdit')" src="../../assets/close.svg" style="">
-            </button>
+        style="display: flex;flex-direction: column;justify-content: flex-start;z-index: 120;background: white;padding:  15px 0.8rem 20px 0.8rem;margin: 4rem;border-radius: 10px;width: calc(100% - 4rem)">
+      <div style="display: flex;flex-direction: column;justify-content: flex-start;">
+        <div
+            style="width: 100%;display: flex;flex-direction: row;justify-content: flex-end;margin-bottom: 10px;justify-items: center">
+          <div style="width: 100%;font-size: 1.2rem">
+            变更这项计划/待办
           </div>
-          <div style="font-size: 12px;margin-left: 5px">
-            内容
-          </div>
-          <textarea rows="3" style="width: auto;overflow: auto;" v-model="edit_content">
-        </textarea>
-          <div style="font-size: 12px;margin-left: 5px">
-            日期
-          </div>
-          <input class="date_picker" type="date" v-model="edit_date" value="">
-          <div style="font-size: 12px;margin-left: 5px">
-            链接（可选）
-          </div>
-          <input class="date_picker" type="text" v-model="edit_link">
-          <button @click="updatePlan" style="margin-top: 10px;padding: 12px;font-size: 0.9rem;  border:transparent;">
-            {{ edit_button }}
-          </button>
-          <button @click="deletePlan"
-                  style="background: linear-gradient(45deg, #1e1e1e, #313131) ;margin-top: 10px;padding: 12px;font-size: 0.9rem;  border:transparent;">
-            {{ delete_button }}
+          <button @click="emit('closeEdit')"
+                  style="cursor: pointer;color: #1a1a1a;background: transparent;padding: 0;height: 25px;">
+            <img @click="emit('closeEdit')" src="../../assets/close.svg" style="">
           </button>
         </div>
+        <div style="font-size: 0.9rem;margin-left: 5px">
+          内容
+        </div>
+        <textarea rows="4" style="width: auto;overflow: auto;font-size: 1rem"
+                  v-model="edit_content">
+        </textarea>
+        <div style="font-size: 0.9rem;margin-left: 5px">
+          日期
+        </div>
+        <input class="date_picker" type="date" v-model="edit_date" value="">
+        <div style="font-size: 0.9rem;margin-left: 5px">
+          链接（可选）
+        </div>
+        <input class="date_picker" type="text" v-model="edit_link">
+        <button @click="updatePlan" style="margin-top: 10px;padding: 12px;font-size: 1rem;  border:transparent;">
+          {{ edit_button }}
+        </button>
+        <button @click="deletePlan"
+                style="background: linear-gradient(45deg, #1e1e1e, #313131) ;margin-top: 10px;padding: 12px;font-size: 1rem;  border:transparent;">
+          {{ delete_button }}
+        </button>
       </div>
     </div>
+  </div>
 </template>
 
 <style scoped>

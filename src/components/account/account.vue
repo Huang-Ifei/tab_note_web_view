@@ -1,12 +1,13 @@
 <script setup lang="ts">
 
-import {deleteLocalData, getAccountImg, getLocalData, setLocalData} from "../../operation/dataOperation.ts";
+import {deleteLocalData, getAccountImg, getLocalData, isApp, setLocalData} from "../../operation/dataOperation.ts";
 import Icon_to_home from "../weight/icon_to_home.vue";
 import router from "../../router";
-import {ref} from "vue";
+import {onBeforeMount, onBeforeUnmount, ref} from "vue";
 import axios from 'axios';
 import {getAddress} from "../../operation/address.ts";
 import Image_cutter from "../weight/image_cutter.vue";
+import Small_account_title from "./small_account_title.vue";
 
 const show_content = ref("需要怎样操作您的账户？")
 const new_id = ref("")
@@ -157,10 +158,32 @@ async function deleteAccount() {
 
   await router.push("/")
 }
+
+//监听大小
+onBeforeMount(() => {
+  renderResize();
+  window.addEventListener("resize", renderResize);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", renderResize);
+});
+const smallScreen = ref(false);
+const renderResize = () => {
+  let width = document.documentElement.clientWidth;
+  if (width < 680||isApp()) {
+    smallScreen.value = true;
+  }
+      //else if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+      //  smallScreen.value = true;
+  //}
+  else {
+    smallScreen.value = false;
+  }
+}
 </script>
 
 <template>
-  <div id="account_view">
+  <div id="account_view" v-if="!smallScreen">
     <div id="left_view">
       <icon_to_home/>
       <img id="account_img" :src="getAccountImg()" alt="">
@@ -227,6 +250,70 @@ async function deleteAccount() {
       <button class="action" v-if="action=='deleteAccount'" @click="deleteAccount">
         确认退出登录
       </button>
+    </div>
+  </div>
+
+
+  <div v-if="smallScreen" style="display: flex;flex-direction: column;overflow: auto;background-color: #f6f7f8;height: 100%;position: absolute;width: 100%">
+    <small_account_title/>
+    <img id="account_img" :src="getAccountImg()" alt="" @click="requestSetAccImg" style="border-radius: 50%;margin-top: 15px;">
+    <div id="operation_choice" style="margin-top: 30px;margin-right: 20px;margin-left: 20px;width: calc(100% - 40px)">
+      <button @click="requestChangeName">
+        用户名：{{getLocalData('name')}}
+      </button>
+      <button @click="requestChangeId">
+        账号：{{getLocalData('id')}}
+      </button>
+      <button @click="requestChangePwd">
+        更改密码
+      </button>
+      <button @click="requestRemove">
+        删除账户
+      </button>
+      <button @click="requestDelete">
+        退出登录
+      </button>
+    </div>
+    <div v-if="action!=''" style="position: absolute;width: 100%;height: 100% ; display: flex;flex-direction: column;justify-content: center;align-items: center;overflow: auto;background: rgba(28,28,28,0.5)" @click="action=''">
+      <div style="pointer-events: visible;" @click.stop>
+        <div class="secondView" v-if="action=='setAccImg'">
+          <image_cutter :setContentValue="setContentValue"/>
+        </div>
+
+        <div class="secondView" v-if="action=='changeName'">
+          新用户名：<br>
+          <input v-model="new_name" style="width: calc(100% - 20px);margin-bottom: 10px">
+          <button class="secondInput" @click="sendNameChange">
+            确认更新用户名
+          </button>
+        </div>
+        <div class="secondView" v-if="action=='changeId'">
+          新账号：<br>
+          <input v-model="new_id" style="width: calc(100% - 20px);margin-bottom: 10px">
+          <button class="secondInput" @click="sendIdChange">
+            确认更新账号
+          </button>
+        </div>
+        <div class="secondView" v-if="action=='changePwd'">
+          原密码：<br>
+          <input v-model="old_password" style="width: calc(100% - 20px);margin-bottom: 10px">
+          新密码：<br>
+          <input v-model="new_password" style="width: calc(100% - 20px);margin-bottom: 10px">
+          <button class="secondInput" @click="sendPwdChange">
+            验证原密码以更新密码
+          </button>
+        </div>
+        <div class="secondView" v-if="action=='removeAccount'">
+          请在下面的输入栏中输入：<br>I need remove my account.<br>
+          <input v-model="checkDelete" style="width: calc(100% - 20px);margin-bottom: 10px">
+          <button class="secondInput" @click="">
+            验证输入内容并确定删除（本功能暂时维护）
+          </button>
+        </div>
+        <button class="action" v-if="action=='deleteAccount'" @click="deleteAccount">
+          确认退出登录
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -323,6 +410,7 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  overflow: auto;
   height: 100%;
   width: 100%;
 }

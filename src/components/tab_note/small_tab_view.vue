@@ -8,11 +8,22 @@ import Classes_bar from "../weight/classes_bar.vue";
 import {getLocalData} from "../../operation/dataOperation.ts";
 import Post_bar from "../post/post_bar.vue";
 
-defineProps(['smallScreen'])
+const props = defineProps(['smallScreen'])
+
+type tab_list = {
+  tab_note_id:string,
+  usr_name:string,
+  usr_id:string,
+  class_name:string,
+  tab_note_name:string,
+  tags:string,
+  like_this:number,
+  date_time:string,
+}
 
 const page_count = ref(0)
 const page_size = ref(1)
-const page_list: Ref<{}[]> = ref([])
+const page_list: Ref<tab_list[]> = ref([])
 const search_value = ref("")
 const class_name = ref("")
 const post_show = ref(true)
@@ -39,6 +50,7 @@ async function searchTabNotePage() {
   if (axiosResponse.data.response == "success") {
     try {
       page_list.value = axiosResponse.data.list;
+      console.log(page_list.value);
       page_count.value =axiosResponse.data.pages;
     } catch (e) {
       console.error(e)
@@ -75,10 +87,10 @@ async function valueChange(){
 
 <template>
   <div id="main_tab_notes_view">
-    <div style="font-size: 26px;margin: 20px 10px 8px 10px;font-weight: bold;display: flex;flex-direction: row;align-items: center">
-      TabNote贴文&nbsp;
-      <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 26px" @click="search_value='';class_name='';searchTabNotePage()">
-      <div style=" display: flex;flex-direction: row;border-radius: 30px;margin-left: auto">
+    <div style="font-size: 1.5rem;margin: 1rem 10px 1rem 10px;font-weight: bold;display: flex;flex-direction: row;align-items: center">
+      贴文&nbsp;
+      <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 1.2rem" @click="search_value='';class_name='';searchTabNotePage()">
+      <div style=" display: flex;flex-direction: row;border-radius: 1rem;margin-left: auto">
         <input id="search_input" v-model="search_value" placeholder="搜索内容" @change="valueChange"/>
         <button id="search_button" @click="searchTabNotePage()">
           搜索
@@ -89,61 +101,21 @@ async function valueChange(){
 
       <classes_bar :class_name="class_name" @doChoice="doChoice" style="margin-bottom: 5px"/>
 
-      <post_bar v-if="post_show" @doSearch="postSearch" :smallScreen="smallScreen"/>
+      <post_bar v-if="post_show" @doSearch="postSearch" :smallScreen="props.smallScreen"/>
 
-      <div v-if="page_list.length%2==0" class="tab_note_row" v-for="i in page_list.length/2">
-        <div class="tab_note" style="width: calc(45% - 20px)"
-             @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_id)">
+      <div v-for="tab in page_list">
+        <div class="tab_note" style="width: calc(100% - 56px)"
+             @click="show_tab_note(tab.tab_note_id)">
           <div class="tab_note_title">
-            {{ JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_name }}
+            {{ tab.tab_note_name }}
           </div>
           <div class="small_title">
             作者：{{
-              JSON.parse(JSON.stringify(page_list[i * 2 - 2])).usr_name
-            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ JSON.parse(JSON.stringify(page_list[i * 2 - 2])).date_time }}
-          </div>
-        </div>
-
-        <div v-if="(i*2-1)<page_list.length" class="tab_note"
-             @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_id)"
-             style="width: calc(45% - 20px)">
-          <div class="tab_note_title">
-            {{ JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_name }}
-          </div>
-          <div class="small_title">
-            作者：{{
-              JSON.parse(JSON.stringify(page_list[i * 2 - 1])).usr_name
-            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ JSON.parse(JSON.stringify(page_list[i * 2 - 1])).date_time }}
+              tab.usr_name
+            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ tab.date_time }}
           </div>
         </div>
       </div>
-
-      <div v-if="page_list.length%2==1" class="tab_note_row" v-for="i in page_list.length/2+0.5">
-        <div class="tab_note" @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_id)">
-          <div class="tab_note_title">
-            {{ JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_name }}
-          </div>
-          <div class="small_title">
-            作者：{{
-              JSON.parse(JSON.stringify(page_list[i * 2 - 2])).usr_name
-            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ JSON.parse(JSON.stringify(page_list[i * 2 - 2])).date_time }}
-          </div>
-        </div>
-
-        <div v-if="(i*2-1)<page_list.length" class="tab_note"
-             @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_id)"
-             style="width: calc(45% - 30px)">
-          <div class="tab_note_title">
-            {{ JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_name }}
-          </div>
-          <div class="small_title">
-            作者：{{
-              JSON.parse(JSON.stringify(page_list[i * 2 - 1])).usr_name
-            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ JSON.parse(JSON.stringify(page_list[i * 2 - 1])).date_time }}
-          </div>
-        </div>
-      </div>
-
     </div>
 
     <div id="page_choice">
@@ -160,11 +132,15 @@ async function valueChange(){
 </template>
 
 <style scoped>
+::-webkit-scrollbar {
+  display: none;
+  background-color: transparent;
+}
 #search_button {
-  font-size: 16px;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.9);
-  padding: 10px 20px;
-  border-radius: 30px;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
   border: transparent;
 }
 
@@ -176,23 +152,18 @@ async function valueChange(){
 }
 
 #search_input {
-  width: 200px;
-  font-size: 16px;
-  padding: 10px 20px;
-  border-radius: 30px;
-  margin-right: 3px;
+  width: 10rem;
+  min-width: 8rem;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  margin-right: 0.2rem;
   border: #e5e5e5 solid 1px;
 }
 #search_input:hover,
 #search_input:focus {
   outline: none;
   border: #1a98ee solid 1px;
-}
-
-.tab_note_row {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
 }
 
 .tab_note_title {
@@ -210,8 +181,6 @@ async function valueChange(){
   cursor: pointer;
   padding: 32px 20px;
   margin: 8px 8px;
-  width: calc(50% - 56px);
-  min-width: calc(50% - 56px);
   background: white;
   border-radius: 10px;
   border: 1px solid #e6e7ec;
@@ -243,9 +212,9 @@ async function valueChange(){
   display: flex;
   flex-direction: column;
   background-color: #f6f7f8;
-  width: 84%;
-  padding: 0 8%;
-  height: calc(100% + 4px);
+  width: 96%;
+  height: 100%;
+  padding: 0 2%;
   overflow: auto;
 }
 </style>

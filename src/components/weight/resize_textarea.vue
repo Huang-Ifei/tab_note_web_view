@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import {ref, watch} from "vue";
 
 //父组件传入的function、数据等内容
-const props = defineProps(['setText'])
+const props = defineProps(['setText','smallScreen','value'])
 //父组件传入的事件
 const emit = defineEmits(['doSend'])
 
@@ -21,12 +21,23 @@ function send() {
     resizeText.value = 1
   }
 }
+
+watch(
+    () => props.value,
+    (newContent) => {
+      content.value = newContent || "";
+      resizeText.value = content.value.split('\n').length;
+    }
+);
 </script>
 
 <template>
-  <textarea id="textareaEl" v-model="content" @input="changeSize" :rows="resizeText">
+    <textarea id="textareaEl" v-model="content" @input="changeSize" :rows="resizeText">
     </textarea>
-  <button @click="send">
+  <button @click="send" v-if="!smallScreen">
+    发送
+  </button>
+  <button @click="send" v-if="smallScreen" style="width: 100px">
     发送
   </button>
 </template>
@@ -36,7 +47,7 @@ function send() {
   border: rgb(220, 220, 220) 1px solid;
   width: 100%;
   resize: none;
-  padding: 10px;
+  padding: 8px 10px;
   font-size: 16px;
   overflow: auto;
   max-height: 300px;
@@ -54,13 +65,27 @@ button {
   height: 45px;
   width: 150px;
   margin-left: 5px;
-  padding: 5px;
+  padding: 8px 5px;
   color: rgba(255,255,255,0.9);
   border-radius: 10px;
   border: transparent;
 }
 button:hover {
   box-shadow: 0 0 8px #bbe6ff;
+  border: none;
+  outline: none;
+}
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #8a8a8a;
+  border-radius: 10px;
   border: none;
   outline: none;
 }
