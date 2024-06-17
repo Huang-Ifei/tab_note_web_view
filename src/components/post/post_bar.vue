@@ -3,6 +3,7 @@
 import {Ref, ref} from "vue";
 import {getAddress} from "../../operation/address.ts";
 import Post_img from "./post_img.vue";
+
 const props = defineProps(['smallScreen'])
 const emit = defineEmits(['doSearch'])
 type postJson = {
@@ -14,18 +15,26 @@ type postJson = {
 
 const canChange = ref(true)
 const post_num = ref(0)
-const post_values: Ref<postJson[]> = ref([{
-  post_id: "",
-  post_picture: getAddress() + "/tabNoteImg?name=sql",
-  post_name: "数据库期末复习专栏",
-  post_tag: "#数据库期末复习"
-},
+const post_values: Ref<postJson[]> = ref([
+  {
+    post_id: "",
+    post_picture: getAddress() + "/tabNoteImg?name=java_web_qm",
+    post_name: "Java Web期末复习专栏",
+    post_tag: "#JavaWeb期末复习"
+  },
   {
     post_id: "",
     post_picture: getAddress() + "/tabNoteImg?name=java_web",
     post_name: "Java Web综合实验专栏",
     post_tag: "#JavaWeb信息管理系统"
-  }])
+  },
+  {
+    post_id: "",
+    post_picture: getAddress() + "/tabNoteImg?name=sql",
+    post_name: "数据库期末复习专栏",
+    post_tag: "#数据库期末复习"
+  },
+])
 
 getPosts()
 
@@ -62,7 +71,8 @@ function rightOne() {
     <div
         style="width: 100%;display: flex;flex-direction: row;height: fit-content;justify-content: center;align-items: center"
         @mouseenter="canChange=false" @mouseleave="canChange=true">
-      <img v-if="!props.smallScreen" alt="" @click.stop="leftOne" src="../../assets/arrow_back.svg" class="change_view_button_left">
+      <img v-if="!props.smallScreen" alt="" @click.stop="leftOne" src="../../assets/arrow_back.svg"
+           class="change_view_button_left">
       <div @click="emit('doSearch',post_values[post_num].post_tag)" class="post">
         <post_img :post_values="post_values" :post_num="post_num"/>
         <div style="padding: 10px 20px 20px 20px;position: relative">
@@ -74,22 +84,27 @@ function rightOne() {
           </div>
         </div>
       </div>
-      <img v-if="!props.smallScreen" @click="rightOne" src="../../assets/arrow_forward.svg" class="change_view_button_right">
+      <img v-if="!props.smallScreen" @click="rightOne" src="../../assets/arrow_forward.svg"
+           class="change_view_button_right">
     </div>
 
     <!--下面的小按钮-->
     <div
         style="width: 100%;padding-left: 5px;display: flex;flex-direction: row;height: fit-content;justify-content: center;align-items: center">
-      <img v-if="props.smallScreen" alt="" @click.stop="leftOne" src="../../assets/arrow_back.svg" class="change_view_button_left" style="margin-right: calc(0.5rem + 30px)">
+      <img v-if="props.smallScreen" alt="" @click.stop="leftOne" src="../../assets/arrow_back.svg"
+           class="change_view_button_left" style="margin-right: calc(0.5rem + 30px)">
       <div v-for="(small_button,i) in post_values" :id="small_button.post_id">
-        <div @click="post_num=i" v-if="i==post_num" style="background: #1a98ee;width: 0.5rem;height: 0.5rem;border-radius: 0.5rem;margin-right: 0.5rem;cursor: pointer;color: #1a98ee;">
+        <div @click="post_num=i" v-if="i==post_num"
+             style="background: #1a98ee;width: 0.5rem;height: 0.5rem;border-radius: 0.5rem;margin-right: 0.5rem;cursor: pointer;color: #1a98ee;">
 
         </div>
-        <div @click="post_num=i"  v-if="i!=post_num" style="background: #d7d7d7;width: 0.5rem;height: 0.5rem;border-radius: 0.5rem;cursor: pointer;margin-right: 0.5rem">
+        <div @click="post_num=i" v-if="i!=post_num"
+             style="background: #d7d7d7;width: 0.5rem;height: 0.5rem;border-radius: 0.5rem;cursor: pointer;margin-right: 0.5rem">
 
         </div>
       </div>
-      <img v-if="props.smallScreen" @click="rightOne" src="../../assets/arrow_forward.svg" class="change_view_button_right" style="margin-left: 30px;margin-right: 5px">
+      <img v-if="props.smallScreen" @click="rightOne" src="../../assets/arrow_forward.svg"
+           class="change_view_button_right" style="margin-left: 30px;margin-right: 5px">
     </div>
   </div>
 

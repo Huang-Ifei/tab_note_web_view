@@ -3,7 +3,7 @@
 import {Ref, ref} from "vue";
 import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
-import {getLocalData} from "../../operation/dataOperation.ts";
+import {escapeHTMLWithOutConsole, getLocalData} from "../../operation/dataOperation.ts";
 import Add_todo_plan from "./add_todo_plan.vue";
 import Edit_todo_plan from "./edit_todo_plan.vue";
 
@@ -85,8 +85,7 @@ function openNewWindow(s: string) {
               class="plans" v-if="todo_width>70"
               v-for="plan in plans" :key="JSON.parse(JSON.stringify(plan)).plan_id">
             <div style="display: flex;flex-direction: column;justify-content: flex-start;">
-              <div style="overflow-wrap: break-word;text-align: left">
-                {{ JSON.parse(JSON.stringify(plan)).content }}
+              <div style="overflow-wrap: break-word;text-align: left" v-html="escapeHTMLWithOutConsole(JSON.parse(JSON.stringify(plan)).content)">
               </div>
               <div style="display: flex;flex-direction: row;justify-content: flex-start;margin-top: 5px;">
                 <div style="text-align: left;font-size: 12px">

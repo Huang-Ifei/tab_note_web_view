@@ -64,7 +64,7 @@ function delete_Img(s:string){
       添加图片
     </button>
   </div>
-  <div id="pics" style="display: flex;flex-direction: row;overflow-x: scroll;align-items: center;scroll-behavior: smooth;">
+  <div id="pics" style="display: flex;flex-direction: row;overflow-x: auto;align-items: center;scroll-behavior: smooth;">
     <div v-for="imgSrc in pics" style="padding-right: 10px;display: flex;flex-direction: row;">
       <img alt="img"  class="pictures" :src="imgSrc">
       <button @click="delete_Img(imgSrc)" style="cursor: pointer;color: #1a1a1a;background: transparent;padding: 0;height: 25px;">

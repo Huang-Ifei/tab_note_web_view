@@ -24,6 +24,21 @@ export function getLocalData(key: string): string {
     }
 }
 
+export function getLocalNumber(key: string): number {
+    const ss = sessionStorage.getItem(key);
+    if (ss == null) {
+        const cs = Cookies.default.get(key)
+        if (typeof cs === "undefined") {
+            return 1
+        } else {
+            sessionStorage.setItem(key, cs)
+            return Number(cs);
+        }
+    } else {
+        return Number(ss);
+    }
+}
+
 export function setLocalData(key: string, value: string): void {
     const ss = sessionStorage.getItem(key);
     if (ss != null) {

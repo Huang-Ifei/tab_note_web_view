@@ -5,7 +5,7 @@ import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
 import router from "../../router";
 import Classes_bar from "../weight/classes_bar.vue";
-import {getLocalData} from "../../operation/dataOperation.ts";
+import {getLocalData, getLocalNumber} from "../../operation/dataOperation.ts";
 import Post_bar from "../post/post_bar.vue";
 
 const props = defineProps(['smallScreen'])
@@ -30,14 +30,16 @@ const post_show = ref(true)
 
 search_value.value=getLocalData("search_value")
 class_name.value=getLocalData("class_name")
+page_size.value=getLocalNumber("page_size")
 searchTabNotePage()
 
 async function searchTabNotePage() {
-  page_size.value = 1;
+  page_count.value = 1;
 
   //如果这俩都是空返回的是true刚好给post show
   post_show.value = search_value.value == '' && class_name.value == '';
 
+  sessionStorage.setItem("page_size", page_size.value.toString());
   sessionStorage.setItem("class_name", class_name.value);
   sessionStorage.setItem("search_value",search_value.value);
 
@@ -66,6 +68,7 @@ async function searchTabNotePage() {
 
 async function postSearch(s:string){
   search_value.value=s;
+  page_size.value=1;
   await searchTabNotePage()
 }
 
@@ -75,11 +78,13 @@ function show_tab_note(tab_note_id: string) {
 
 async function doChoice(s:string){
   class_name.value = s
+  page_size.value=1;
   await searchTabNotePage()
 }
 
 async function valueChange(){
   if (search_value.value==""){
+    page_size.value=1;
     await searchTabNotePage()
   }
 }
@@ -89,10 +94,10 @@ async function valueChange(){
   <div id="main_tab_notes_view">
     <div style="font-size: 1.5rem;margin: 1rem 10px 1rem 10px;font-weight: bold;display: flex;flex-direction: row;align-items: center">
       贴文&nbsp;
-      <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 1.2rem" @click="search_value='';class_name='';searchTabNotePage()">
+      <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 1.2rem" @click="search_value='';class_name='';page_size=1;searchTabNotePage()">
       <div style=" display: flex;flex-direction: row;border-radius: 1rem;margin-left: auto">
         <input id="search_input" v-model="search_value" placeholder="搜索内容" @change="valueChange"/>
-        <button id="search_button" @click="searchTabNotePage()">
+        <button id="search_button" @click="page_size=1;searchTabNotePage()">
           搜索
         </button>
       </div>
@@ -119,14 +124,18 @@ async function valueChange(){
     </div>
 
     <div id="page_choice">
-      <button style="background: #f5f5f5;margin-right: 10px" v-if="page_size>1" @click="page_size--;searchTabNotePage()">
+      <button style="background: #ffffff;margin-right: 10px" v-if="page_size>1" @click="page_size--;searchTabNotePage()">
         上一页
       </button>
+      <div style="background: #ffffff;margin-right: 10px;width: 88px" v-else-if="!(page_size>1)" >
+      </div>
       第{{ page_size }}页/共{{ page_count }}页
-      <button style="background: #f5f5f5;margin-left: 10px" v-if="page_size<page_count"
+      <button style="background: #ffffff;margin-left: 10px" v-if="page_size<page_count"
               @click="page_size++;searchTabNotePage()">
         下一页
       </button>
+      <div style="background: #ffffff;margin-left: 10px;width: 88px" v-else-if="!(page_size<page_count)" >
+      </div>
     </div>
   </div>
 </template>
