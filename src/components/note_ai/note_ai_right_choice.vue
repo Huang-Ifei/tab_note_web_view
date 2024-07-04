@@ -3,9 +3,9 @@
 import {Ref, ref} from "vue";
 import router from "../../router";
 
-const props = defineProps(['mess_list'])
+const props = defineProps(['list'])
 
-const ai_history:Ref<{}[]> = ref(props.mess_list)
+const history:Ref<{}[]> = ref(props.list)
 
 const emit = defineEmits(['rightClose','choice','newChat','getHistoryAiMessages'])
 
@@ -20,17 +20,17 @@ const emit = defineEmits(['rightClose','choice','newChat','getHistoryAiMessages'
       </div>
       <button style="display: flex; align-items: center;justify-content: center;padding: 10px" @click="emit('newChat');emit('rightClose')" class="his_button">
         <img src="../../assets/edit.svg" alt="edit" style="margin-right: 2px"/>
-        新建对话
+        新建笔记
       </button>
-      <button @click="router.push('note_ai')" style="display: flex; align-items: center;justify-content: center;padding: 10px" class="his_button">
-        <img src="../../assets/edit_note.svg" alt="edit" style="margin-right: 2px"/>
-        笔记型AI
+      <button @click="router.push('ai_assistant')" style="display: flex; align-items: center;justify-content: center;padding: 10px" class="his_button">
+        <img src="../../assets/messages.svg" alt="edit" style="margin-right: 2px"/>
+        对话式AI
       </button>
       <div style="min-height: 8px;display: flex;">
 
       </div>
-      <button v-for="value in ai_history" class="his_button" :key="JSON.parse(JSON.stringify(value)).ai_ms_id"
-              @click="emit('getHistoryAiMessages',JSON.parse(JSON.stringify(value)).ai_ms_id.toString());emit('rightClose')">
+      <button v-for="value in history" class="his_button" :key="JSON.parse(JSON.stringify(value)).note_ai_id"
+              @click="emit('getHistoryAiMessages',JSON.parse(JSON.stringify(value)).note_ai_id.toString());emit('rightClose')">
         {{ JSON.parse(JSON.stringify(value)).mainly }}
       </button>
 
@@ -50,6 +50,7 @@ const emit = defineEmits(['rightClose','choice','newChat','getHistoryAiMessages'
 }
 
 .close_button {
+  cursor: pointer;
   width: fit-content;
   height: fit-content;
   background: transparent;
@@ -74,6 +75,7 @@ const emit = defineEmits(['rightClose','choice','newChat','getHistoryAiMessages'
   overflow: auto;
   display: flex;
   width: 70%;
+  max-width: 280px;
   height: 100%;
   flex-direction: column;
   pointer-events: visible;

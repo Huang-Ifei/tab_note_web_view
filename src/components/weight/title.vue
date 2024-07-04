@@ -27,6 +27,9 @@ console.log(Cookies.default.get("name"))
       <button class="none_button" @click="emit('todoView',true)">
         计划/待办
       </button>
+      <button id="ai_button" style="margin-right: 0" onclick="location.href='/note_ai'">
+        AI笔记
+      </button>
       <button id="ai_button" onclick="location.href='/ai_assistant'">
         AI助手
       </button>

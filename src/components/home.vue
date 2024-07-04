@@ -62,6 +62,7 @@ const renderResize = () => {
     </div>
     <small_tab_view :small-screen="smallScreen"/>
   </div>
+
 </template>
 
 <style scoped>

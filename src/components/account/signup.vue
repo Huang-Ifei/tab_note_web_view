@@ -154,6 +154,7 @@ function saveCookieAndSignUp(){
   sessionStorage.setItem('name', name.value);
   sessionStorage.setItem('token', token.value);
   router.push('/')
+  window.location.reload()
 }
 function saveSessionAndSignUp(){
   console.log("saveSessionAndSignUp")
@@ -161,6 +162,7 @@ function saveSessionAndSignUp(){
   sessionStorage.setItem('name', name.value);
   sessionStorage.setItem('token', token.value);
   router.push('/')
+  window.location.reload()
 }
 </script>
 

@@ -157,6 +157,7 @@ async function deleteAccount() {
   console.log(deleteRequest.data.response)
 
   await router.push("/")
+  window.location.reload()
 }
 
 //监听大小
@@ -256,7 +257,7 @@ const renderResize = () => {
 
   <div v-if="smallScreen" style="display: flex;flex-direction: column;overflow: auto;background-color: #f6f7f8;height: 100%;position: absolute;width: 100%">
     <small_account_title/>
-    <img id="account_img" :src="getAccountImg()" alt="" @click="requestSetAccImg" style="border-radius: 50%;margin-top: 15px;">
+    <img id="account_img" :src="getAccountImg()" alt="" @click="requestSetAccImg" style="margin-top: 15px;">
     <div id="operation_choice" style="margin-top: 30px;margin-right: 20px;margin-left: 20px;width: calc(100% - 40px)">
       <button @click="requestChangeName">
         用户名：{{getLocalData('name')}}

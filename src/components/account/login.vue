@@ -33,6 +33,7 @@ async function login(){
       Cookies.default.set('token', response.data.token,{ expires: 1024 });
     }
     await router.push("/")
+    window.location.reload()
   }else{
     waitText.value = response.data.response
   }

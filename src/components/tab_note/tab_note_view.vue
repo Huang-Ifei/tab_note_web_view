@@ -101,88 +101,82 @@ const renderResize = () => {
 </script>
 
 <template>
-  <div>
-    <icon_to_home/>
-  </div>
-  <div id="background">
-    <h2>
-      {{ tab_note_name }}
-    </h2>
-    <!--手机端小按钮-->
-    <div class="value" v-if="smallScreen">
-      <img :src="getIdImg(usr_id)">
-      &nbsp;{{ usr_name }}&nbsp;
+  <div style="position: absolute;overflow: auto;width: 100%;height: 100%">
+    <div>
+      <icon_to_home/>
     </div>
-    <div class="value" v-if="smallScreen" >
-      <img src="../../assets/calendar.svg">
-      &nbsp;{{ date_time }}&nbsp;
-    </div>
-    <div style="display: flex;flex-direction: row;overflow: auto" v-if="smallScreen">
-      <div class="click_value" @click="likeThis">
-        <img src="../../assets/thumb_up.svg">
-        &nbsp;{{ like_this }}&nbsp;
-      </div>
-      <div class="click_value" v-if="file!=''" @click="download_this(file)">
-        <img src="../../assets/download.svg">
-        &nbsp;下载附件&nbsp;
-      </div>
-      <div class="value">
-        <img src="../../assets/visibility.svg">
-        &nbsp;{{ click }}&nbsp;
-      </div>
-      <div class="value">
-        <img src="../../assets/folder.svg">
-        &nbsp;{{ class_name }}&nbsp;
-      </div>
-    </div>
-    <!--电脑端小按钮-->
-    <div style="display: flex;flex-direction: row" v-if="!smallScreen">
-      <div class="value">
-        <img src="../../assets/visibility.svg">
-        &nbsp;{{ click }}&nbsp;
-      </div>
-      <div class="value">
+    <div id="background">
+      <h2>
+        {{ tab_note_name }}
+      </h2>
+      <!--手机端小按钮-->
+      <div class="value" v-if="smallScreen">
         <img :src="getIdImg(usr_id)">
         &nbsp;{{ usr_name }}&nbsp;
       </div>
-      <div class="value">
-        <img src="../../assets/folder.svg">
-        &nbsp;{{ class_name }}&nbsp;
-      </div>
-      <div class="value">
+      <div class="value" v-if="smallScreen" >
         <img src="../../assets/calendar.svg">
         &nbsp;{{ date_time }}&nbsp;
       </div>
-    </div>
-    <div style="display: flex;flex-direction: row" v-if="!smallScreen">
-      <div class="click_value" @click="likeThis">
-        <img src="../../assets/thumb_up.svg">
-        &nbsp;{{ like_this }}&nbsp;
+      <div style="display: flex;flex-direction: row;overflow: auto" v-if="smallScreen">
+        <div class="click_value" @click="likeThis">
+          <img src="../../assets/thumb_up.svg">
+          &nbsp;{{ like_this }}&nbsp;
+        </div>
+        <div class="click_value" v-if="file!=''" @click="download_this(file)">
+          <img src="../../assets/download.svg">
+          &nbsp;下载附件&nbsp;
+        </div>
+        <div class="value">
+          <img src="../../assets/visibility.svg">
+          &nbsp;{{ click }}&nbsp;
+        </div>
+        <div class="value">
+          <img src="../../assets/folder.svg">
+          &nbsp;{{ class_name }}&nbsp;
+        </div>
       </div>
-      <div class="click_value" v-if="file!=''" @click="download_this(file)">
-        <img src="../../assets/download.svg">
-        &nbsp;下载附件&nbsp;
+      <!--电脑端小按钮-->
+      <div style="display: flex;flex-direction: row" v-if="!smallScreen">
+        <div class="value">
+          <img src="../../assets/visibility.svg">
+          &nbsp;{{ click }}&nbsp;
+        </div>
+        <div class="value">
+          <img :src="getIdImg(usr_id)">
+          &nbsp;{{ usr_name }}&nbsp;
+        </div>
+        <div class="value">
+          <img src="../../assets/folder.svg">
+          &nbsp;{{ class_name }}&nbsp;
+        </div>
+        <div class="value">
+          <img src="../../assets/calendar.svg">
+          &nbsp;{{ date_time }}&nbsp;
+        </div>
       </div>
-    </div>
-    <a class="tags">
-      {{ tags }}
-    </a>
-    <div id="content" v-html="escapeString">
+      <div style="display: flex;flex-direction: row" v-if="!smallScreen">
+        <div class="click_value" @click="likeThis">
+          <img src="../../assets/thumb_up.svg">
+          &nbsp;{{ like_this }}&nbsp;
+        </div>
+        <div class="click_value" v-if="file!=''" @click="download_this(file)">
+          <img src="../../assets/download.svg">
+          &nbsp;下载附件&nbsp;
+        </div>
+      </div>
+      <a class="tags">
+        {{ tags }}
+      </a>
+      <div id="content" v-html="escapeString">
 
+      </div>
+      <messages_view :tab_note_id="route.query.tab_note_id" :smallScreen="smallScreen"/>
     </div>
-    <messages_view :tab_note_id="route.query.tab_note_id" :smallScreen="smallScreen"/>
   </div>
 </template>
 
 <style scoped>
-::-webkit-scrollbar {
-  background-color: transparent;
-}
-::-webkit-scrollbar-thumb {
-  border: none;
-  display: none;
-  outline: none;
-}
 img {
   border-radius: 100px;
   height: 25px;

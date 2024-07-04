@@ -8,6 +8,7 @@ import Small_ai_title from "./small_ai_title.vue";
 import Wide_ai_icon_to_home from "./wide_ai_icon_to_home.vue";
 import Small_right_choice from "./small_right_choice.vue";
 import Loading from "../weight/loading.vue";
+import router from "../../router";
 
 const right_choice = ref(false)
 
@@ -46,7 +47,7 @@ async function post() {
     try {
       // 发起 POST 请求
       const response = await fetch(
-          getAddress() + "/Ai_Messages",
+          getAddress() + "/ai/messages",
           {
             method: 'POST',
             headers: {'Content-Type': 'application/json;charset=utf-8'},
@@ -134,7 +135,7 @@ getAiHistory()
 //获取历史列表
 async function getAiHistory() {
   try {
-    const response = await axios.post(getAddress() + "/get_ai_history", {
+    const response = await axios.post(getAddress() + "/ai/get_history", {
       id: getLocalData("id"),
       token: getLocalData("token")
     });
@@ -166,7 +167,7 @@ async function getHistoryAiMessages(aiMsId: string) {
   if (!isLoading.value){
     text.value = ''
     try {
-      const response = await axios.post(getAddress() + "/get_history_ai_messages", {
+      const response = await axios.post(getAddress() + "/ai/history", {
         id: getLocalData("id"),
         token: getLocalData("token"),
         ai_ms_id: aiMsId
@@ -288,9 +289,20 @@ async function redoAiMessage(ii: number) {
     <div class="left_items">
       <wide_ai_icon_to_home/>
       <div id="usrTalkHistory">
-        <button @click="newChat">
-          +新建对话+
+        <div style="min-height: 3px;display: flex;">
+
+        </div>
+        <button @click="newChat" style="display: flex; align-items: center;justify-content: center;padding: 10px">
+          <img src="../../assets/edit.svg" alt="edit" style="margin-right: 2px"/>
+          新建对话
         </button>
+        <button @click="router.push('note_ai')" style="display: flex; align-items: center;justify-content: center;padding: 10px">
+          <img src="../../assets/edit_note.svg" alt="edit" style="margin-right: 2px"/>
+          笔记型AI
+        </button>
+        <div style="min-height: 8px;display: flex;">
+
+        </div>
         <button v-for="value in aiHistory" :key="JSON.parse(JSON.stringify(value)).ai_ms_id"
                 @click="getHistoryAiMessages(JSON.parse(JSON.stringify(value)).ai_ms_id.toString())">
           {{ JSON.parse(JSON.stringify(value)).mainly }}

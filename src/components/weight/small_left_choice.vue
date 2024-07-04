@@ -14,6 +14,9 @@ const emit = defineEmits(['leftClose','todoView'])
       <div @click="router.push('add_tab_note')" class="choice_button" style="padding-top: 20px">
         新建贴文
       </div>
+      <div @click="router.push('note_ai')" class="choice_button">
+        AI笔记
+      </div>
       <div @click="emit('todoView',true)" class="choice_button" v-if="!isApp()">
         待办/计划
       </div>

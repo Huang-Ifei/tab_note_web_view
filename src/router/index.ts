@@ -9,6 +9,7 @@ import {ComponentOptionsMixin, DefineComponent, ExtractPropTypes, PublicProps} f
 import {loginCheck} from "../operation/dataOperation.ts";
 import Tab_note_view from '../components/tab_note/tab_note_view.vue'
 import Tab_manual from '../components/tab_manual.vue'
+import Note_ai from '../components/note_ai/note_ai.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -41,6 +42,10 @@ const router = createRouter({
             path:"/tab_manual",
             component: Tab_manual
         },
+        {
+            path:"/note_ai",
+            component: Note_ai
+        }
     ]
 })
 

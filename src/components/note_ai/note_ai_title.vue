@@ -16,17 +16,17 @@ console.log(Cookies.default.get("name"))
 
 <template>
   <div class="small_title">
-    <img @click="router.push('/')" src="../../assets/arrow_back_white.svg" alt="image"
-         style="padding-left: 10px;padding-right: 2px;height: 25px"/>
+    <img @click="router.back()" src="../../assets/arrow_back_white.svg" alt="image"
+         style="padding-left: 10px;padding-right: 2px;height: 25px;cursor: pointer"/>
     <h3 style="margin: 0">
       TabNote_
     </h3>
     <h3 style=" background: linear-gradient(45deg, #ec86ff, #34dbff);-webkit-background-clip: text;-webkit-text-fill-color: transparent;min-width: fit-content">
-      AI</h3>
+      AI笔记</h3>
     <div class="icons">
-        <button id="ai_button" @click="emit('rightChoice')">
-          历史记录
-        </button>
+      <button id="ai_button" @click="emit('rightChoice')">
+        历史记录
+      </button>
       <img v-if="!isApp()" @click="router.push('login')" id="usrImage" :src="imageURL" alt="image"/>
     </div>
   </div>
@@ -34,6 +34,11 @@ console.log(Cookies.default.get("name"))
 
 <style scoped>
 .small_title {
+  user-select: none;
+  /* 对于跨浏览器兼容性，可以添加以下前缀 */
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* Internet Explorer/Edge */
   background: #1e1e1e;
   color: rgb(255, 255, 255);
   height: 54px;

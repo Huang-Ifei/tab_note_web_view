@@ -75,7 +75,6 @@ export function getIdImg(id: string): string {
 }
 
 export function escapeHTMLWithOutConsole(str: string): string {
-    //替换除了\n以外的字符为html语句
     return str.replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -86,11 +85,22 @@ export function escapeHTMLWithOutConsole(str: string): string {
         .replace(/\n/g, "<br>")
 }
 
-export function isApp():boolean{
+export function htmlToString(str: string): string {
+    return str.replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, "\"")
+        .replace(/&#039;/g, "'")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&#9;/g, "\t")
+        .replace(/<br>/g, "\n")
+}
+
+export function isApp(): boolean {
     const ia = Cookies.default.get('isApp')
-    if( ia=='true'){
+    if (ia == 'true') {
         return true
-    }else{
+    } else {
         return false
     }
 }
@@ -254,6 +264,9 @@ export function escapeTabNoteToHTML(str: string, pics: string[]): string {
         } else if (htmlString[i] === '\n' && htmlString[i + 1] === '*' && htmlString.substring(i + 2, i + 8) === '&nbsp;') {
             newString += "\n·&nbsp;"
             i = i + 7
+        } else if (i === 0 && htmlString[i] === '*' && htmlString.substring(i + 1, i + 7) === '&nbsp;') {
+            newString += "\n·&nbsp;"
+            i = i + 7
         } else if (htmlString.substring(i, i + 32) === '\n&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;') {
             newString += '\n&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp;'
             i = i + 31
@@ -263,7 +276,7 @@ export function escapeTabNoteToHTML(str: string, pics: string[]): string {
             let isTitle = false
             while (x < n && htmlString[x] != '\n') {
                 if (htmlString[x] + htmlString[x + 1] == '**') {
-                    newString += "<div style='font-weight: bold;display: inline-block;'>" + name + "</div>"
+                    newString += "<div style='font-weight: bold;display: inline-block;max-width: 100%'>" + name + "</div>"
                     i = x + 1;
                     isTitle = true
                     break
@@ -278,7 +291,7 @@ export function escapeTabNoteToHTML(str: string, pics: string[]): string {
                 newString += htmlString[i];
             }
         } else if (htmlString.substring(i, i + 8) === '{[#pic]}') {
-            newString += "<img alt='"+count+"' src='" + pics[count] + "' style='max-height: 500px;max-width:80%' />"
+            newString += "<img alt='" + count + "' src='" + pics[count] + "' style='max-height: 500px;max-width:80%' />"
             count++
             i = i + 7
         } else {
