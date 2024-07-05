@@ -7,7 +7,7 @@ import Loading from "../weight/loading.vue";
 import {getAddress} from "../../operation/address.ts";
 
 const props = defineProps(['selected', 'all_text', 'note','small'])
-const emit = defineEmits(['add_note'])
+const emit = defineEmits(['add_note','stop-select'])
 const show_talking_view = ref(false);
 const show_write_view = ref(false);
 const question = ref('')
@@ -167,7 +167,7 @@ function decodeJsonToShow(decodeValue: string) {
            style="overflow: auto;overflow-wrap: break-word;padding: 0 10px;margin-bottom: 5px;margin-top: 5px">
 
       </div>
-      <button @click="emit('add_note',selected,question,answer)" v-if="answer!=''&&!isLoading" style="border: transparent">
+      <button @click="emit('add_note',selected,question,answer);emit('stop-select')" v-if="answer!=''&&!isLoading" style="border: transparent">
         添加便签
       </button>
     </div>
@@ -208,7 +208,7 @@ function decodeJsonToShow(decodeValue: string) {
         {{ selected }}
       </div>
       <textarea v-model="write" style="width: calc(100% - 35px);margin: 5px 5px;padding: 10px" rows="5"/>
-      <button @click="emit('add_note',selected,'',write)" v-if="write!=''" style="border: transparent">
+      <button @click="emit('add_note',selected,'',write);emit('stop-select')" v-if="write!=''" style="border: transparent">
         添加便签
       </button>
     </div>
@@ -219,7 +219,7 @@ function decodeJsonToShow(decodeValue: string) {
         {{ selected }}
       </div>
       <textarea v-model="write" style="width: calc(100% - 35px);margin: 5px 5px;padding: 10px" rows="5"/>
-      <button @click="emit('add_note',selected,'',write)" v-if="write!=''" style="border: transparent">
+      <button @click="emit('add_note',selected,'',write);emit('stop-select')" v-if="write!=''" style="border: transparent">
         添加便签
       </button>
     </div>

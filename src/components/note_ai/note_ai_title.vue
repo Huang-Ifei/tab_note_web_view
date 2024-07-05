@@ -18,9 +18,11 @@ console.log(Cookies.default.get("name"))
   <div class="small_title">
     <img @click="router.back()" src="../../assets/arrow_back_white.svg" alt="image"
          style="padding-left: 10px;padding-right: 2px;height: 25px;cursor: pointer"/>
-    <h3 style="margin: 0">
-      TabNote_
-    </h3>
+    <a href="/">
+      <h3 style="margin: 0;color: white">
+        TabNote_
+      </h3>
+    </a>
     <h3 style=" background: linear-gradient(45deg, #ec86ff, #34dbff);-webkit-background-clip: text;-webkit-text-fill-color: transparent;min-width: fit-content">
       AI笔记</h3>
     <div class="icons">

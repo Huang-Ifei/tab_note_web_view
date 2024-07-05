@@ -51,7 +51,7 @@ const emit = defineEmits(['leftClose','todoView'])
 .left_background {
   position: relative;
   box-shadow: 0 0 8px #6a6a6a;
-  background-color: #1c1c1c;
+  background: #1e1e1e;
   border-radius: 0;
   display: flex;
   width: 70%;

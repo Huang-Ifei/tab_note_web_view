@@ -343,7 +343,7 @@ function showAE(s: string): boolean {
     <note_ai_action_button :alr="alr" :small="smallScreen" :all_text="all_text" :note="true" @push_to_server="pushNoteAiToServer(note_tick,getWholeText(),note_ai_id)"/>
     <artificial_emoji :small="smallScreen" :all_text="getWholeText()" :selected="selectedText.replace(/ /g,' ')"
                       v-if="showAE(selectedText)"
-                      @add_note="addNote" :note="true"/>
+                      @add_note="addNote" :note="true" @stop-select="selectedText=''"/>
     <note_ai_title @rightChoice="rightChoice=true"/>
     <div v-if="!smallScreen" class="text_div_background" @keyup.stop="handleSelect" @mouseup.stop="handleSelect"
          @copy="handleSelect">

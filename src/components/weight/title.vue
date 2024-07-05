@@ -6,7 +6,7 @@ import router from "../../router";
 
 
 const imageURL = ref("")
-const props = defineProps(['smallScreen'])
+const props = defineProps(['smallScreen','todo'])
 imageURL.value = getAccountImg()
 
 const emit = defineEmits(['todoView','leftChoice'])
@@ -24,11 +24,11 @@ console.log(Cookies.default.get("name"))
       <button class="none_button" onclick="location.href='/add_tab_note'">
         新建贴文
       </button>
-      <button class="none_button" @click="emit('todoView',true)">
+      <button class="none_button" @click="emit('todoView',!props.todo)">
         计划/待办
       </button>
-      <button id="ai_button" style="margin-right: 0" onclick="location.href='/note_ai'">
-        AI笔记
+      <button class="none_button" onclick="location.href='/note_ai'">
+        &nbsp;AI笔记&nbsp;
       </button>
       <button id="ai_button" onclick="location.href='/ai_assistant'">
         AI助手

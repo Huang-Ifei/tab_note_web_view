@@ -1,23 +1,29 @@
 <script setup lang="ts">
 
+import router from "../../router";
 </script>
 
 <template>
-<a href="/">
-  <h3 style="margin: 0">
-    TabNote_
-  </h3>
-  <h3 style="  margin: 0; background: linear-gradient(45deg, #ec86ff, #34dbff);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
-  AI</h3>
-</a>
+  <div class="title">
+    <img @click="router.back()" src="../../assets/arrow_back_white.svg" alt="image"
+         style="padding-left: 20px;padding-right: 2px;height: 25px;cursor: pointer"/>
+    <a href="/" style="color: white">
+      <h3 style="margin: 0">
+        TabNote_
+      </h3>
+    </a>
+    <h3 style="  margin: 0; background: linear-gradient(45deg, #ec86ff, #34dbff);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+      AI</h3>
+  </div>
 </template>
 
 <style scoped>
-a {
+.title{
   background-color: #1e1e1e;
-  color: rgb(255, 255, 255);
+  min-width: 100%;
+  height: 54px;
   display: flex;
-  margin: 0;
-  padding: 13px 20px;
+  align-items: center;
+  justify-content: start;
 }
 </style>

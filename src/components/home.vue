@@ -42,7 +42,7 @@ const renderResize = () => {
 <template>
   <div id="home_view" v-if="!smallScreen">
     <div class="title">
-      <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen"/>
+      <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" :todo="todo_view"/>
     </div>
     <transition name="todo">
       <todo_plan_view v-if="todo_view" @doClose="showTodoView" smallScreen="false"/>
@@ -58,7 +58,7 @@ const renderResize = () => {
       <small_left_choice v-if="left_choice" @leftClose="left_choice=false" @todoView="showTodoView"/>
     </transition>
     <div class="title">
-      <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" @leftChoice="left_choice=true"/>
+      <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" @leftChoice="left_choice=true" :todo="todo_view"/>
     </div>
     <small_tab_view :small-screen="smallScreen"/>
   </div>

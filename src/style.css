@@ -36,6 +36,8 @@ textarea {
   overflow: auto;
   max-height: 300px;
   border-radius: 10px;
+  background: white;
+  color:black;
   border: 1px solid #b2b2b2;
 }
 textarea:focus{
@@ -46,6 +48,8 @@ textarea:focus{
 input {
   border-radius: 5px;
   border: 1px solid #b2b2b2;
+  background: white;
+  color:black;
   padding: 0.6em 0.6em;
   font-size: 1em;
   font-weight: 500;
