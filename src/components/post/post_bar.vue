@@ -3,8 +3,9 @@
 import {Ref, ref} from "vue";
 import {getAddress} from "../../operation/address.ts";
 import Post_img from "./post_img.vue";
+import {delay} from "../../operation/dataOperation.ts";
 
-const props = defineProps(['smallScreen'])
+//const props = defineProps(['smallScreen'])
 const emit = defineEmits(['doSearch'])
 type postJson = {
   post_id: string,
@@ -48,12 +49,26 @@ setInterval(() => {
   }
 }, 4000)
 
-function leftOne() {
+async function chickLeft() {
   if (post_num.value > 0) {
     post_num.value--
   } else {
     post_num.value = post_values.value.length - 1
   }
+  canChange.value=false
+  await delay(2000)
+  canChange.value=true
+}
+
+async function clickRight() {
+  if (post_num.value < post_values.value.length - 1) {
+    post_num.value++
+  } else {
+    post_num.value = 0
+  }
+  canChange.value=false
+  await delay(2000)
+  canChange.value=true
 }
 
 function rightOne() {
@@ -71,8 +86,6 @@ function rightOne() {
     <div
         style="width: 100%;display: flex;flex-direction: row;height: fit-content;justify-content: center;align-items: center"
         @mouseenter="canChange=false" @mouseleave="canChange=true">
-      <img v-if="!props.smallScreen" alt="" @click.stop="leftOne" src="../../assets/arrow_back.svg"
-           class="change_view_button_left">
       <div @click="emit('doSearch',post_values[post_num].post_tag)" class="post">
         <post_img :post_values="post_values" :post_num="post_num"/>
         <div style="padding: 10px 20px 20px 20px;position: relative">
@@ -84,14 +97,12 @@ function rightOne() {
           </div>
         </div>
       </div>
-      <img v-if="!props.smallScreen" @click="rightOne" src="../../assets/arrow_forward.svg"
-           class="change_view_button_right">
     </div>
 
     <!--下面的小按钮-->
     <div
         style="width: 100%;padding-left: 5px;display: flex;flex-direction: row;height: fit-content;justify-content: center;align-items: center">
-      <img v-if="props.smallScreen" alt="" @click.stop="leftOne" src="../../assets/arrow_back.svg"
+      <img  alt="" @click.stop="chickLeft" src="../../assets/arrow_back.svg"
            class="change_view_button_left" style="margin-right: calc(0.5rem + 30px)">
       <div v-for="(small_button,i) in post_values" :id="small_button.post_id">
         <div @click="post_num=i" v-if="i==post_num"
@@ -103,7 +114,7 @@ function rightOne() {
 
         </div>
       </div>
-      <img v-if="props.smallScreen" @click="rightOne" src="../../assets/arrow_forward.svg"
+      <img  @click="clickRight" src="../../assets/arrow_forward.svg"
            class="change_view_button_right" style="margin-left: 30px;margin-right: 5px">
     </div>
   </div>

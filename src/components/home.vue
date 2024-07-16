@@ -3,7 +3,6 @@ import HelloTitle from "./weight/title.vue";
 import Home_tab_view from "./tab_note/home_tab_view.vue";
 import {onBeforeMount, onBeforeUnmount, ref} from "vue";
 import Todo_plan_view from "./todo/todo_plan_view.vue";
-import Small_tab_view from "./tab_note/small_tab_view.vue";
 import Small_left_choice from "./weight/small_left_choice.vue";
 import Small_todo_plan_view from "./todo/small_todo_plan_view.vue";
 import {isApp} from "../operation/dataOperation.ts";
@@ -40,17 +39,19 @@ const renderResize = () => {
 </script>
 
 <template>
-  <div id="home_view" v-if="!smallScreen">
+  <div id="home_view" v-if="!smallScreen" style="background:#f6f7f8">
     <div class="title">
       <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" :todo="todo_view"/>
     </div>
     <transition name="todo">
       <todo_plan_view v-if="todo_view" @doClose="showTodoView" smallScreen="false"/>
     </transition>
-    <home_tab_view :small-screen="smallScreen"/>
+    <div style="display: flex;flex-direction: row;padding: 0 10%;overflow-y: auto">
+      <home_tab_view :small-screen="smallScreen" />
+    </div>
   </div>
 
-  <div id="small_home_view" v-if="smallScreen">
+  <div id="small_home_view" v-if="smallScreen" style="background:#f6f7f8">
     <transition name="todo">
       <small_todo_plan_view v-if="todo_view" @doClose="showTodoView" smallScreen="true" style="z-index: 200"/>
     </transition>
@@ -60,7 +61,7 @@ const renderResize = () => {
     <div class="title">
       <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" @leftChoice="left_choice=true" :todo="todo_view"/>
     </div>
-    <small_tab_view :small-screen="smallScreen"/>
+    <home_tab_view :small-screen="smallScreen"/>
   </div>
 
 </template>

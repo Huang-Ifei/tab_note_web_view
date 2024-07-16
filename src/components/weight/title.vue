@@ -84,6 +84,8 @@ console.log(Cookies.default.get("name"))
   border-radius: 0;
   font-size: 13px;
   background: transparent;
+  height: 54px;
+  margin-top: 3px;
   box-shadow: none;
   color: #eaeaea;
   border: none;

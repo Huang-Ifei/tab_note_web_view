@@ -8,18 +8,31 @@ import Classes_bar from "../weight/classes_bar.vue";
 import {getLocalData, getLocalNumber} from "../../operation/dataOperation.ts";
 import Post_bar from "../post/post_bar.vue";
 
-defineProps(['smallScreen'])
+const props = defineProps(['smallScreen'])
+
+type tab_list = {
+  tab_note_id: string,
+  usr_name: string,
+  usr_id: string,
+  class_name: string,
+  tab_note_name: string,
+  tags: string,
+  like_this: number,
+  date_time: string,
+}
 
 const page_count = ref(0)
 const page_size = ref(1)
-const page_list: Ref<{}[]> = ref([])
+const page_list: Ref<tab_list[]> = ref([])
 const search_value = ref("")
 const class_name = ref("")
 const post_show = ref(true)
+const classes = ref([])
+const tags = ref(["#Oracle","#JavaWeb期末复习","#git","#Vue","#数据库期末复习","#数据库","#视图","#SpringBoot"])
 
-search_value.value=getLocalData("search_value")
-class_name.value=getLocalData("class_name")
-page_size.value=getLocalNumber("page_size")
+search_value.value = getLocalData("search_value")
+class_name.value = getLocalData("class_name")
+page_size.value = getLocalNumber("page_size")
 searchTabNotePage()
 
 async function searchTabNotePage() {
@@ -30,10 +43,10 @@ async function searchTabNotePage() {
 
   sessionStorage.setItem("page_size", page_size.value.toString());
   sessionStorage.setItem("class_name", class_name.value);
-  sessionStorage.setItem("search_value",search_value.value);
+  sessionStorage.setItem("search_value", search_value.value);
 
-  const axiosResponse = await axios.post(getAddress() + "/tab_note_page",{
-    page:page_size.value,
+  const axiosResponse = await axios.post(getAddress() + "/tab_note_page", {
+    page: page_size.value,
     key_word: search_value.value,
     class_name: class_name.value
   });
@@ -41,7 +54,8 @@ async function searchTabNotePage() {
   if (axiosResponse.data.response == "success") {
     try {
       page_list.value = axiosResponse.data.list;
-      page_count.value =axiosResponse.data.pages;
+      console.log(page_list.value);
+      page_count.value = axiosResponse.data.pages;
     } catch (e) {
       console.error(e)
     }
@@ -54,9 +68,9 @@ async function searchTabNotePage() {
   }
 }
 
-async function postSearch(s:string){
-  search_value.value=s;
-  page_size.value=1;
+async function postSearch(s: string) {
+  search_value.value = s;
+  page_size.value = 1;
   await searchTabNotePage()
 }
 
@@ -64,26 +78,40 @@ function show_tab_note(tab_note_id: string) {
   router.push({path: "/tab_note_view", query: {tab_note_id: tab_note_id}})
 }
 
-async function doChoice(s:string){
+async function doChoice(s: string) {
   class_name.value = s
-  page_size.value=1;
+  page_size.value = 1;
   await searchTabNotePage()
 }
 
-async function valueChange(){
-  if (search_value.value==""){
-    page_size.value=1;
+async function valueChange() {
+  if (search_value.value == "") {
+    page_size.value = 1;
     await searchTabNotePage()
   }
 }
+
+async function getClasses(){
+  const axiosResponse = await axios.get(getAddress() + "/getClasses")
+  if (axiosResponse.data.response == "success") {
+    classes.value = axiosResponse.data.classes
+  }else {
+    console.log(axiosResponse.data.response)
+  }
+}
+
+getClasses()
+
 </script>
 
 <template>
-  <div id="main_tab_notes_view">
-    <div style="font-size: 26px;margin: 20px 10px 8px 10px;font-weight: bold;display: flex;flex-direction: row;align-items: center">
-      TabNote贴文&nbsp;
-      <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 26px" @click="search_value='';class_name='';page_size=1;searchTabNotePage()">
-      <div style=" display: flex;flex-direction: row;border-radius: 30px;margin-left: auto">
+  <div id="main_tab_notes_view" v-if="smallScreen">
+    <div v-if="smallScreen"
+        style="font-size: 1.5rem;margin: 12px 10px 10px 10px;font-weight: bold;display: flex;flex-direction: row;align-items: center">
+      贴文&nbsp;
+      <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 1.2rem"
+           @click="search_value='';class_name='';page_size=1;searchTabNotePage()">
+      <div style=" display: flex;flex-direction: row;border-radius: 1rem;margin-left: auto">
         <input id="search_input" v-model="search_value" placeholder="搜索内容" @change="valueChange"/>
         <button id="search_button" @click="page_size=1;searchTabNotePage()">
           搜索
@@ -92,88 +120,201 @@ async function valueChange(){
     </div>
     <div id="page_tab_notes">
 
-      <classes_bar :class_name="class_name" @doChoice="doChoice" style="margin-bottom: 5px"/>
+      <div v-if="!smallScreen" style="min-height: 10px">
 
-      <post_bar v-if="post_show" @doSearch="postSearch" :smallScreen="smallScreen"/>
+      </div>
 
-      <div v-if="page_list.length%2==0" class="tab_note_row" v-for="i in page_list.length/2">
-        <div class="tab_note" style="width: calc(45% - 20px)"
-             @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_id)">
+      <classes_bar v-if="smallScreen" :classes="classes" :class_name="class_name" @doChoice="doChoice"/>
+
+      <classes_bar v-if="smallScreen" :class_name="search_value" :classes="tags" @doChoice="postSearch"/>
+
+      <post_bar v-if="post_show" @doSearch="postSearch" :smallScreen="props.smallScreen"/>
+
+      <div v-if="page_list.length==0" style="width: 100%;height: calc(100vh - 230px);display: flex;flex-direction: column;justify-content: center;align-items: center;">
+        暂无对应内容，点击重置刷新
+      </div>
+
+      <div v-for="tab in page_list">
+        <div class="tab_note" style="width: calc(100% - 56px)"
+             @click="show_tab_note(tab.tab_note_id)">
           <div class="tab_note_title">
-            {{ JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_name }}
+            {{ tab.tab_note_name }}
           </div>
           <div class="small_title">
             作者：{{
-              JSON.parse(JSON.stringify(page_list[i * 2 - 2])).usr_name
-            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ JSON.parse(JSON.stringify(page_list[i * 2 - 2])).date_time }}
-          </div>
-        </div>
-
-        <div v-if="(i*2-1)<page_list.length" class="tab_note"
-             @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_id)"
-             style="width: calc(45% - 20px)">
-          <div class="tab_note_title">
-            {{ JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_name }}
-          </div>
-          <div class="small_title">
-            作者：{{
-              JSON.parse(JSON.stringify(page_list[i * 2 - 1])).usr_name
-            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ JSON.parse(JSON.stringify(page_list[i * 2 - 1])).date_time }}
+              tab.usr_name
+            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ tab.date_time }}
           </div>
         </div>
       </div>
-
-      <div v-if="page_list.length%2==1" class="tab_note_row" v-for="i in page_list.length/2+0.5">
-        <div class="tab_note" @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_id)">
-          <div class="tab_note_title">
-            {{ JSON.parse(JSON.stringify(page_list[i * 2 - 2])).tab_note_name }}
-          </div>
-          <div class="small_title">
-            作者：{{
-              JSON.parse(JSON.stringify(page_list[i * 2 - 2])).usr_name
-            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ JSON.parse(JSON.stringify(page_list[i * 2 - 2])).date_time }}
-          </div>
-        </div>
-
-        <div v-if="(i*2-1)<page_list.length" class="tab_note"
-             @click="show_tab_note(JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_id)"
-             style="width: calc(45% - 30px)">
-          <div class="tab_note_title">
-            {{ JSON.parse(JSON.stringify(page_list[i * 2 - 1])).tab_note_name }}
-          </div>
-          <div class="small_title">
-            作者：{{
-              JSON.parse(JSON.stringify(page_list[i * 2 - 1])).usr_name
-            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ JSON.parse(JSON.stringify(page_list[i * 2 - 1])).date_time }}
-          </div>
-        </div>
-      </div>
-
     </div>
 
-    <div id="page_choice">
-      <button style="background: #ffffff;margin-right: 10px" v-if="page_size>1" @click="page_size--;searchTabNotePage()">
+    <div id="page_choice" v-if="page_list.length!=0">
+      <div class="page_select" v-if="page_size>1" @click="page_size--;searchTabNotePage()">
         上一页
-      </button>
-      <div style="background: #ffffff;margin-right: 10px;width: 88px" v-else-if="!(page_size>1)" >
       </div>
-      第{{ page_size }}页/共{{ page_count }}页
-      <button style="background: #ffffff;margin-left: 10px" v-if="page_size<page_count"
-              @click="page_size++;searchTabNotePage()">
+      <div style="background: transparent;width: 88px" v-else-if="!(page_size>1)">
+      </div>
+      <div style="background: transparent;">
+        第{{ page_size }}页/共{{ page_count }}页
+      </div>
+      <div class="page_select" v-if="page_size<page_count"
+           @click="page_size++;searchTabNotePage()">
         下一页
+      </div>
+      <div style="background: transparent;width: 88px" v-else-if="!(page_size<page_count)">
+      </div>
+    </div>
+  </div>
+  <div id="main_tab_notes_view" v-else style="width: 66%">
+    <div v-if="smallScreen"
+         style="font-size: 1.5rem;margin: 12px 10px 10px 10px;font-weight: bold;display: flex;flex-direction: row;align-items: center">
+      贴文&nbsp;
+      <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 1.2rem"
+           @click="search_value='';class_name='';page_size=1;searchTabNotePage()">
+      <div style=" display: flex;flex-direction: row;border-radius: 1rem;margin-left: auto">
+        <input id="search_input" v-model="search_value" placeholder="搜索内容" @change="valueChange"/>
+        <button id="search_button" @click="page_size=1;searchTabNotePage()">
+          搜索
+        </button>
+      </div>
+    </div>
+    <div id="page_tab_notes">
+
+      <div v-if="!smallScreen" style="min-height: 10px">
+
+      </div>
+
+      <post_bar v-if="post_show" @doSearch="postSearch" :smallScreen="props.smallScreen"/>
+
+      <div v-if="page_list.length==0" style="width: 100%;height: calc(100vh - 64px);display: flex;flex-direction: column;justify-content: center;align-items: center;">
+        暂无对应内容，点击重置刷新
+      </div>
+
+      <div v-for="tab in page_list">
+        <div class="tab_note" style="width: calc(100% - 56px)"
+             @click="show_tab_note(tab.tab_note_id)">
+          <div class="tab_note_title">
+            {{ tab.tab_note_name }}
+          </div>
+          <div class="small_title">
+            作者：{{
+              tab.usr_name
+            }}&nbsp;&nbsp;&nbsp;&nbsp;{{ tab.date_time }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page_choice" v-if="page_list.length!=0">
+      <div class="page_select" v-if="page_size>1" @click="page_size--;searchTabNotePage()">
+        上一页
+      </div>
+      <div style="background: transparent;width: 88px" v-else-if="!(page_size>1)">
+      </div>
+      <div style="background: transparent;">
+        第{{ page_size }}页/共{{ page_count }}页
+      </div>
+      <div class="page_select" v-if="page_size<page_count"
+           @click="page_size++;searchTabNotePage()">
+        下一页
+      </div>
+      <div style="background: transparent;width: 88px" v-else-if="!(page_size<page_count)">
+      </div>
+    </div>
+  </div>
+
+  <div class="right_list" v-if="!smallScreen">
+    <div style=" display: flex;flex-direction: row;max-width: 100%">
+      <div style="display: flex;flex-direction: column;font-size: 10px;align-items: center;justify-content: center;margin-right: 5px">
+        <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 22px"
+             @click="search_value='';class_name='';page_size=1;searchTabNotePage()">
+        重置
+      </div>
+      <input id="search_input" style="width: 100%" v-model="search_value" placeholder="搜索内容" @change="valueChange"/>
+      <button id="search_button" style="min-width: fit-content" @click="page_size=1;searchTabNotePage()">
+        搜索
       </button>
-      <div style="background: #ffffff;margin-left: 10px;width: 88px" v-else-if="!(page_size<page_count)" >
+    </div>
+    <div class="right_items">
+      <div style="display: flex;flex-direction: column;height: 50%;">
+        <div style="font-size: 1.2rem;font-weight: bold;padding: 5px 5px 0 5px">
+          分类选择
+        </div>
+        <div style="overflow-y: auto;">
+          <div v-for="(class_n , index) in classes"  :key="index" class="choice_class">
+            <div v-if="class_name==class_n" @click="doChoice('')" style="font-weight: bold;color: #009bff">
+              {{class_n}}
+            </div>
+            <div v-else @click="doChoice(class_n)">
+              {{class_n}}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="width: 100%;min-height: 1px;background: #e6e7ec">
+
+      </div>
+      <div style="display: flex;flex-direction: column;height: 50%;overflow-x: hidden">
+        <div style="font-size: 1.2rem;font-weight: bold;padding: 5px 5px 0 5px">
+          标签选择
+        </div>
+        <div style="overflow-y: auto;">
+          <div  v-for="(tag , index) in tags"  :key="index" class="choice_class">
+            <div v-if="search_value==tag" @click="postSearch('')" style="font-weight: bold;color: #009bff">
+              {{tag}}
+            </div>
+            <div v-else @click="postSearch(tag)">
+              {{tag}}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.choice_class{
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.right_items{
+  height: calc(100% - 54px);
+  width: 100%;
+  margin: 10px 0;
+  border-radius: 10px;
+  background: white;
+  border: 1px solid #e6e7ec;
+}
+.right_list{
+  display: flex;
+  flex-direction: column;
+  width: 28%;
+  margin-top: 18px;
+  margin-bottom: 10px;
+  max-height: calc(100% - 20px);
+}
+.page_select {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  width: 88px;
+  font-weight: bold;
+}
+.page_select:focus {
+  color: #009bff
+}
+.page_select:hover {
+  color: #009bff
+}
 #search_button {
-  font-size: 16px;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.9);
-  padding: 10px 20px;
-  border-radius: 30px;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
   border: transparent;
 }
 
@@ -185,23 +326,20 @@ async function valueChange(){
 }
 
 #search_input {
-  width: 200px;
-  font-size: 16px;
-  padding: 10px 20px;
-  border-radius: 30px;
-  margin-right: 3px;
+  width: 10rem;
+  min-width: 4rem;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  margin-right: 0.2rem;
+  background: transparent;
   border: #e5e5e5 solid 1px;
 }
+
 #search_input:hover,
 #search_input:focus {
   outline: none;
   border: #1a98ee solid 1px;
-}
-
-.tab_note_row {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
 }
 
 .tab_note_title {
@@ -211,16 +349,16 @@ async function valueChange(){
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.small_title{
+
+.small_title {
   font-size: 12px;
   color: #626771
 }
+
 .tab_note {
   cursor: pointer;
   padding: 32px 20px;
   margin: 8px 8px;
-  width: calc(50% - 56px);
-  min-width: calc(50% - 56px);
   background: white;
   border-radius: 10px;
   border: 1px solid #e6e7ec;
@@ -244,17 +382,18 @@ async function valueChange(){
   color: #1c1c1c;
 }
 
-#page_choice button {
-  color: #1c1c1c;
-}
-
 #main_tab_notes_view {
   display: flex;
   flex-direction: column;
-  background-color: #f6f7f8;
-  width: 84%;
-  padding: 0 8%;
-  height: calc(100% + 4px);
+  background-color: transparent;
+  width: 96%;
+  height: 100%;
+  padding: 0 2%;
   overflow: auto;
 }
+#main_tab_notes_view::-webkit-scrollbar {
+  display: none;
+  background-color: transparent;
+}
+
 </style>

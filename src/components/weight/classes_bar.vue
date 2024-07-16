@@ -6,16 +6,20 @@ import {getAddress} from "../../operation/address.ts";
 
 const classes:Ref<[]> = ref([])
 const emit = defineEmits(['doChoice'])
-defineProps(['class_name'])
+const props = defineProps(['class_name','classes'])
 
 getClasses()
 
 async function getClasses(){
-  const axiosResponse = await axios.get(getAddress() + "/getClasses")
-  if (axiosResponse.data.response == "success") {
-    classes.value = axiosResponse.data.classes
-  }else {
-    console.log(axiosResponse.data.response)
+  if (typeof props.classes=='undefined'||props.classes.length==0){
+    const axiosResponse = await axios.get(getAddress() + "/getClasses")
+    if (axiosResponse.data.response == "success") {
+      classes.value = axiosResponse.data.classes
+    }else {
+      console.log(axiosResponse.data.response)
+    }
+  }else{
+    classes.value=props.classes
   }
 }
 </script>
@@ -55,16 +59,17 @@ async function getClasses(){
   margin-bottom: 5px;
 }
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 3px;
+  height: 3px;
   background-color: transparent;
   border: none;
   outline: none;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #8a8a8a;
+  background-color: #bebebe;
   border-radius: 10px;
+  cursor: pointer;
   border: none;
   outline: none;
 }
