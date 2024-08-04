@@ -1,9 +1,16 @@
-# Vue 3 + TypeScript + Vite
+# Tab Note前端网页
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+现在，[开始体验](http://101.42.31.139/)TabNote，AI赋能的综合学习平台
+ 
+********************
 
-## Recommended Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (previously Volar) and disable Vetur
-
-- Use [vue-tsc](https://github.com/vuejs/language-tools/tree/master/packages/tsc) for performing the same type checking from the command line, or for generating d.ts files for SFCs.
+### 开放的交流平台。
+每个人都能发表自己的笔记并给任意笔记留言，参与讨论。
+### 定期更新的精选内容精选话题。
+定期更新海报内容，你的需求，一触即达。
+### 超厉害的Gemini AI全面
+Gemini全面赋能，为TabNote AI大脑，全面加持。
+### 强大的对话式AI
+各种形态，手机，电脑，平板，随时都在，全面适配。有问题随时开问。
+### 最新推出的笔记型AI
+不会的代码，懒得看的文章，丢进去，轻送一划，马上答疑解惑。
