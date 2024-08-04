@@ -3,10 +3,13 @@ import Icon_to_home from "../weight/icon_to_home.vue";
 import {Ref, ref} from "vue";
 import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
-import {escapeTabNoteToHTML, getLocalData} from "../../operation/dataOperation.ts";
+import {escapeTabNoteToHTML, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
 import router from "../../router";
 import Classes_bar from "../weight/classes_bar.vue";
 import Choice_pic from "../weight/choice_pic.vue";
+import Choice_button from "../weight/choice_button.vue";
+import Tab_note_editor from "../weight/tab_note_editor.vue";
+import Content_by_tab_note_editor from "../weight/content_by_tab_note_editor.vue";
 
 
 const title = ref("")
@@ -14,6 +17,7 @@ const class_name = ref("")
 const tags = ref("")
 const content = ref("")
 const showText = ref("")
+const display = ref(1)
 const pics: Ref<string[]> = ref([])
 const inputOrPreview = ref(false)
 const base64File = ref("")
@@ -27,18 +31,18 @@ function doDelete(s: string) {
   for (let i = 0; i < pics.value.length; i++) {
     if (pics.value[i] === s) {
       pics.value.splice(i, 1);
-      let count =0;
+      let count = 0;
       let newContent = ""
-      for(let j=0;j<content.value.length; j++) {
-        if (content.value.substring(j,j+8) === "{[#pic]}") {
-          if (count!=i){
-            newContent+=content.value[j]
-          }else{
-            j=j+7
+      for (let j = 0; j < content.value.length; j++) {
+        if (content.value.substring(j, j + 8) === "{[#pic]}") {
+          if (count != i) {
+            newContent += content.value[j]
+          } else {
+            j = j + 7
           }
           count++
-        }else{
-          newContent+=content.value[j]
+        } else {
+          newContent += content.value[j]
         }
       }
       content.value = newContent
@@ -56,15 +60,17 @@ async function insertTabNote() {
     alert("每个标签应当以#号开头")
     return
   }
+  const tk = await getTokenData()
   const axiosResponse = await axios.post(getAddress() + "/tab_note_add", {
     id: getLocalData("id"),
-    token: getLocalData("token"),
+    token: tk,
     class_name: class_name.value,
     tab_note: content.value,
     tab_note_name: title.value,
+    display: display.value,
     tags: tags.value,
     pics: pics.value,
-    file:base64File.value
+    file: base64File.value
   })
   if (axiosResponse.data.response == "success") {
     showText.value = "成功"
@@ -94,16 +100,16 @@ function handleFileChange(event: Event) {
     try {
       const reader = new FileReader();
       reader.onload = () => {
-        if (reader.result!=null&&reader.result.toString().length<5*1024*1024){
-          base64File.value=reader.result.toString()
-          if (!base64File.value.startsWith("data:application/x-zip-compressed;base64,")){
-            base64File.value=""
+        if (reader.result != null && reader.result.toString().length < 5 * 1024 * 1024) {
+          base64File.value = reader.result.toString()
+          if (!base64File.value.startsWith("data:application/x-zip-compressed;base64,")) {
+            base64File.value = ""
             alert("文件格式错误,将不会被上传")
           }
           console.log(base64File.value);
-        }else {
+        } else {
           alert("文件超出5mb限制,将不会被上传")
-          base64File.value=""
+          base64File.value = ""
         }
       };
       reader.readAsDataURL(file);
@@ -124,23 +130,35 @@ function handleFileChange(event: Event) {
       <h1 style="font-size: 30px">
         创建您的贴文
       </h1>
-      标题：
+      <div style="font-weight: bold">标题：</div>
       <input v-model="title" class="tab_note_title" type="text" placeholder="贴文标题">
-      分类:{{ class_name }}
+      <div style="font-weight: bold">分类:{{ class_name }}</div>
       <classes_bar :class_name="class_name" @doChoice="doChoice"/>
-      标签（可选）：
+      <div style="font-weight: bold">标签（可选）：</div>
       <input v-model="tags" class="tags_input" type="text" placeholder="标签">
-      附件（alpha公测版，仅支持.zip格式，小于5mb）：
+      <div style="font-weight: bold">附件（支持.zip格式，小于5mb）：</div>
       <input type="file" class="file_input" accept="application/zip" @change="handleFileChange">
-      <choice_pic :pics="pics" @doSelect="doSelect" @doDelete="doDelete"/>
-      <div>内容：<a @click="watch_manual"
-                   style="display: inline-block;cursor: pointer">(点击查看贴文特殊字符及图片插入手册)</a></div>
-      <textarea v-model="content" v-if="!inputOrPreview">
+      <div style="display: flex;flex-direction: row;align-items: center;font-weight: bold">
+        特殊字符解析器
+        <choice_button v-model="display"/>
+        超级文本编辑器
+      </div>
+
+      <div v-if="display==0" style="min-width: 100%;font-weight: bold" >
+        <choice_pic  :pics="pics" @doSelect="doSelect" @doDelete="doDelete"/>
+        <div >内容：<a @click="watch_manual"
+                      style="display: inline-block;cursor: pointer">(点击查看贴文特殊字符及图片插入手册)</a></div>
+        <textarea v-model="content" style="width: calc(100% - 20px)" v-if="!inputOrPreview" >
 
         </textarea>
+        <div v-if="inputOrPreview" style="font-weight: normal" v-html="escapeTabNoteToHTML(content,pics)">
 
-      <div v-if="inputOrPreview" v-html="escapeTabNoteToHTML(content,pics)">
+        </div>
+      </div>
+      <div v-if="display==1" style="min-width: 100%">
+        <tab_note_editor v-if="!inputOrPreview" v-model="content"/>
 
+        <content_by_tab_note_editor v-if="inputOrPreview" style="font-weight: normal" v-model="content"/>
       </div>
 
       <div style="display: flex; flex-direction: row;align-items: center;margin-top: 15px;margin-bottom: 100px">
@@ -157,6 +175,7 @@ function handleFileChange(event: Event) {
 </template>
 
 <style scoped>
+
 .tab_note_title {
   width: 70%;
   min-width: 300px;

@@ -2,7 +2,7 @@
 import {ref} from "vue";
 import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
-import {delay, getLocalData} from "../../operation/dataOperation.ts";
+import {delay, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
 
 const props = defineProps(['id', 'editContent', 'editDate', 'editLink'])
 const emit = defineEmits(['closeEdit', 'getAllPlans'])
@@ -15,10 +15,11 @@ const edit_date = ref(props.editDate)
 
 async function deletePlan() {
   delete_button.value = "正在发送"
+  const tk = await getTokenData()
   const axiosResponse = await axios.post(getAddress() + "/delete_plan", {
     plan_id: props.id,
     id: getLocalData("id"),
-    token: getLocalData("token"),
+    token: tk,
   })
   if (axiosResponse.data.response == "success") {
     delete_button.value = "发送成功"
@@ -40,10 +41,11 @@ async function updatePlan() {
     alert("请添加内容")
   } else {
     edit_button.value = "正在发送"
+    const tk = await getTokenData()
     const axiosResponse = await axios.post(getAddress() + "/change_plan", {
       plan_id: props.id,
       id: getLocalData("id"),
-      token: getLocalData("token"),
+      token: tk,
       content: edit_content.value,
       link: edit_link.value,
       date: edit_date.value,

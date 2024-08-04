@@ -1,6 +1,7 @@
 import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import viteLegacyPlugin from "@vitejs/plugin-legacy";
+import prismjsPlugin from "vite-plugin-prismjs";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -26,7 +27,13 @@ export default defineConfig({
             'web.dom-collections.for-each',
             'esnext.global-this',
             'esnext.string.match-all']
-    },)],
+    }),prismjsPlugin({
+        languages: 'all', // 语言
+        plugins: ['line-numbers','show-language','copy-to-clipboard','inline-color'],
+        theme: 'tomorrow',// 主题
+        css: true,
+    })
+    ],
     build: {
         target: ['es2015'],
         minify: 'terser',

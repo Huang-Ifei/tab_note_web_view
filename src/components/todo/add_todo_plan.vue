@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
-import {delay, getLocalData} from "../../operation/dataOperation.ts";
+import {delay, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
 import {ref} from "vue";
 
 const new_content = ref("")
@@ -16,9 +16,10 @@ async function insertNewPlan() {
     alert("请添加内容")
   } else {
     add_button.value = "正在发送"
+    const tk = await getTokenData()
     const axiosResponse = await axios.post(getAddress() + "/add_plan_web", {
       id: getLocalData("id"),
-      token: getLocalData("token"),
+      token: tk,
       content: new_content.value,
       link: new_link.value,
       date: new_date.value,

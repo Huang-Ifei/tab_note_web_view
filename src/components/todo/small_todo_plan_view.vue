@@ -3,7 +3,7 @@
 import {Ref, ref} from "vue";
 import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
-import {escapeHTMLWithOutConsole, getLocalData} from "../../operation/dataOperation.ts";
+import {escapeHTMLWithOutConsole, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
 import Small_add_todo from "./small_add_todo.vue";
 import Small_edit_todo from "./small_edit_todo.vue";
 
@@ -21,12 +21,13 @@ const emit = defineEmits(['doClose'])
 getAllPlans()
 
 async function getAllPlans() {
-  if (getLocalData("token") == "" || getLocalData("id") == "") {
+  if (getLocalData("id") == "") {
     plans.value.push({content: "登录使用此功能", link: "", date: "", plan_id: ""})
   } else {
+    const tk = await getTokenData();
     const axiosResponse = await axios.post(getAddress() + "/get_plans", {
       id: getLocalData("id"),
-      token: getLocalData("token")
+      token: tk
     })
     console.log(axiosResponse.data)
     if (axiosResponse.data.response == "success") {
@@ -47,9 +48,10 @@ async function getAllPlans() {
 }
 
 async function finishPlan(plan_id: string, content: string, link: string, date: string) {
+  const tk = await getTokenData()
   const axiosResponse = await axios.post(getAddress() + "/finish_plan_web", {
     id: getLocalData("id"),
-    token: getLocalData("token"),
+    token: tk,
     plan_id: plan_id,
     content: content,
     link: link,

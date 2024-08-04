@@ -6,6 +6,8 @@ import {ref} from "vue";
 import * as Cookies from "js-cookie";
 import router from "../../router";
 import {getAddress} from "../../operation/address.ts";
+import {JSEncrypt} from "jsencrypt";
+import {publicKey} from "../../operation/cryptic.ts";
 
 
 
@@ -16,21 +18,31 @@ const waitText = ref("")
 const isRemember = ref(true)
 async function login(){
   const setId = id.value
-  const setPassword = password.value
+  let setPassword = password.value
 
   waitText.value = "正在处理登录请求"
   const url = getAddress()+"/account"
+  //获取动态加密公钥
+  const tokenCrypt = new JSEncrypt();
+  const axiosResponse = await axios.get(getAddress() + "/public_key")
+  tokenCrypt.setPublicKey(axiosResponse.data.toString())
+  setPassword = tokenCrypt.encrypt(setPassword).toString()
+
   const response = await axios.post(url,{mesType: 1, id:setId, password:setPassword});
   if (response.data.response=='success') {
     waitText.value = "登录成功"
 
+    const crypt = new JSEncrypt();
+    crypt.setPublicKey(publicKey)
+    const encryptToken = crypt.encrypt(response.data.token).toString()
+
     sessionStorage.setItem('id', setId);
     sessionStorage.setItem('name', response.data.name);
-    sessionStorage.setItem('token', response.data.token);
+    sessionStorage.setItem('encryptionToken', encryptToken);
     if (isRemember.value==true){
       Cookies.default.set('id',  setId.toString(),{ expires: 1024 });
       Cookies.default.set('name', response.data.name,{ expires: 1024 });
-      Cookies.default.set('token', response.data.token,{ expires: 1024 });
+      Cookies.default.set('encryptionToken', encryptToken,{ expires: 1024 });
     }
     await router.push("/")
     window.location.reload()

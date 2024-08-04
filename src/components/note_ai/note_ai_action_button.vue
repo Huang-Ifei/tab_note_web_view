@@ -2,7 +2,7 @@
 
 //监听大小
 import {ref} from "vue";
-import {escapeHTML, getLocalData} from "../../operation/dataOperation.ts";
+import {escapeHTML, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
 import Loading from "../weight/loading.vue";
 import {getAddress} from "../../operation/address.ts";
 
@@ -47,6 +47,7 @@ async function post(messages: {}[]) {
   if (!isLoading.value) {
     isLoading.value = true
     try {
+      const tk = await getTokenData()
       // 发起 POST 请求
       const response = await fetch(
           getAddress() + "/ai/note",
@@ -58,7 +59,7 @@ async function post(messages: {}[]) {
               messages: messages,
               model: 'gemini-1.5-pro-latest',
               id: getLocalData('id'),
-              token: getLocalData('token'),
+              token: tk,
               selected: props.selected,
               question: question,
               allValue: props.all_text

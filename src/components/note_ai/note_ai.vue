@@ -1,16 +1,13 @@
-<script setup lang="ts">
+<script setup>
 
 import {
   delay,
-  escapeHTML,
-  escapeHTMLWithOutConsole,
-  getLocalData,
-  htmlToString,
+  getLocalData, getTokenData,
   isApp
 } from "../../operation/dataOperation.ts";
 import Note_ai_title from "./note_ai_title.vue";
 import Artificial_emoji from "../ai_emoji/artificial_emoji.vue";
-import {onBeforeMount, onBeforeUnmount, Ref, ref} from "vue";
+import {onBeforeUnmount, onMounted, ref} from "vue";
 import axios from "axios";
 
 import {getAddress} from "../../operation/address.ts";
@@ -18,238 +15,55 @@ import Note_ai_right_choice from "./note_ai_right_choice.vue";
 import Note_ai_action_button from "./note_ai_action_button.vue";
 
 const note_ai_id = ref('')
-const note_tick: Ref<note_ai[]> = ref([])
-const note_and_tick: Ref<note_or_tick[]> = ref([])
 const rightChoice = ref(false)
-const ai_history: Ref<{}[]> = ref([])
-const all_text = ref('')
-const alr = ref("")
+const ai_history = ref([])
+const all_html = ref('')
+const alr = ref('')
 
-//初始化
-note_and_tick.value.push({type: "content", content: "", bz: ""})
-try {
-  getNoteAiHistory()
-} catch (e) {
-  console.error(e)
-}
+import {shallowRef} from "vue";
+import {Editor, Toolbar} from "@wangeditor/editor-for-vue";
+import {DomEditor, Boot} from "@wangeditor/editor";
 
-function newNoteAi() {
-  note_and_tick.value = [{type: "content", content: "", bz: ""}]
-  note_tick.value = []
-  note_ai_id.value = ""
-}
+import {h} from 'snabbdom'
 
-function getWholeText(): string {
-  let s = ""
-  let count = 0;
-  for (let nt of note_and_tick.value) {
-    if (nt.type == "content") {
-      s += htmlToString(document.getElementById(count.toString())?.innerHTML || '')
-    } else if (nt.type == "high-light") {
-      s += nt.content
-    }
-    count++
-  }
-  htmlToString("ss:" + s)
-  return s
-}
+getNoteAiHistory()
 
-async function pasteText(i: number) {
-  const display = document.getElementById(i.toString());
-  if (display) {
-    await delay(200)
-    const text = document.getElementById(i.toString())?.innerText || ''
-    display.innerHTML = ""
-    display.innerHTML = escapeHTMLWithOutConsole(text)
-  }
-  all_text.value = getWholeText()
-}
 
 //选择操作
+const selection = ref()
 const selectedText = ref("")
 
+function getWholeText() {
+  if (typeof editorRef.value !== "undefined") {
+    return editorRef.value.getText()
+  } else {
+    return ""
+  }
+}
+
 const handleSelect = () => {
-  const selection = window.getSelection();
-  if (selection) {
-    selectedText.value = selection.toString()
+  if (editorRef.value.selection !== null) {
+    selectedText.value = window.getSelection().toString()
+    selection.value = editorRef.value.selection
+  } else {
+    selectedText.value = ""
+    selection.value = {}
   }
 };
 
-
-type note_ai = {
-  sd: string;
-  question: string;
-  note: string
-}
-
-type note_or_tick = {
-  type: string;
-  content: string;
-  bz: string
-}
-
-async function removeNote(sd: string, content: string) {
-  let new_note_tick: note_ai[] = []
-
-  console.log(note_tick.value.length + ":cc1")
-  console.log(note_tick.value)
-  for (let tick of note_tick.value) {
-    if ((tick.sd == sd && tick.note == content)||tick.sd == sd && content == "问："+tick.question+"\n答："+tick.note) {
-
-    }else{
-      console.log(tick.note+":note:"+content)
-      new_note_tick.push(tick)
-    }
-  }
-
-  note_tick.value = new_note_tick
-  console.log(note_tick.value.length + ":cc2")
-  console.log(note_tick.value)
-  const text = getWholeText()
-  await loadNote(text)
-  try {
-    await pushNoteAiToServer(note_tick.value, text, note_ai_id.value)
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-async function loadNote(s: string) {
-  note_and_tick.value = []
-
-  note_and_tick.value = [{type: "content", content: s, bz: ""}]
-
-  console.log(note_tick.value)
-
-  for (let n of note_tick.value) {
-    await delay(1)
-    addNoteWithOutPushToServer(n.sd, n.question, n.note)
-  }
-
-  try {
-    if (note_and_tick.value[note_and_tick.value.length - 1].type != 'content') {
-      note_and_tick.value.push({type: "content", content: "", bz: ""})
-    }
-  } catch (e) {
-    note_and_tick.value.push({type: "content", content: "", bz: ""})
-    console.error(e)
-  }
-}
-
-function addNoteWithOutPushToServer(sd: string, question: string, note: string) {
-
-  for (let i = 0; i < note_and_tick.value.length; i++) {
-    if (note_and_tick.value[i].type == "content") {
-      note_and_tick.value[i].content = htmlToString(document.getElementById(i.toString())?.innerHTML || '')
-    }
-  }
-
-  let new_note_and_tick = note_and_tick.value
-  note_and_tick.value = []
-
-  for (let ii = 0; ii < new_note_and_tick.length; ii++) {
-    let newContent = ""
-    let a = new_note_and_tick[ii].content
-    let basic = new_note_and_tick[ii].type
-    for (let i = 0; i < a.length; i++) {
-      if (a.substring(i, i + sd.length) == sd) {
-        if (newContent != '') {
-          note_and_tick.value.push({type: basic, content: newContent, bz: new_note_and_tick[ii].bz})
-        }
-        newContent = ""
-        note_and_tick.value.push({type: "high-light", content: sd, bz: ""})
-        if (question != '') {
-          note_and_tick.value.push({type: "tick", content: "问：" + question + "\n答：" + note, bz: sd})
-        } else {
-          note_and_tick.value.push({type: "tick", content: note, bz: sd})
-        }
-        i = i + sd.length - 1
-      } else {
-        newContent += a.charAt(i)
-      }
-    }
-    if (newContent != '') {
-      note_and_tick.value.push({type: basic, content: newContent, bz: new_note_and_tick[ii].bz})
-    }
-  }
-
-  try {
-    if (note_and_tick.value[note_and_tick.value.length - 1].type != 'content') {
-      note_and_tick.value.push({type: "content", content: "", bz: ""})
-    }
-  } catch (e) {
-    note_and_tick.value.push({type: "content", content: "", bz: ""})
-  }
-
-}
-
-async function addNote(sd: string, question: string, note: string) {
-  note_tick.value.push({sd: sd, question: question, note: note});
-  console.log("length:" + note_tick.value.length)
-  const text = getWholeText()
-
-  for (let i = 0; i < note_and_tick.value.length; i++) {
-    if (note_and_tick.value[i].type == "content") {
-      note_and_tick.value[i].content = htmlToString(document.getElementById(i.toString())?.innerHTML || '')
-    }
-  }
-
-  let new_note_and_tick = note_and_tick.value
-  note_and_tick.value = []
-
-  for (let ii = 0; ii < new_note_and_tick.length; ii++) {
-    let newContent = ""
-    let a = new_note_and_tick[ii].content
-    let basic = new_note_and_tick[ii].type
-    for (let i = 0; i < a.length; i++) {
-      if (a.substring(i, i + sd.length) == sd) {
-        if (newContent != '') {
-          note_and_tick.value.push({type: basic, content: newContent, bz: new_note_and_tick[ii].bz})
-        }
-        newContent = ""
-        note_and_tick.value.push({type: "high-light", content: sd, bz: ""})
-        if (question != '') {
-          note_and_tick.value.push({type: "tick", content: "问：" + question + "\n答：" + note, bz: sd})
-        } else {
-          note_and_tick.value.push({type: "tick", content: note, bz: sd})
-        }
-        i = i + sd.length - 1
-      } else {
-        newContent += a.charAt(i)
-      }
-    }
-    if (newContent != '') {
-      note_and_tick.value.push({type: basic, content: newContent, bz: new_note_and_tick[ii].bz})
-    }
-  }
-
-  try {
-    if (note_and_tick.value[note_and_tick.value.length - 1].type != 'content') {
-      note_and_tick.value.push({type: "content", content: "", bz: ""})
-    }
-  } catch (e) {
-    note_and_tick.value.push({type: "content", content: "", bz: ""})
-  }
-  console.log(note_tick.value)
-  try {
-    await pushNoteAiToServer(note_tick.value, text, note_ai_id.value)
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-async function pushNoteAiToServer(noteTick: note_ai[], note: string, noteAiId: string) {
-  if (note!=""){
+async function pushNoteAiToServer(noteTick, note, noteAiId) {
+  const tk = await getTokenData()
+  if (note !== "" && editorRef.value.getText() !== "") {
     const response = await axios.post(getAddress() + "/ai/note_sync", {
       id: getLocalData('id'),
-      token: getLocalData("token"),
+      token: tk,
       note_ticks: noteTick,
       note_ai_id: noteAiId,
       note: note
     })
     console.log("note:" + note)
-    if (response.data.response == 'success') {
-      if (response.data.note_ai_id != null) {
+    if (response.data.response === 'success') {
+      if (response.data.note_ai_id !== null && response.data.note_ai_id !== undefined) {
         console.log(response.data.note_ai_id)
         note_ai_id.value = response.data.note_ai_id
       }
@@ -258,60 +72,66 @@ async function pushNoteAiToServer(noteTick: note_ai[], note: string, noteAiId: s
       } catch (e) {
         console.error(e)
       }
-      alr.value="保存成功"
+      alr.value = "保存成功"
       await delay(2000)
-      alr.value=""
+      alr.value = ""
     } else {
-      alr.value="服务器错误，可能无法同步您的笔记"
+      alr.value = "服务器错误，可能无法同步您的笔记"
       await delay(2000)
-      alr.value=""
+      alr.value = ""
     }
-  }else{
-    alr.value="不可以保存空内容"
+  } else {
+    alr.value = "不可以保存空内容"
     await delay(2000)
-    alr.value=""
+    alr.value = ""
   }
 }
 
 async function getNoteAiHistory() {
+  const tk = await getTokenData();
   const response = await axios.post(getAddress() + "/ai/get_note_history", {
     id: getLocalData('id'),
-    token: getLocalData("token"),
+    token: tk,
   })
-  if (response.data.response == 'success') {
+  if (response.data.response === 'success') {
     ai_history.value = response.data.list
-  } else if (response.data.response == 'token_check_failed') {
+  } else if (response.data.response === 'token_check_failed') {
     alert("请重新登录")
   } else {
     alert("服务器错误")
   }
 }
 
-async function getHistoryNoteAi(noteAiId: string) {
+async function getHistoryNoteAi(noteAiId) {
   note_ai_id.value = noteAiId
+  const tk =  await getTokenData();
   const response = await axios.post(getAddress() + "/ai/note_history", {
     id: getLocalData('id'),
-    token: getLocalData('token'),
+    token: tk,
     note_ai_id: noteAiId
   })
-  if (response.data.response == 'success') {
-    note_tick.value = response.data.messages
-    await loadNote(response.data.note)
-  } else if (response.data.response == 'token_check_failed') {
+  if (response.data.response === 'success') {
+    all_html.value = ""
+    await delay(100)
+    all_html.value = response.data.note
+    while(true){
+      await delay(500)
+      if (editorRef.value.getHtml()!=='<p><br></p>')break
+      else all_html.value = response.data.note
+    }
+    console.log("all:" + all_html.value)
+  } else if (response.data.response === 'token_check_failed') {
     alert("历史笔记获取错误，TOKEN失效，请重新登录")
   } else {
     alert("服务器错误")
   }
 }
 
-//监听大小
-onBeforeMount(() => {
+onMounted(() => {
   renderResize();
-  window.addEventListener("resize", renderResize);
+  window.addEventListener("resize", renderResize, {once: true});
 });
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", renderResize);
-});
+
 const smallScreen = ref(false);
 const renderResize = () => {
   let width = document.documentElement.clientWidth;
@@ -322,92 +142,281 @@ const renderResize = () => {
   }
 }
 
-function showAE(s: string): boolean {
-  if (s == '') {
+function showAE(s) {
+  if (s === '') {
     return false
-  } else if (s == ' ') {
+  } else if (s === ' ') {
     return false
-  } else if (s == '\n') {
+  } else if (s === '\n') {
     return false
   }
   return true
 }
+
+function newChat() {
+  note_ai_id.value = ""
+  all_html.value = ""
+}
+
+const editorRef = shallowRef()
+
+const toolbarConfig = {
+  excludeKeys: [
+    'group-video',
+    'group-image',
+    'italic',
+    'fullScreen',
+    'codeBlock'
+  ]
+}
+
+const editorConfig = {placeholder: '请输入内容...', MENU_CONF: {}, scroll: false}
+
+
+function ctPaste(editor, event) {
+  const html = event.clipboardData.getData('text/html') // 获取粘贴的 html
+  const text = event.clipboardData.getData('text/plain') // 获取粘贴的纯文本
+  const rtf = event.clipboardData.getData('text/rtf') // 获取 rtf 数据（如从 word wsp 复制粘贴）
+
+  // 同步
+  editor.insertText(text)
+
+
+  event.preventDefault()
+  console.log()
+  return false;
+}
+
+const mode = 'default'
+
+const handleCreated = (editor) => {
+  editorRef.value = editor // 记录 editor 实例
+  //注册
+  Boot.registerPlugin(withTick)
+  Boot.registerRenderElem(renderElemConf)
+  Boot.registerElemToHtml(elemToHtmlConf)
+  Boot.registerParseElemHtml(parseHtmlConf)
+}
+
+const tick = {
+  type: 'tick',
+  question: "",
+  answer: "",
+  children: [{text: ""}]
+}
+
+async function addTick(sd, question, note) {
+
+  editorRef.value.select(selection.value)
+  editorRef.value.insertNode({text: sd, bgColor: "#96dfff"})
+  editorRef.value.insertNode({
+    type: 'tick', question: question, answer: note,
+    children: [{text: ""}]
+  })
+
+  await delay(1000)
+  await pushNoteAiToServer({}, all_html.value, note_ai_id.value)
+}
+
+//定义插件
+function withTick(editor) {
+  const {isInline, isVoid} = editor
+  const newEditor = editorRef.value
+
+  newEditor.isVoid = elem => {
+    const type = DomEditor.getNodeType(elem)
+    if (type === "tick") {
+      return true
+    }
+    return isVoid(elem)
+  }
+
+  newEditor.isInline = elem => {
+    const type = DomEditor.getNodeType(elem)
+    if (type === 'tick') {
+      return true
+    }
+
+    return isInline(elem)
+  }
+
+}
+
+//定义render
+function renderTick(elem, children, editor) {
+  const {question = "", answer = ""} = elem
+  let contentSpan;
+  if (question === "") {
+    contentSpan = h(
+        'span',
+        {
+          props: {contentEditable: false},
+          style: {
+            display: 'inline-block',
+            color: "white"
+          }
+        },
+        [answer]
+    )
+  } else {
+    contentSpan = h(
+        'span',
+        {
+          props: {contentEditable: false},
+          style: {
+            display: 'inline-block',
+            color: "white"
+          }
+        },
+        ["问：", question, "\n答：", answer]
+    )
+  }
+
+  const bgDiv = h(
+      'div',
+      {
+        props: {contentEditable: false},
+        style: {
+          display: 'block',
+          width: 'fit-content',
+          height: 'fit-content',
+          background: '#009bff',
+          borderRadius: "5px",
+          padding: "8px",
+          color: "white"
+        },
+      },
+      [contentSpan]
+  )
+
+  return bgDiv;
+}
+
+//注册render
+const renderElemConf = {
+  type: "tick",
+  renderElem: renderTick
+}
+
+
+//添加转换HTML
+function tickToHTML(elem) {
+  const {question = "", answer = ""} = elem
+  let html;
+  if (question === "") {
+    html = `<div data-w-e-type="tick" data-w-e-is-inline data-w-e-is-void data-question="" data-answer="${answer}">${answer}</div>`
+  } else {
+    html = `<div data-w-e-type="tick" data-w-e-is-inline data-w-e-is-void data-question="${question}" data-answer="${answer}">问：${question}<br>答：${answer}</div>`
+  }
+  return html
+}
+
+//注册转换HTML
+const elemToHtmlConf = {
+  type: "tick",
+  elemToHtml: tickToHTML
+}
+
+
+//解析tick HTML进编辑器
+function parseTick(domELem, children, editor) {
+  const question = domELem.getAttribute("data-question") || ""
+  const answer = domELem.getAttribute("data-answer") || ""
+  const newTick = {
+    type: "tick",
+    question: question,
+    answer: answer,
+    children: [{text: ""}]
+  }
+  return newTick
+}
+
+//注册解析
+const parseHtmlConf = {
+  selector: "div[data-w-e-type='tick']",
+  parseElemHtml: parseTick
+}
+
+// 组件销毁时，也及时销毁编辑器
+onBeforeUnmount(() => {
+  const editor = editorRef.value
+  if (editor == null) return
+  editor.destroy()
+})
 </script>
 
 <template>
-  <div class="home_background" @keyup="all_text=getWholeText()">
+  <div class="home_background">
     <transition name="right_choice">
-      <note_ai_right_choice :list="ai_history" v-if="rightChoice" @rightClose="rightChoice = false" @newChat="newNoteAi"
-                            @getHistoryAiMessages="getHistoryNoteAi"/>
+      <note_ai_right_choice :list="ai_history" v-if="rightChoice" @rightClose="rightChoice = false" @newChat="newChat"
+                            :note_ai_id="note_ai_id" @getHistoryAiMessages="getHistoryNoteAi"/>
     </transition>
-    <note_ai_action_button :alr="alr" :small="smallScreen" :all_text="all_text" :note="true" @push_to_server="pushNoteAiToServer(note_tick,getWholeText(),note_ai_id)"/>
+    <note_ai_action_button :alr="alr" :small="smallScreen" :all_text="''" :note="true"
+                           @push_to_server="pushNoteAiToServer({},all_html,note_ai_id)"/>
     <artificial_emoji :small="smallScreen" :all_text="getWholeText()" :selected="selectedText.replace(/ /g,' ')"
                       v-if="showAE(selectedText)"
-                      @add_note="addNote" :note="true" @stop-select="selectedText=''"/>
+                      @add_note="addTick" :note="true" @stop-select="selectedText=''"/>
     <note_ai_title @rightChoice="rightChoice=true"/>
-    <div v-if="!smallScreen" class="text_div_background" @keyup.stop="handleSelect" @mouseup.stop="handleSelect"
+
+
+    <Toolbar
+        :editor="editorRef"
+        :defaultConfig="toolbarConfig"
+        :mode="mode"
+        v-if="!smallScreen"
+    />
+    <div v-if="!smallScreen" class="text_div_background" @keyup.stop="handleSelect"
+         @mouseup.stop="handleSelect();console.log(editorRef.selection)"
          @copy="handleSelect">
       <div class="text_div">
-        <div v-for="(nat,i) of note_and_tick" style="display: inline">
-          <div :id="i.toString()" @paste="pasteText(i)"
-               style="display: inline;max-width: 100%;overflow-wrap: break-word;text-overflow: revert"
-               v-if="nat.type=='content'" class="text" aria-placeholder="在此输入内容" contenteditable="true"
-               v-html="escapeHTMLWithOutConsole(nat.content)">
-          </div>
-          <div :id="i.toString()"
-               style='display: inline;overflow-wrap: break-word;background: #c8edff;outline: #1a98ee 1px solid;width: fit-content;max-width: 100%;color: #1a1a1a'
-               v-else-if="nat.type=='high-light'" contenteditable="false"
-               v-html="escapeHTMLWithOutConsole(nat.content)">
-          </div>
-          <div :id="i.toString()"
-               style='overflow-wrap: break-word;background: linear-gradient(45deg,  #009bff, #29abff);;color: rgb(255,255,255);border-radius: 10px;padding: 10px;margin-bottom: 2px;max-width: calc(100% - 20px);width: fit-content'
-               v-else-if="nat.type=='tick'" contenteditable="false">
-            <div style="width: 100%;display: flex;justify-content: right">
-              <img alt="delete" src="../../assets/close_white.svg" style="width: 20px;height: 20px;cursor: pointer"
-                   @click="removeNote(nat.bz,nat.content)">
-            </div>
-            <div v-html="escapeHTML(nat.content)">
-
-            </div>
-          </div>
-        </div>
+        <Editor
+            style="height: 100%"
+            v-model="all_html"
+            :defaultConfig="editorConfig"
+            @customPaste="ctPaste"
+            :mode="mode"
+            @onCreated="handleCreated"
+        />
       </div>
     </div>
-
+    <Toolbar
+        :editor="editorRef"
+        :defaultConfig="toolbarConfig"
+        :mode="mode"
+        v-if="smallScreen"
+    />
     <div v-if="smallScreen" class="text_div_background" @mouseup="handleSelect" @copy="handleSelect"
          @keyup.stop="handleSelect"
          @mouseup.stop="handleSelect">
       <div class="text_div_small">
-        <div v-for="(nat,i) of note_and_tick" style="display: inline">
-          <div :id="i.toString()" @paste="pasteText(i)"
-               style="display: inline;max-width: 100%;overflow-wrap: break-word;text-overflow: revert"
-               v-if="nat.type=='content'" class="text" aria-placeholder="在此输入内容" contenteditable="true"
-               v-html="escapeHTMLWithOutConsole(nat.content)">
-          </div>
-          <div :id="i.toString()"
-               style='display: inline;overflow-wrap: break-word;background: #c8edff;outline: #1a98ee 1px solid;width: fit-content;max-width: 100%;color: #1a1a1a'
-               v-else-if="nat.type=='high-light'" contenteditable="false"
-               v-html="escapeHTMLWithOutConsole(nat.content)">
-          </div>
-          <div :id="i.toString()"
-               style='overflow-wrap: break-word;background: linear-gradient(45deg,  #009bff, #29abff);;color: rgb(255,255,255);border-radius: 10px;padding: 10px;margin-bottom: 2px;max-width: calc(100% - 20px);width: fit-content'
-               v-else-if="nat.type=='tick'" contenteditable="false">
-            <div style="width: 100%;display: flex;justify-content: right">
-              <img alt="delete" src="../../assets/close_white.svg" style="width: 20px;height: 20px;cursor: pointer"
-                   @click="removeNote(nat.bz,nat.content)">
-            </div>
-            <div v-html="escapeHTML(nat.content)">
-
-            </div>
-          </div>
-        </div>
+        <Editor
+            style="height: 100%"
+            v-model="all_html"
+            :defaultConfig="editorConfig"
+            @customPaste="ctPaste"
+            :mode="mode"
+            @onCreated="handleCreated"
+        />
       </div>
     </div>
+
 
   </div>
 </template>
 
-<style scoped>
+<style>
+
+.w-e-text-container [data-slate-editor] p {
+  margin: 2px 0
+}
+
+.w-e-text-placeholder {
+  font-style: italic;
+  left: 10px;
+  top: 2px;
+  width: 90%
+}
+
 .right_choice-enter-active,
 .right_choice-leave-active {
   transition: opacity 0.25s ease;
@@ -426,15 +435,24 @@ function showAE(s: string): boolean {
   height: 100%;
 }
 
+.text_div_background {
+  background-color: #f4f5f6;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  overflow: auto;
+  display: flex;
+}
+
 .text_div {
   background: #ffffff;
   min-height: 100vw;
   height: fit-content;
-  min-width: calc(70vw - 80px);
-  max-width: calc(70vw - 80px);
-  margin: 20px;
+  min-width: calc(70% - 50px);
+  max-width: calc(70% - 50px);
+  margin: 15px;
   font-size: 16px;
-  padding: 40px;
+  padding: 30px;
 }
 
 .text_div_small {
@@ -442,18 +460,9 @@ function showAE(s: string): boolean {
   min-height: calc(100vh - 214px);
   height: fit-content;
   font-size: 16px;
-  min-width: calc(100vw - 40px);
-  max-width: calc(100vw - 40px);
+  min-width: calc(100% - 40px);
+  max-width: calc(100% - 40px);
   padding: 20px 20px 140px;
-}
-
-.text_div_background {
-  background-color: #f4f5f6;
-  min-height: calc(100vh - 54px);
-  max-height: calc(100vh - 54px);
-  justify-content: center;
-  overflow: auto;
-  display: flex;
 }
 
 .text:empty::before {

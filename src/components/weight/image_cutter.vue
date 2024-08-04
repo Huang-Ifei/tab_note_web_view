@@ -3,7 +3,7 @@ import {ref} from 'vue';
 import Compressor from 'compressorjs';
 import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
-import {getLocalData} from "../../operation/dataOperation.ts";
+import {getLocalData, getTokenData} from "../../operation/dataOperation.ts";
 
 let props = defineProps(['setContentValue'])
 
@@ -11,9 +11,10 @@ const imageUrl = ref()
 
 async function setAccountImg() {
   props.setContentValue("服务器正在处理中")
+  const tk =  await getTokenData();
   const setAccountImgPost = await axios.post(getAddress() + "/account_img_set", {
     id: getLocalData('id'),
-    token: getLocalData('token'),
+    token: tk,
     base64Img: imageUrl.value
   })
   if (setAccountImgPost.status == 200) {

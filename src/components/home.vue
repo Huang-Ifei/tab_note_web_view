@@ -36,6 +36,7 @@ const renderResize = () => {
     smallScreen.value = false;
   }
 }
+
 </script>
 
 <template>

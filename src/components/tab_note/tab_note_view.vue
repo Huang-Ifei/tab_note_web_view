@@ -4,9 +4,10 @@ import {useRoute} from "vue-router";
 import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
 import {onBeforeMount, onBeforeUnmount, Ref, ref} from "vue";
-import {escapeTabNoteToHTML, getIdImg, getLocalData, isApp} from "../../operation/dataOperation.ts";
+import {escapeTabNoteToHTML, getIdImg, getLocalData, getTokenData, isApp} from "../../operation/dataOperation.ts";
 import Icon_to_home from "../weight/icon_to_home.vue";
 import Messages_view from "./messages_view.vue";
+import Content_by_tab_note_editor from "../weight/content_by_tab_note_editor.vue";
 
 const usr_name = ref("")
 const usr_id = ref("")
@@ -19,15 +20,21 @@ const click = ref(0)
 const like_this = ref(0)
 const date_time = ref("")
 const imgs: Ref<string[]> = ref([])
-const escapeString = ref("")
+const is_liked = ref(false)
 const file = ref("")
+const display = ref(0)
 
 const route = useRoute()
 
 getTabNote()
 
 async function getTabNote() {
-  const axiosResponse = await axios.get(getAddress() + "/tab_note?id=" + route.query.tab_note_id);
+  const tk = await getTokenData()
+  const axiosResponse = await axios.post(getAddress() + "/tab_note", {
+    tabNoteId: route.query.tab_note_id,
+    id: getLocalData("id"),
+    token: tk
+  });
 
   if (axiosResponse.data.response == "success") {
     try {
@@ -42,19 +49,18 @@ async function getTabNote() {
       like_this.value = axiosResponse.data.like_this
       date_time.value = axiosResponse.data.date_time
       file.value = axiosResponse.data.file
+      display.value = axiosResponse.data.display
+
+      if (axiosResponse.data.is_liked > 0) {
+        is_liked.value = true
+      }
+
       let imgArray = axiosResponse.data.imgs.images
-      if (typeof imgArray != 'undefined' &&imgArray.length>0){
+      if (typeof imgArray != 'undefined' && imgArray.length > 0) {
         for (let imgValue of imgArray) {
           imgs.value.push(getAddress() + "/tabNoteImg?name=" + imgValue)
         }
       }
-      escapeString.value = escapeTabNoteToHTML(tab_note.value, imgs.value);
-
-      await axios.post(getAddress() + "/tab_note_click", {
-        tab_note_id: route.query.tab_note_id,
-        id: getLocalData("id"),
-        token: getLocalData("token")
-      })
     } catch (e) {
       console.error(e)
     }
@@ -66,16 +72,22 @@ async function getTabNote() {
 }
 
 async function likeThis() {
-  like_this.value++;
-  await axios.post(getAddress() + "/tab_note_like", {
-    tab_note_id: route.query.tab_note_id,
-    id: getLocalData("id"),
-    token: getLocalData("token")
-  })
+  if (is_liked.value){
+
+  }else {
+    like_this.value++;
+    is_liked.value = true
+    const tk = await getTokenData()
+    await axios.post(getAddress() + "/tab_note_like", {
+      tab_note_id: route.query.tab_note_id,
+      id: getLocalData("id"),
+      token: tk
+    })
+  }
 }
 
-function download_this(s:string) {
-  window.open(getAddress()+"/file_select?name="+s)
+function download_this(s: string) {
+  window.open(getAddress() + "/file_select?name=" + s)
 }
 
 
@@ -90,10 +102,9 @@ onBeforeUnmount(() => {
 const smallScreen = ref(false);
 const renderResize = () => {
   let width = document.documentElement.clientWidth;
-  if (width < 680||isApp()) {
+  if (width < 680 || isApp()) {
     smallScreen.value = true;
-  }
-  else {
+  } else {
     smallScreen.value = false;
   }
 }
@@ -114,13 +125,14 @@ const renderResize = () => {
         <img :src="getIdImg(usr_id)">
         &nbsp;{{ usr_name }}&nbsp;
       </div>
-      <div class="value" v-if="smallScreen" >
+      <div class="value" v-if="smallScreen">
         <img src="../../assets/calendar.svg">
         &nbsp;{{ date_time }}&nbsp;
       </div>
       <div style="display: flex;flex-direction: row;overflow: auto" v-if="smallScreen">
         <div class="click_value" @click="likeThis">
-          <img src="../../assets/thumb_up.svg">
+          <img src="../../assets/thumb_up.svg" alt="thumb_up" v-if="!is_liked">
+          <img src="../../assets/thumb_up_fill.svg" alt="thumb_up_fill" v-else-if="is_liked">
           &nbsp;{{ like_this }}&nbsp;
         </div>
         <div class="click_value" v-if="file!=''" @click="download_this(file)">
@@ -157,7 +169,8 @@ const renderResize = () => {
       </div>
       <div style="display: flex;flex-direction: row" v-if="!smallScreen">
         <div class="click_value" @click="likeThis">
-          <img src="../../assets/thumb_up.svg">
+          <img src="../../assets/thumb_up.svg" alt="thumb_up" v-if="!is_liked">
+          <img src="../../assets/thumb_up_fill.svg" alt="thumb_up_fill" v-else-if="is_liked">
           &nbsp;{{ like_this }}&nbsp;
         </div>
         <div class="click_value" v-if="file!=''" @click="download_this(file)">
@@ -168,9 +181,11 @@ const renderResize = () => {
       <a class="tags">
         {{ tags }}
       </a>
-      <div id="content" v-html="escapeString">
+      <div id="content" v-if="display==0" v-html="escapeTabNoteToHTML(tab_note, imgs)">
 
       </div>
+      <content_by_tab_note_editor :value="tab_note" v-else-if="display==1"/>
+
       <messages_view :tab_note_id="route.query.tab_note_id" :smallScreen="smallScreen"/>
     </div>
   </div>

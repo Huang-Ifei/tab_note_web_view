@@ -6,6 +6,8 @@ import axios from "axios";
 import router from "../../router";
 import * as Cookies from "js-cookie";
 import {getAddress} from "../../operation/address.ts";
+import {JSEncrypt} from "jsencrypt";
+import {privateKey, publicKey} from "../../operation/cryptic.ts";
 
 const placeholder = ref("账号")
 const waitText = ref("")
@@ -63,7 +65,14 @@ async function check(){
     waitText.value = "正在核验密码";
     try {
       const url = getAddress()+"/account_password_check"
-      const response = await axios.post(url,{password: content.value});
+
+      //获取动态加密公钥
+      const tokenCrypt = new JSEncrypt();
+      const axiosResponse = await axios.get(getAddress() + "/public_key")
+      tokenCrypt.setPublicKey(axiosResponse.data.toString())
+      const pwd = tokenCrypt.encrypt(content.value).toString()
+
+      const response = await axios.post(url,{password: pwd});
       if (response.data.response=='ok') {
         const sys_mess = document.getElementById("sys_mess")
         if (sys_mess != null) {
@@ -110,10 +119,24 @@ async function check(){
           placeholder.value = ""
           //最终注册
           const url = getAddress()+"/account"
-          const response = await axios.post(url,{mesType: 0, id:id.value, password:password.value, name:name.value});
+
+          //获取动态加密公钥
+          const pwdCrypt = new JSEncrypt();
+          const axiosResponse = await axios.get(getAddress() + "/public_key")
+          pwdCrypt.setPublicKey(axiosResponse.data.toString())
+          const pwd = pwdCrypt.encrypt(password.value).toString()
+
+          const response = await axios.post(url,{mesType: 0, id:id.value, password:pwd, name:name.value});
           if (response.data.response=='success') {
             sys_mess.innerHTML = "创建账户成功！"
-            token.value = response.data.token
+
+            //对回传内容进行解密
+            const tokenCrypt = new JSEncrypt();
+            tokenCrypt.setPrivateKey(privateKey)
+            token.value = tokenCrypt.decrypt(response.data.token).toString()
+
+            console.log(token.value)
+
             successChoice.value = true
           }else{
             sys_mess.innerHTML = response.data.response
@@ -146,21 +169,31 @@ async function check(){
 }
 
 function saveCookieAndSignUp(){
+
+  const crypt = new JSEncrypt();
+  crypt.setPublicKey(publicKey)
+  const encryptToken = crypt.encrypt(token.value).toString()
+
   Cookies.default.set('id', id.value,{ expires: 1024 });
   Cookies.default.set('name', name.value,{ expires: 1024 });
-  Cookies.default.set('token', token.value,{ expires: 1024 });
+  Cookies.default.set('encryptionToken', encryptToken,{ expires: 1024 });
 
   sessionStorage.setItem('id', id.value);
   sessionStorage.setItem('name', name.value);
-  sessionStorage.setItem('token', token.value);
+  sessionStorage.setItem('encryptionToken', encryptToken);
   router.push('/')
   window.location.reload()
 }
 function saveSessionAndSignUp(){
+
+  const crypt = new JSEncrypt();
+  crypt.setPublicKey(publicKey)
+  const encryptToken = crypt.encrypt(token.value).toString()
+
   console.log("saveSessionAndSignUp")
   sessionStorage.setItem('id', id.value);
   sessionStorage.setItem('name', name.value);
-  sessionStorage.setItem('token', token.value);
+  sessionStorage.setItem('encryptionToken', encryptToken);
   router.push('/')
   window.location.reload()
 }

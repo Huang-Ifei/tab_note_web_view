@@ -2,7 +2,7 @@
 
 //监听大小
 import {ref} from "vue";
-import {escapeHTML, getLocalData} from "../../operation/dataOperation.ts";
+import {escapeHTML, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
 import Loading from "../weight/loading.vue";
 import {getAddress} from "../../operation/address.ts";
 
@@ -22,10 +22,10 @@ function makeMessage(): {}[] {
   let ques = ""
   if(props.all_text==props.selected){
     start = '现有内容如下：\n' + props.all_text + '\n'
-    ques = '你需要跟我说的是：' + question.value
+    ques = '我想知道的是：' + question.value
   } else if (props.selected.length<20) {
     start = '现有文本如下：\n' + props.all_text + '\n（文本内容至此结束）\n'
-    second = '我选中其中这么一段内容：' + props.selected + '\n（选中该内容至此结束）\n'
+    second = '我选中其中这么一段内容：' + props.selected + '\n'
     ques = '对于这段内容，我想问的是：' + question.value
   } else{
     start = '现有文本如下：\n' + props.all_text + '\n（文本内容至此结束）\n'
@@ -50,6 +50,7 @@ async function post(messages: {}[]) {
   if (!isLoading.value) {
     isLoading.value = true
     try {
+      const tk = await getTokenData()
       // 发起 POST 请求
       const response = await fetch(
           getAddress() + "/ai/note",
@@ -59,9 +60,9 @@ async function post(messages: {}[]) {
             body: JSON.stringify({
               note_ai_id: note_ai_id.value,
               messages: messages,
-              model: 'gemini-1.5-pro-latest',
+              model: 'gemini-1.5-pro',
               id: getLocalData('id'),
-              token: getLocalData('token'),
+              token: tk,
               selected: props.selected,
               question: question,
               allValue: props.all_text

@@ -2,10 +2,10 @@
 import {Ref, ref} from "vue";
 import axios from "axios";
 import {getAddress} from "../../operation/address.ts";
-import { escapeHTMLWithOutConsole, getIdImg, getLocalData} from "../../operation/dataOperation.ts";
+import {escapeHTMLWithOutConsole, getIdImg, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
 
 
-const props = defineProps(['tab_note_id','smallScreen'])
+const props = defineProps(['tab_note_id', 'smallScreen'])
 const tab_note_id = props.tab_note_id
 const message = ref("")
 const messages_show = ref(false)
@@ -13,7 +13,7 @@ const can_add_more_tab_mess = ref(true)
 
 
 type TabMess = {
-  usr_id:string,
+  usr_id: string,
   usr_name: string,
   like_this: number,
   message: string,
@@ -23,10 +23,11 @@ type TabMess = {
   can_not_show_more_reply: boolean,
   reply: boolean
   reply_value: string,
+  liked: number,
   reply_messages: MessMess[]
 }
 type MessMess = {
-  usr_id:string,
+  usr_id: string,
   usr_name: string,
   like_this: number,
   date_time: string,
@@ -34,7 +35,8 @@ type MessMess = {
   message_id: string,
   reply: boolean
   reply_value: string,
-  reply_usr:string
+  reply_usr: string,
+  liked: number
 }
 const messages: Ref<TabMess[]> = ref([])
 
@@ -45,6 +47,7 @@ async function getMessages() {
   const axiosResponse = await axios.post(getAddress() + "/tab_note_mess", {
     tab_note_id: tab_note_id,
     start: message_length,
+    usr_id: getLocalData("id"),
   })
   if (axiosResponse.data.response == "success") {
     messages.value = axiosResponse.data.messages
@@ -61,16 +64,17 @@ async function getMoreMessages() {
   const axiosResponse = await axios.post(getAddress() + "/tab_note_mess", {
     tab_note_id: tab_note_id,
     start: message_length,
+    usr_id: getLocalData("id"),
   })
   if (axiosResponse.data.response == "success") {
-    const moreMessages:Ref<TabMess[]> = ref([])
+    const moreMessages: Ref<TabMess[]> = ref([])
     moreMessages.value = axiosResponse.data.messages
 
-    for(let a of moreMessages.value){
+    for (let a of moreMessages.value) {
       messages.value.push(a)
     }
 
-    if (moreMessages.value.length == 0){
+    if (moreMessages.value.length == 0) {
       can_add_more_tab_mess.value = false
     }
   } else {
@@ -81,91 +85,118 @@ async function getMoreMessages() {
 
 getMessages()
 
-async function like_mess(route: string, m_id: string) {
-  await axios.post(getAddress() + route, {
-    mess_id: m_id,
-    id: getLocalData("id"),
-    token: getLocalData("token"),
-  })
+async function like_tab_mess(index: number, route: string, m_id: string) {
+  if (messages.value[index].liked == 0) {
+    messages.value[index].liked = 1
+    messages.value[index].like_this ++
+    const tk = await getTokenData()
+    await axios.post(getAddress() + route, {
+      mess_id: m_id,
+      id: getLocalData("id"),
+      token: tk,
+    })
+  } else {
+
+  }
 }
 
-async function getMessMess(i:number,from_tab_mess:string) {
-  const start = ref(0);
-  if (typeof (messages.value[i].reply_messages)!="undefined") {
-      start.value=messages.value[i].reply_messages.length
+async function like_mess_mess(tab_index: number, index: number, route: string, m_id: string) {
+  const tk = await getTokenData()
+  if (messages.value[tab_index].reply_messages[index].liked == 0) {
+    messages.value[tab_index].reply_messages[index].liked = 1
+    messages.value[tab_index].reply_messages[index].like_this ++
+    await axios.post(getAddress() + route, {
+      mess_id: m_id,
+      id: getLocalData("id"),
+      token: tk,
+    })
+  } else {
+
   }
-  if (start.value>0){
-    messages.value[i].reply_messages=[]
+}
+
+async function getMessMess(i: number, from_tab_mess: string) {
+  const start = ref(0);
+  if (typeof (messages.value[i].reply_messages) != "undefined") {
+    start.value = messages.value[i].reply_messages.length
+  }
+  if (start.value > 0) {
+    messages.value[i].reply_messages = []
     messages.value[i].can_not_show_more_reply = false
     return
   }
   const axiosResponse = await axios.post(getAddress() + "/mess_mess", {
     from_tab_mess: from_tab_mess,
     start: start.value,
+    usr_id: getLocalData("id"),
   })
   if (axiosResponse.data.response == "success") {
     messages.value[i].reply_messages = axiosResponse.data.messages
-    if (messages.value[i].reply_messages.length==0){
-      messages.value[i].can_not_show_reply=true
+    if (messages.value[i].reply_messages.length == 0) {
+      messages.value[i].can_not_show_reply = true
     }
   }
 }
 
-async function getMoreMessMess(i:number,from_tab_mess:string){
+async function getMoreMessMess(i: number, from_tab_mess: string) {
   const axiosResponse = await axios.post(getAddress() + "/mess_mess", {
     from_tab_mess: from_tab_mess,
     start: messages.value[i].reply_messages.length,
+    usr_id: getLocalData("id"),
   })
   if (axiosResponse.data.response == "success") {
-    const moreMessages:MessMess[] = axiosResponse.data.messages
-    for(let mm of moreMessages){
+    const moreMessages: MessMess[] = axiosResponse.data.messages
+    for (let mm of moreMessages) {
       messages.value[i].reply_messages.push(mm)
     }
-    if (moreMessages.length==0){
-      messages.value[i].can_not_show_more_reply=true
+    if (moreMessages.length == 0) {
+      messages.value[i].can_not_show_more_reply = true
     }
   }
 }
 
-async function insertMessMess(from_tab_mess:string,reply_mess_id:string,mess:string,i:number,ii:number) {
+async function insertMessMess(from_tab_mess: string, reply_mess_id: string, mess: string, i: number, ii: number) {
   if (mess.length <= 0) {
     alert("请填写内容")
   }
+  const tk = await getTokenData()
   const axiosResponse = await axios.post(getAddress() + "/mess_mess_add", {
     id: getLocalData("id"),
-    token: getLocalData("token"),
+    token: tk,
     reply_message_id: reply_mess_id,
-    from_tab_mess:from_tab_mess,
+    from_tab_mess: from_tab_mess,
     message: mess,
   })
 
   if (axiosResponse.data.response == "success") {
-    const a:MessMess = {
-      usr_id:getLocalData("id"),
+    const a: MessMess = {
+      usr_id: getLocalData("id"),
       reply_usr: "",
       date_time: "",
       message_id: "",
       reply: false,
+      liked: 0,
       reply_value: "",
       usr_name: getLocalData("name"),
-      like_this:0,
-      message:mess}
-    if (messages.value[i].message_id!=from_tab_mess){
-      a.reply_usr=messages.value[i].usr_name
+      like_this: 0,
+      message: mess
+    }
+    if (messages.value[i].message_id != from_tab_mess) {
+      a.reply_usr = messages.value[i].usr_name
     }
 
-    if ( typeof messages.value[i].reply_messages==="undefined" ) {
-      messages.value[i].reply_messages=[]
+    if (typeof messages.value[i].reply_messages === "undefined") {
+      messages.value[i].reply_messages = []
     }
     messages.value[i].reply_messages.push(a)
     //如果是tab_mess的回复,清空回复并关闭其回复栏
-    if (from_tab_mess==reply_mess_id) {
+    if (from_tab_mess == reply_mess_id) {
       messages.value[i].reply_value = ""
-      messages.value[i].reply=false
-    }else{
+      messages.value[i].reply = false
+    } else {
       //如果是mess_mess的回复,清空回复并关闭其回复栏
       messages.value[i].reply_messages[ii].reply_value = ""
-      messages.value[i].reply_messages[ii].reply=false
+      messages.value[i].reply_messages[ii].reply = false
     }
   } else {
     alert("留言发送错误")
@@ -177,9 +208,10 @@ async function insertMessage() {
     alert("请填写内容")
     return
   }
+  const tk = await getTokenData()
   const axiosResponse = await axios.post(getAddress() + "/tab_mess_add", {
     id: getLocalData("id"),
-    token: getLocalData("token"),
+    token: tk,
     tab_note_id: tab_note_id,
     message: message.value,
   })
@@ -224,15 +256,16 @@ async function insertMessage() {
 
         <div class="value">
           <img alt="" :src="getIdImg(mess.usr_id)">
-          &nbsp;{{mess.usr_name }}&nbsp;
+          &nbsp;{{ mess.usr_name }}&nbsp;
         </div>
 
         <div style="margin: 3px 10px;font-size: 14px" v-html="escapeHTMLWithOutConsole(mess.message)">
         </div>
 
         <div style="display: flex;flex-direction: row;">
-          <div class="value_click" @click="like_mess('/tab_mess_like',mess.message_id);mess.like_this++">
-            <img alt="" src="../../assets/thumb_up.svg">
+          <div class="value_click" @click="like_tab_mess(i,'/tab_mess_like',mess.message_id)">
+            <img alt="" src="../../assets/thumb_up.svg" v-if="mess.liked==0">
+            <img alt="" src="../../assets/thumb_up_fill.svg" v-else-if="mess.liked==1">
             {{ mess.like_this }}
           </div>
           <div class="value_click" @click="mess.reply=!mess.reply">
@@ -247,9 +280,9 @@ async function insertMessage() {
         <div v-if="mess.reply&&smallScreen" class="input_message">
           <textarea v-model="mess.reply_value" class="mess_mess_textarea">
            </textarea>
-            <button id="submit" @click="insertMessMess(mess.message_id,mess.message_id,mess.reply_value,i,-1)">
-              发送
-            </button>
+          <button id="submit" @click="insertMessMess(mess.message_id,mess.message_id,mess.reply_value,i,-1)">
+            发送
+          </button>
         </div>
         <!--电脑端-->
         <div v-if="mess.reply&&!smallScreen" class="input_message" style="min-width: 600px;width: 60%">
@@ -266,12 +299,17 @@ async function insertMessage() {
             &nbsp;{{ messMess.usr_name }}&nbsp;
           </div>
           <div style="display: inline-block; margin: 0 8px; padding: 3px;">
-            <div v-if="messMess.reply_usr!=''" style="color: #1c1c1c;display: inline-block;font-weight: bold">回复[{{messMess.reply_usr}}]:&nbsp;</div>
-            <div style="margin: 0;font-size: 14px;display: inline-block" v-html="escapeHTMLWithOutConsole(messMess.message)"></div>
+            <div v-if="messMess.reply_usr!=''" style="color: #1c1c1c;display: inline-block;font-weight: bold">
+              回复[{{ messMess.reply_usr }}]:&nbsp;
+            </div>
+            <div style="margin: 0;font-size: 14px;display: inline-block"
+                 v-html="escapeHTMLWithOutConsole(messMess.message)"></div>
           </div>
           <div style="display: flex;flex-direction: row;">
-            <div class="value_click" @click="like_mess('/mess_mess_like',messMess.message_id);messMess.like_this++">
-              <img alt="" src="../../assets/thumb_up.svg">
+            <div class="value_click"
+                 @click="like_mess_mess(i,ii,'/mess_mess_like',messMess.message_id)">
+              <img alt="" src="../../assets/thumb_up.svg" v-if="messMess.liked==0">
+              <img alt="" src="../../assets/thumb_up_fill.svg" v-else-if="messMess.liked==1">
               {{ messMess.like_this }}
             </div>
             <div class="value_click" @click="messMess.reply=!messMess.reply">
@@ -293,28 +331,33 @@ async function insertMessage() {
             </button>
           </div>
         </div>
-        <div v-if="!mess.can_not_show_more_reply&& typeof mess.reply_messages !='undefined' &&mess.reply_messages.length>0" @click="getMoreMessMess(i,mess.message_id)" class="more_mess" style="margin-left: 38px;margin-bottom: 10px">
+        <div
+            v-if="!mess.can_not_show_more_reply&& typeof mess.reply_messages !='undefined' &&mess.reply_messages.length>0"
+            @click="getMoreMessMess(i,mess.message_id)" class="more_mess" style="margin-left: 38px;margin-bottom: 10px">
           获取更多回复
         </div>
         <!-- 留言的留言  -->
       </div>
     </div>
 
-    <div v-if="can_add_more_tab_mess&&messages.length>0" @click="getMoreMessages" style="margin-left: 8px;" class="more_mess">
+    <div v-if="can_add_more_tab_mess&&messages.length>0" @click="getMoreMessages" style="margin-left: 8px;"
+         class="more_mess">
       获取更多留言
     </div>
   </div>
 </template>
 
 <style scoped>
-.more_mess{
+.more_mess {
   cursor: pointer;
-  color:#1c99ee;
+  color: #1c99ee;
   font-weight: bold
 }
-.more_mess:hover{
+
+.more_mess:hover {
   text-shadow: #b6deff 0 0 2px
 }
+
 .value_click {
   padding: 10px;
   background: transparent;
@@ -389,7 +432,7 @@ async function insertMessage() {
   padding-bottom: 50px;
 }
 
-.input_message{
+.input_message {
   margin-left: 20px;
   margin-right: 20px;
   align-items: flex-end;
@@ -402,7 +445,8 @@ async function insertMessage() {
 .message_textarea {
   height: 100px;
 }
-.mess_mess_textarea{
+
+.mess_mess_textarea {
   height: 60px;
 }
 

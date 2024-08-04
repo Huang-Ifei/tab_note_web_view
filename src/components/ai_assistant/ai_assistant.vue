@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import resize_textarea from "../weight/resize_textarea.vue";
-import {onBeforeMount, onBeforeUnmount, Ref, ref} from "vue";
-import {delay, escapeHTML, getAccountImg, getLocalData, isApp} from "../../operation/dataOperation.ts";
+import {onBeforeMount, onBeforeUnmount,  Ref, ref} from "vue";
+import {
+  delay,
+  escapeHTML,
+  escapeHTMLWithOutConsole,
+  getAccountImg,
+  getLocalData, getTokenData,
+  isApp
+} from "../../operation/dataOperation.ts";
 import {getAddress} from "../../operation/address.ts";
 import axios from "axios";
 import Small_ai_title from "./small_ai_title.vue";
@@ -12,14 +19,18 @@ import router from "../../router";
 
 const right_choice = ref(false)
 
-const messages: Ref<{}[]> = ref([])
+type talk = {
+  role: string,
+  content: string
+}
+
+const messages: Ref<talk[]> = ref([])
 const aiHistory: Ref<{}[]> = ref([])
 
 const count = ref(0)
 const ai_ms_id = ref("")
 const text = ref("");
 const streamText = ref("")
-
 const isLoading = ref(false)
 
 //监听大小
@@ -45,6 +56,7 @@ async function post() {
   if (!isLoading.value) {
     isLoading.value = true
     try {
+      const tk = await getTokenData()
       // 发起 POST 请求
       const response = await fetch(
           getAddress() + "/ai/messages",
@@ -54,9 +66,10 @@ async function post() {
             body: JSON.stringify({
               ai_ms_id: ai_ms_id.value,
               messages: messages.value,
-              model: 'gemini-1.5-pro-latest',
+              preview: true,
+              model: 'gemini-1.5-pro',
               id: getLocalData('id'),
-              token: getLocalData('token')
+              token: tk
             }),
           }
       );
@@ -100,8 +113,8 @@ async function post() {
       // 请求失败，处理错误
       console.error('Error fetching data:', error);
     }
-    isLoading.value=false
-  }else{
+    isLoading.value = false
+  } else {
     alert("请等待加载完成，若出错请刷新网页")
   }
 }
@@ -135,9 +148,10 @@ getAiHistory()
 //获取历史列表
 async function getAiHistory() {
   try {
+    const tk = await getTokenData()
     const response = await axios.post(getAddress() + "/ai/get_history", {
       id: getLocalData("id"),
-      token: getLocalData("token")
+      token: tk
     });
     aiHistory.value = response.data.list
     console.log(aiHistory.value)
@@ -148,7 +162,7 @@ async function getAiHistory() {
 
 //新建对话
 async function newChat() {
-  if (!isLoading.value){
+  if (!isLoading.value) {
     const talking_view = document.getElementById("contents_view")
     if (talking_view) {
       talking_view.innerHTML = ""
@@ -157,19 +171,20 @@ async function newChat() {
     text.value = ''
     ai_ms_id.value = ''
     messages.value = []
-  }else{
+  } else {
     alert("请等待加载完成，若出错请刷新网页")
   }
 }
 
 //获取历史对话
 async function getHistoryAiMessages(aiMsId: string) {
-  if (!isLoading.value){
+  if (!isLoading.value) {
     text.value = ''
     try {
+      const tk = await getTokenData()
       const response = await axios.post(getAddress() + "/ai/history", {
         id: getLocalData("id"),
-        token: getLocalData("token"),
+        token: tk,
         ai_ms_id: aiMsId
       });
       //重置
@@ -188,7 +203,7 @@ async function getHistoryAiMessages(aiMsId: string) {
     } catch (error) {
       console.error(error)
     }
-  }else{
+  } else {
     alert("请等待加载完成，若出错请刷新网页")
   }
 }
@@ -205,11 +220,11 @@ async function addUsrMess(s: string) {
 }
 
 async function send(s: string) {
-  if (!isLoading.value){
+  if (!isLoading.value) {
     text.value = s;
     await addUsrMess(s)
     await post()
-  }else{
+  } else {
     alert("请等待加载完成，若出错请刷新网页")
   }
 }
@@ -229,14 +244,14 @@ function copyText(s: string) {
 }
 
 async function redoUsrMessage(ii: number) {
-  if (!isLoading.value){
-    let newMessage: {}[] = []
+  if (!isLoading.value) {
+    let newMessage: talk[] = []
     for (let i = 0; i < messages.value.length; i++) {
       if (i < ii) {
         newMessage.push(messages.value[i])
       } else if (i == ii) {
-        setText(JSON.parse(JSON.stringify(messages.value[i])).content)
-      } else {
+        setText(messages.value[i].content)
+
         if (count.value - newMessage.length > 3) {
           count.value = newMessage.length + 3
         }
@@ -249,19 +264,18 @@ async function redoUsrMessage(ii: number) {
         break;
       }
     }
-  }else{
+  } else {
     alert("请等待加载完成，若出错请刷新网页")
   }
 }
 
 async function redoAiMessage(ii: number) {
-  if (!isLoading.value){
-    let newMessage: {}[] = []
+  if (!isLoading.value) {
+    let newMessage: talk[] = []
     for (let i = 0; i < messages.value.length; i++) {
-      if (i < ii - 1) {
+      if (i < ii) {
         newMessage.push(messages.value[i])
-      } else if (i == ii - 1) {
-        newMessage.push(messages.value[i])
+      } else if (i == ii) {
         if (count.value - newMessage.length > 3) {
           count.value = newMessage.length + 3
         }
@@ -271,12 +285,15 @@ async function redoAiMessage(ii: number) {
         }
         await delay(250)
         messages.value = newMessage
+
+        console.log(messages.value)
+
         await post()
       } else {
         break;
       }
     }
-  }else{
+  } else {
     alert("请等待加载完成，若出错请刷新网页")
   }
 }
@@ -296,17 +313,24 @@ async function redoAiMessage(ii: number) {
           <img src="../../assets/edit.svg" alt="edit" style="margin-right: 2px"/>
           新建对话
         </button>
-        <button @click="router.push('note_ai')" style="display: flex; align-items: center;justify-content: center;padding: 10px">
+        <button @click="router.push('note_ai')"
+                style="display: flex; align-items: center;justify-content: center;padding: 10px">
           <img src="../../assets/edit_note.svg" alt="edit" style="margin-right: 2px"/>
           笔记型AI
         </button>
         <div style="min-height: 8px;display: flex;">
 
         </div>
-        <button v-for="value in aiHistory" :key="JSON.parse(JSON.stringify(value)).ai_ms_id"
-                @click="getHistoryAiMessages(JSON.parse(JSON.stringify(value)).ai_ms_id.toString())">
-          {{ JSON.parse(JSON.stringify(value)).mainly }}
-        </button>
+        <div v-for="value in aiHistory" :key="JSON.parse(JSON.stringify(value)).ai_ms_id"
+             @click="getHistoryAiMessages(JSON.parse(JSON.stringify(value)).ai_ms_id.toString())">
+          <button v-if="ai_ms_id==JSON.parse(JSON.stringify(value)).ai_ms_id.toString()"
+                  style="outline: #009bff auto 1px">
+            {{ JSON.parse(JSON.stringify(value)).mainly }}
+          </button>
+          <button v-else>
+            {{ JSON.parse(JSON.stringify(value)).mainly }}
+          </button>
+        </div>
       </div>
       <button onclick="location.href='login'" id="usr">
         <button onclick="location.href='login'" class="imageButton">
@@ -326,28 +350,29 @@ async function redoAiMessage(ii: number) {
         <div class="contents_view" style="padding: 0 7%">
           <div v-for="(value,ii) in messages" :key="ii">
             <transition>
-              <div v-if="JSON.parse(JSON.stringify(value)).role=='model'&&count>ii" class="model_talk">
+              <div v-if="value.role=='model'&&count>ii" class="model_talk">
                 <div style="display: flex;flex-direction: row;align-items: center;">
                   <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
-                  <img @click="copyText(JSON.parse(JSON.stringify(value)).content)" class="copy_img"
+                  <img @click="copyText(value.content)" class="copy_img"
                        src="../../assets/content_copy.svg" alt="copy"/>
                   <img @click="redoAiMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
                        alt="copy"/>
                 </div>
-                <div v-html="escapeHTML(JSON.parse(JSON.stringify(value)).content)" class="content">
+                <div v-html="escapeHTML(value.content)" class="content">
                 </div>
               </div>
             </transition>
             <transition>
-              <div v-if="JSON.parse(JSON.stringify(value)).role=='user'&&count>ii" class="usr_talk">
+              <div v-if="value.role=='user'&&count>ii" class="usr_talk">
                 <div style="display: flex;flex-direction: row;align-items: center;">
                   <img @click="redoUsrMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
                        alt="copy"/>
-                  <img @click="copyText(JSON.parse(JSON.stringify(value)).content)" class="copy_img"
+                  <img @click="copyText(value.content)" class="copy_img"
                        src="../../assets/content_copy.svg" alt="copy"/>
                   <img class="usr_img" :src="getAccountImg()" alt="usr"/>
                 </div>
-                <div v-html="escapeHTML(JSON.parse(JSON.stringify(value)).content)" class="content">
+                <div v-html="escapeHTMLWithOutConsole(value.content)" class="content"
+                     style="background: #009bff;color: white">
                 </div>
               </div>
             </transition>
@@ -361,7 +386,7 @@ async function redoAiMessage(ii: number) {
         </div>
       </div>
       <div class="bottomInput">
-        <resize_textarea :setText="setText" @doSend="send" :smallScreen="smallScreen" :value="text"/>
+        <resize_textarea @doSend="send" :smallScreen="smallScreen" v-model="text"/>
       </div>
     </div>
   </div>
@@ -379,28 +404,29 @@ async function redoAiMessage(ii: number) {
         <div class="contents_view">
           <div v-for="(value,ii) in messages" :key="ii">
             <transition>
-              <div v-if="JSON.parse(JSON.stringify(value)).role=='model'&&count>ii" class="model_talk">
+              <div v-if="value.role=='model'&&count>ii" class="model_talk">
                 <div style="display: flex;flex-direction: row;align-items: center;">
                   <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
-                  <img @click="copyText(JSON.parse(JSON.stringify(value)).content)" class="copy_img"
+                  <img @click="copyText(value.content)" class="copy_img"
                        src="../../assets/content_copy.svg" alt="copy"/>
                   <img @click="redoAiMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
                        alt="copy"/>
                 </div>
-                <div v-html="escapeHTML(JSON.parse(JSON.stringify(value)).content)" class="content">
+                <div v-html="escapeHTML(value.content)" class="content">
                 </div>
               </div>
             </transition>
             <transition>
-              <div v-if="JSON.parse(JSON.stringify(value)).role=='user'&&count>ii" class="usr_talk">
+              <div v-if="value.role=='user'&&count>ii" class="usr_talk">
                 <div style="display: flex;flex-direction: row;align-items: center;">
                   <img @click="redoUsrMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
                        alt="copy"/>
-                  <img @click="copyText(JSON.parse(JSON.stringify(value)).content)" class="copy_img"
+                  <img @click="copyText(value.content)" class="copy_img"
                        src="../../assets/content_copy.svg" alt="copy"/>
                   <img class="usr_img" :src="getAccountImg()" alt="usr"/>
                 </div>
-                <div v-html="escapeHTML(JSON.parse(JSON.stringify(value)).content)" class="content">
+                <div v-html="escapeHTMLWithOutConsole(value.content)" class="content"
+                     style="background: #009bff;color: white">
                 </div>
               </div>
             </transition>
@@ -414,13 +440,14 @@ async function redoAiMessage(ii: number) {
         </div>
       </div>
       <div class="bottomInput" style="width: calc(100% - 20px);padding-left: 10px;padding-right: 10px">
-        <resize_textarea :setText="setText" @doSend="send" :smallScreen="smallScreen" :value="text"/>
+        <resize_textarea @doSend="send" :smallScreen="smallScreen" v-model="text"/>
       </div>
     </div>
   </div>
   <transition name="small_right_choice">
     <small_right_choice v-if="right_choice" @getHistoryAiMessages="getHistoryAiMessages"
-                        @rightClose="right_choice=false" @newChat="newChat" :mess_list="aiHistory"/>
+                        @rightClose="right_choice=false" @newChat="newChat" :mess_list="aiHistory"
+                        :ai_ms_id="ai_ms_id"/>
   </transition>
 </template>
 
@@ -500,7 +527,7 @@ async function redoAiMessage(ii: number) {
   margin-right: 10px;
   color: #000000;
   background: white;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 #hello2 {

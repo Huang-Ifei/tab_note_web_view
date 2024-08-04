@@ -1,6 +1,13 @@
 <script setup lang="ts">
 
-import {deleteLocalData, getAccountImg, getLocalData, isApp, setLocalData} from "../../operation/dataOperation.ts";
+import {
+  deleteLocalData,
+  getAccountImg,
+  getLocalData,
+  getTokenData,
+  isApp,
+  setLocalData
+} from "../../operation/dataOperation.ts";
 import Icon_to_home from "../weight/icon_to_home.vue";
 import router from "../../router";
 import {onBeforeMount, onBeforeUnmount, ref} from "vue";
@@ -34,10 +41,13 @@ function requestChangeName() {
 async function sendNameChange() {
   show_content.value = "服务器正在处理中..."
   action.value = "serverAction"
+
+  const tk = await getTokenData()
+
   const axiosResponse = await axios.post(getAddress() + "/account", {
     mesType: 14,
     name: new_name.value,
-    token: getLocalData("token")
+    token: tk
   })
 
   const responseMess = axiosResponse.data.response
@@ -70,10 +80,13 @@ function requestChangeId() {
 async function sendIdChange() {
   show_content.value = "服务器正在处理中..."
   action.value = "serverAction"
+
+  const tk = await getTokenData()
+
   const axiosResponse = await axios.post( getAddress() + "/account", {
     mesType: 15,
     id: new_id.value,
-    token: getLocalData("token")
+    token: tk
   })
 
   const responseMess = axiosResponse.data.response
@@ -116,7 +129,6 @@ async function sendPwdChange() {
   const responseMess = axiosResponse.data.response
   if (responseMess == 'success') {
     show_content.value = `新的密码设置成功！`
-    setLocalData('password',axiosResponse.data.password)
   } else if (responseMess == '登录已失效，请重新登录') {
     show_content.value = '登录已失效，请退出账户'
     action.value = "deleteAccount"
@@ -146,9 +158,12 @@ function requestDelete() {
 }
 
 async function deleteAccount() {
+
+  const tk = await getTokenData()
+
   const deleteRequest = await axios.post(getAddress() + "/account", {
     mesType: -1,
-    token: getLocalData("token"),
+    token: tk,
   })
 
   deleteLocalData('id')

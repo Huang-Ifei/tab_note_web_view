@@ -2,15 +2,14 @@
 import {ref, watch} from "vue";
 
 //父组件传入的function、数据等内容
-const props = defineProps(['setText','smallScreen','value'])
+const props = defineProps(['smallScreen'])
 //父组件传入的事件
 const emit = defineEmits(['doSend'])
 
-const content = ref("");
+const content = defineModel({default:""});
 const resizeText = ref(1)
 
 function changeSize() {
-  props.setText(content.value)
   resizeText.value = content.value.split('\n').length
 }
 
@@ -23,7 +22,7 @@ function send() {
 }
 
 watch(
-    () => props.value,
+    () => content.value,
     (newContent) => {
       content.value = newContent || "";
       resizeText.value = content.value.split('\n').length;
@@ -34,10 +33,10 @@ watch(
 <template>
     <textarea id="textareaEl" v-model="content" @input="changeSize" :rows="resizeText">
     </textarea>
-  <button @click="send" v-if="!smallScreen">
+  <button @click="send" v-if="!props.smallScreen">
     发送
   </button>
-  <button @click="send" v-if="smallScreen" style="width: 100px">
+  <button @click="send" v-if="props.smallScreen" style="width: 100px">
     发送
   </button>
 </template>

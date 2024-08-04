@@ -3,7 +3,7 @@
 import {Ref, ref} from "vue";
 import router from "../../router";
 
-const props = defineProps(['mess_list'])
+const props = defineProps(['mess_list','ai_ms_id'])
 
 const ai_history:Ref<{}[]> = ref(props.mess_list)
 
@@ -29,11 +29,15 @@ const emit = defineEmits(['rightClose','choice','newChat','getHistoryAiMessages'
       <div style="min-height: 8px;display: flex;">
 
       </div>
-      <button v-for="value in ai_history" class="his_button" :key="JSON.parse(JSON.stringify(value)).ai_ms_id"
-              @click="emit('getHistoryAiMessages',JSON.parse(JSON.stringify(value)).ai_ms_id.toString());emit('rightClose')">
-        {{ JSON.parse(JSON.stringify(value)).mainly }}
-      </button>
-
+      <div v-for="value in ai_history" :key="JSON.parse(JSON.stringify(value)).ai_ms_id"
+           @click="emit('getHistoryAiMessages',JSON.parse(JSON.stringify(value)).ai_ms_id.toString());emit('rightClose')">
+        <button class="his_button" v-if="props.ai_ms_id==JSON.parse(JSON.stringify(value)).ai_ms_id.toString()" style="outline: #009bff auto 1px">
+          {{ JSON.parse(JSON.stringify(value)).mainly }}
+        </button>
+        <button class="his_button" v-else>
+          {{ JSON.parse(JSON.stringify(value)).mainly }}
+        </button>
+      </div>
     </div>
   </div>
 </template>

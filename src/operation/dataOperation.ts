@@ -1,12 +1,15 @@
 import * as Cookies from "js-cookie";
 import {getAddress} from "./address.ts"
+import {privateKey, publicKey} from "./cryptic.ts";
+import {JSEncrypt} from "jsencrypt";
+import axios from "axios";
 
 export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export function loginCheck(): boolean {
-    return !(getLocalData('id') == '' || getLocalData('token') == '')
+    return !(getLocalData('id') == '')
 }
 
 export function getLocalData(key: string): string {
@@ -21,6 +24,48 @@ export function getLocalData(key: string): string {
         }
     } else {
         return ss.toString();
+    }
+}
+
+export async function getTokenData(): Promise<string> {
+    const ss = sessionStorage.getItem('encryptionToken');
+    if (ss == null){
+        const cs = Cookies.default.get('encryptionToken')
+        if (typeof cs === "undefined") {
+            //判断是否有未加密的token被存储，如果有，则使其加密存储进加密token里面，并销毁未加密的token，再返回被服务器动态加密的token
+            const css = Cookies.default.get('token');
+            if (typeof css === 'undefined'){
+                return ""
+            }else{
+                const crypt = new JSEncrypt();
+                crypt.setPublicKey(publicKey)
+                const encryptToken = crypt.encrypt(css).toString()
+                Cookies.default.set('encryptionToken',encryptToken);
+
+                Cookies.default.remove('token')
+                return getDecryptAndEncryptToken(encryptToken);
+            }
+        } else {
+            sessionStorage.setItem('encryptionToken', cs)
+            return getDecryptAndEncryptToken(cs);
+        }
+    }else {
+        return getDecryptAndEncryptToken(ss.toString());
+    }
+}
+
+async function getDecryptAndEncryptToken(s: string): Promise<string> {
+    //使用私钥将被token的内容解密
+    const crypt = new JSEncrypt();
+    crypt.setPrivateKey(privateKey)
+    const decryptToken = crypt.decrypt(s)
+    if (decryptToken === false) {
+        return "";
+    } else {
+        const tokenCrypt = new JSEncrypt();
+        const axiosResponse = await axios.get(getAddress() + "/public_key")
+        tokenCrypt.setPublicKey(axiosResponse.data.toString())
+        return tokenCrypt.encrypt(decryptToken).toString()
     }
 }
 
@@ -63,8 +108,7 @@ export function deleteLocalData(key: string) {
 
 export function getAccountImg(): string {
     let id = getLocalData("id")
-    let token = getLocalData("token")
-    if (id == '' || token == '') {
+    if (id == '') {
         return getAddress() + "/accountImg?id=login"
     }
     return getAddress() + "/accountImg?id=" + id
