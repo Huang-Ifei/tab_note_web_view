@@ -7,9 +7,7 @@ import * as Cookies from "js-cookie";
 import router from "../../router";
 import {getAddress} from "../../operation/address.ts";
 import {JSEncrypt} from "jsencrypt";
-import {publicKey} from "../../operation/cryptic.ts";
-
-
+import {privateKey, publicKey} from "../../operation/cryptic.ts";
 
 const id = ref("")
 const password = ref("")
@@ -27,14 +25,17 @@ async function login(){
   const axiosResponse = await axios.get(getAddress() + "/public_key")
   tokenCrypt.setPublicKey(axiosResponse.data.toString())
   setPassword = tokenCrypt.encrypt(setPassword).toString()
-
   const response = await axios.post(url,{mesType: 1, id:setId, password:setPassword});
   if (response.data.response=='success') {
     waitText.value = "登录成功"
 
+    const decrypt = new JSEncrypt();
+    decrypt.setPrivateKey(privateKey)
+    const decryptToken = decrypt.decrypt(response.data.token).toString();
+
     const crypt = new JSEncrypt();
     crypt.setPublicKey(publicKey)
-    const encryptToken = crypt.encrypt(response.data.token).toString()
+    const encryptToken = crypt.encrypt(decryptToken).toString()
 
     sessionStorage.setItem('id', setId);
     sessionStorage.setItem('name', response.data.name);

@@ -28,23 +28,22 @@ export function getLocalData(key: string): string {
 }
 
 export async function getTokenData(): Promise<string> {
+
+    //判断是否有未加密的token被存储，如果有，则使其加密存储进加密token里面，并销毁未加密的token
+    const css = Cookies.default.get('token');
+    if (typeof css !== 'undefined'){
+        const crypt = new JSEncrypt();
+        crypt.setPublicKey(publicKey)
+        const encryptToken = crypt.encrypt(css).toString()
+        Cookies.default.set('encryptionToken',encryptToken,{ expires: 1024 });
+        Cookies.default.remove('token')
+    }
+
     const ss = sessionStorage.getItem('encryptionToken');
     if (ss == null){
         const cs = Cookies.default.get('encryptionToken')
         if (typeof cs === "undefined") {
-            //判断是否有未加密的token被存储，如果有，则使其加密存储进加密token里面，并销毁未加密的token，再返回被服务器动态加密的token
-            const css = Cookies.default.get('token');
-            if (typeof css === 'undefined'){
-                return ""
-            }else{
-                const crypt = new JSEncrypt();
-                crypt.setPublicKey(publicKey)
-                const encryptToken = crypt.encrypt(css).toString()
-                Cookies.default.set('encryptionToken',encryptToken);
-
-                Cookies.default.remove('token')
-                return getDecryptAndEncryptToken(encryptToken);
-            }
+            return ""
         } else {
             sessionStorage.setItem('encryptionToken', cs)
             return getDecryptAndEncryptToken(cs);
