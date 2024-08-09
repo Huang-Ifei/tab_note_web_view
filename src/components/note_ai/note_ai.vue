@@ -1,30 +1,24 @@
 <script setup>
 
-import {
-  delay,
-  getLocalData, getTokenData,
-  isApp
-} from "../../operation/dataOperation.ts";
+import {delay, getLocalData, getTokenData, isApp} from "../../operation/dataOperation.ts";
 import Note_ai_title from "./note_ai_title.vue";
 import Artificial_emoji from "../ai_emoji/artificial_emoji.vue";
-import {onBeforeUnmount, onMounted, ref} from "vue";
+import {onBeforeUnmount, onMounted, ref, shallowRef} from "vue";
 import axios from "axios";
 
 import {getAddress} from "../../operation/address.ts";
 import Note_ai_right_choice from "./note_ai_right_choice.vue";
 import Note_ai_action_button from "./note_ai_action_button.vue";
+import {Editor, Toolbar} from "@wangeditor/editor-for-vue";
+import {Boot, DomEditor} from "@wangeditor/editor";
+
+import {h} from 'snabbdom'
 
 const note_ai_id = ref('')
 const rightChoice = ref(false)
 const ai_history = ref([])
 const all_html = ref('')
 const alr = ref('')
-
-import {shallowRef} from "vue";
-import {Editor, Toolbar} from "@wangeditor/editor-for-vue";
-import {DomEditor, Boot} from "@wangeditor/editor";
-
-import {h} from 'snabbdom'
 
 getNoteAiHistory()
 
@@ -59,6 +53,7 @@ async function pushNoteAiToServer(noteTick, note, noteAiId) {
       token: tk,
       note_ticks: noteTick,
       note_ai_id: noteAiId,
+      note_content:getWholeText(),
       note: note
     })
     console.log("note:" + note)
@@ -272,7 +267,7 @@ function renderTick(elem, children, editor) {
     )
   }
 
-  const bgDiv = h(
+  return h(
       'div',
       {
         props: {contentEditable: false},
@@ -287,9 +282,7 @@ function renderTick(elem, children, editor) {
         },
       },
       [contentSpan]
-  )
-
-  return bgDiv;
+  );
 }
 
 //注册render
@@ -304,9 +297,9 @@ function tickToHTML(elem) {
   const {question = "", answer = ""} = elem
   let html;
   if (question === "") {
-    html = `<div data-w-e-type="tick" data-w-e-is-inline data-w-e-is-void data-question="" data-answer="${answer}">${answer}</div>`
+    html = `<div data-w-e-type="tick" data-w-e-is-inline data-w-e-is-void data-question="" data-answer="${answer}"></div>`
   } else {
-    html = `<div data-w-e-type="tick" data-w-e-is-inline data-w-e-is-void data-question="${question}" data-answer="${answer}">问：${question}<br>答：${answer}</div>`
+    html = `<div data-w-e-type="tick" data-w-e-is-inline data-w-e-is-void data-question="${question}" data-answer="${answer}"></div>`
   }
   return html
 }
@@ -367,6 +360,7 @@ onBeforeUnmount(() => {
     />
     <div v-if="!smallScreen" class="text_div_background" @keyup.stop="handleSelect"
          @mouseup.stop="handleSelect();console.log(editorRef.selection)"
+         @touchend.stop="handleSelect()"
          @copy="handleSelect">
       <div class="text_div">
         <Editor
@@ -385,8 +379,9 @@ onBeforeUnmount(() => {
         :mode="mode"
         v-if="smallScreen"
     />
-    <div v-if="smallScreen" class="text_div_background" @mouseup="handleSelect" @copy="handleSelect"
+    <div v-if="smallScreen" class="text_div_background"
          @keyup.stop="handleSelect"
+         @touchend.stop="handleSelect"
          @mouseup.stop="handleSelect">
       <div class="text_div_small">
         <Editor

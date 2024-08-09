@@ -242,7 +242,7 @@ function decodeJsonToShow(decodeValue: string) {
         <div class="colorful_bold_text">AI便笺</div>
       </div>
       <div class="ai_emoji" style="margin-top: 15px" @click="show_talking_view=false;show_write_view=!show_write_view" v-if="props.note">
-        <img src="../../assets/emojis/pen.svg" alt="pen_emoji">
+        <img src="../../assets/emojis/pen.svg" alt="pen_emoji" style="width: 55px;height: 55px" >
         <div class="blue_bold_text">文字便笺</div>
       </div>
     </div>
@@ -262,7 +262,7 @@ function decodeJsonToShow(decodeValue: string) {
         <div class="colorful_bold_text" style="font-size: 11px">AI便笺</div>
       </div>
       <div class="ai_emoji" style="min-width: 45px;max-width: 45px;min-height: 55px;max-height: 55px;margin-top: 15px;margin-right: 8px" @click="show_talking_view=false;show_write_view=!show_write_view" v-if="props.note">
-        <img src="../../assets/emojis/pen.svg" alt="pen_emoji">
+        <img src="../../assets/emojis/pen.svg" style="width: 45px;height: 45px" alt="pen_emoji">
         <div class="blue_bold_text" style="font-size: 11px">文字便笺</div>
       </div>
     </div>

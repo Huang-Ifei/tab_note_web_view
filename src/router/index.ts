@@ -44,7 +44,7 @@ const router = createRouter({
         },
         {
             path:"/note_ai",
-            component: Note_ai
+            component: noteAiRouteCheck()
         }
     ]
 })
@@ -70,6 +70,14 @@ function signupRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOption
 function aiRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{}>>, {}, {}> {
     if (loginCheck()){
         return ai_assistant
+    }else{
+        return login
+    }
+}
+
+function noteAiRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{}>>, {}, {}> {
+    if (loginCheck()){
+        return Note_ai
     }else{
         return login
     }
