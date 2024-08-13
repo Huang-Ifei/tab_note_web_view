@@ -20,6 +20,7 @@ const ai_history = ref([])
 const all_html = ref('')
 const alr = ref('')
 const tryDC = ref(false)
+const text =ref("")
 
 getNoteAiHistory()
 
@@ -346,7 +347,7 @@ onBeforeUnmount(() => {
       <note_ai_right_choice :list="ai_history" v-if="rightChoice" @rightClose="rightChoice = false" @newChat="newChat"
                             :note_ai_id="note_ai_id" @getHistoryAiMessages="getHistoryNoteAi"/>
     </transition>
-    <note_ai_action_button :alr="alr" :small="smallScreen" :all_text="getWholeText()" :note="true"
+    <note_ai_action_button :alr="alr" :small="smallScreen" :all_text="text" @click="text=getWholeText()" :note="true"
                            @push_to_server="pushNoteAiToServer({},all_html,note_ai_id)" :tryDC="tryDC"/>
     <artificial_emoji :small="smallScreen" :all_text="getWholeText()" :selected="selectedText.replace(/ /g,' ')"
                       v-if="showAE(selectedText)" :tryDC="tryDC"
