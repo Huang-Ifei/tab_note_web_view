@@ -6,8 +6,8 @@ import {escapeHTML, getLocalData, getTokenData} from "../../operation/dataOperat
 import Loading from "../weight/loading.vue";
 import {getAddress} from "../../operation/address.ts";
 
-const props = defineProps(['selected', 'all_text', 'note','small'])
-const emit = defineEmits(['add_note','stop-select'])
+const props = defineProps(['selected', 'all_text', 'note', 'small', 'tryDC'])
+const emit = defineEmits(['add_note', 'stop-select'])
 const show_talking_view = ref(false);
 const show_write_view = ref(false);
 const question = ref('')
@@ -15,24 +15,28 @@ const answer = ref('')
 const write = ref('')
 const isLoading = ref(false)
 const note_ai_id = ref('')
+const process_info = ref({computerName:"",memory:"",memoryUsage:"",ip:""})
 
 function makeMessage(): {}[] {
   let start = "";
   let second = "";
   let ques = ""
-  if(props.all_text==props.selected){
+  if (props.all_text == props.selected) {
     start = '现有内容如下：\n' + props.all_text + '\n'
     ques = '我想知道的是：' + question.value
-  } else if (props.selected.length<20) {
+  } else if (props.selected.length < 20) {
     start = '现有文本如下：\n' + props.all_text + '\n（文本内容至此结束）\n'
     second = '我选中其中这么一段内容：' + props.selected + '\n'
     ques = '对于这段内容，我想问的是：' + question.value
-  } else{
+  } else {
     start = '现有文本如下：\n' + props.all_text + '\n（文本内容至此结束）\n'
     second = '我选中其中这么一段内容：' + props.selected + '\n（选中该内容至此结束）\n'
     ques = '对于这段内容，我想问的是：' + question.value
   }
-  let mess = [{role: "user", content: start + second + ques + "\n（备注：回答需要简单提炼，但是如果有重要过程或者代码要说）"}]
+  let mess = [{
+    role: "user",
+    content: start + second + ques + "\n（备注：回答需要简单提炼，但是如果有重要过程或者代码要说）"
+  }]
   return mess
 }
 
@@ -51,9 +55,16 @@ async function post(messages: {}[]) {
     isLoading.value = true
     try {
       const tk = await getTokenData()
+      let address = ""
+      if (props.tryDC) {
+        process_info.value = {computerName:"",memory:"",memoryUsage:"",ip:""}
+        address = getAddress() + "/ai/dc"
+      } else {
+        address = getAddress() + "/ai/note"
+      }
       // 发起 POST 请求
       const response = await fetch(
-          getAddress() + "/ai/note",
+          address,
           {
             method: 'POST',
             headers: {'Content-Type': 'application/json;charset=utf-8'},
@@ -73,6 +84,11 @@ async function post(messages: {}[]) {
       if (response.body != null) {
         // 请求成功，处理返回的数据
         const reader = response.body.getReader()
+        //分布式AI要处理第一行设备信息
+        if(props.tryDC){
+          const info = await reader.read()
+          process_info.value = JSON.parse(new TextDecoder().decode(info.value));
+        }
         while (true) {
           const {done, value} = await reader.read()
           if (done) break
@@ -98,7 +114,7 @@ async function post(messages: {}[]) {
             decodeJsonToShow(decodeValue)
           }
         }
-      }else{
+      } else {
         answer.value = 'failed'
       }
     } catch (error) {
@@ -124,13 +140,15 @@ function decodeJsonToShow(decodeValue: string) {
     }
   } else {
     try {
-        answer.value += JSON.parse(decodeValue).message.content
+      const ss = JSON.parse(decodeValue).message.content
+      if(ss!='undefined'&&ss!=""){
+        answer.value += ss
+      }
     } catch (e) {
       console.error("get mess but:" + e)
     }
   }
 }
-
 </script>
 
 <template>
@@ -164,11 +182,18 @@ function decodeJsonToShow(decodeValue: string) {
         </button>
       </div>
       <loading v-if="isLoading"/>
+      <div v-if="props.tryDC&&isLoading&&process_info.ip==''" style="width: 100%;text-align: center;overflow: auto;overflow-wrap: break-word;pcolor: #8a8a8a;font-size: 8px">
+        正在分配算力贡献设备请稍后...
+      </div>
+      <div v-if="props.tryDC&&process_info.ip!=''" style="width: 100%;text-align: center;overflow-x: auto;overflow-y: hidden; min-height:10px;overflow-wrap: break-word;color: #8a8a8a;font-size: 8px">
+        算力贡献设备信息：ip地址：{{process_info.ip}}，设备名称：{{process_info.computerName}}，内存大小：{{process_info.memory}}
+      </div>
       <div v-if="answer!=''" v-html="escapeHTML(answer)"
            style="overflow: auto;overflow-wrap: break-word;padding: 0 10px;margin-bottom: 5px;margin-top: 5px">
 
       </div>
-      <button @click="emit('add_note',selected,question,answer);emit('stop-select')" v-if="answer!=''&&!isLoading" style="border: transparent">
+      <button @click="emit('add_note',selected,question,answer);emit('stop-select')" v-if="answer!=''&&!isLoading"
+              style="border: transparent">
         添加便签
       </button>
     </div>
@@ -194,11 +219,13 @@ function decodeJsonToShow(decodeValue: string) {
         </button>
       </div>
       <loading v-if="isLoading"/>
+
       <div v-if="answer!=''" v-html="escapeHTML(answer)"
            style="overflow: auto;overflow-wrap: break-word;padding: 0 10px;margin-bottom: 5px;margin-top: 5px">
 
       </div>
-      <button @click="emit('add_note',selected,question,answer)" v-if="answer!=''&&!isLoading" style="border: transparent">
+      <button @click="emit('add_note',selected,question,answer)" v-if="answer!=''&&!isLoading"
+              style="border: transparent">
         添加便笺
       </button>
     </div>
@@ -209,7 +236,8 @@ function decodeJsonToShow(decodeValue: string) {
         {{ selected }}
       </div>
       <textarea v-model="write" style="width: calc(100% - 35px);margin: 5px 5px;padding: 10px" rows="5"/>
-      <button @click="emit('add_note',selected,'',write);emit('stop-select')" v-if="write!=''" style="border: transparent">
+      <button @click="emit('add_note',selected,'',write);emit('stop-select')" v-if="write!=''"
+              style="border: transparent">
         添加便签
       </button>
     </div>
@@ -220,7 +248,8 @@ function decodeJsonToShow(decodeValue: string) {
         {{ selected }}
       </div>
       <textarea v-model="write" style="width: calc(100% - 35px);margin: 5px 5px;padding: 10px" rows="5"/>
-      <button @click="emit('add_note',selected,'',write);emit('stop-select')" v-if="write!=''" style="border: transparent">
+      <button @click="emit('add_note',selected,'',write);emit('stop-select')" v-if="write!=''"
+              style="border: transparent">
         添加便签
       </button>
     </div>
@@ -241,13 +270,15 @@ function decodeJsonToShow(decodeValue: string) {
 
         <div class="colorful_bold_text">AI便笺</div>
       </div>
-      <div class="ai_emoji" style="margin-top: 15px" @click="show_talking_view=false;show_write_view=!show_write_view" v-if="props.note">
-        <img src="../../assets/emojis/pen.svg" alt="pen_emoji" style="width: 55px;height: 55px" >
+      <div class="ai_emoji" style="margin-top: 15px" @click="show_talking_view=false;show_write_view=!show_write_view"
+           v-if="props.note">
+        <img src="../../assets/emojis/pen.svg" alt="pen_emoji" style="width: 55px;height: 55px">
         <div class="blue_bold_text">文字便笺</div>
       </div>
     </div>
     <div v-else-if="small">
-      <div class="ai_emoji" style="min-width: 45px;max-width: 45px;min-height: 55px;max-height: 55px;margin-right: 8px" @click="show_write_view=false;show_talking_view=!show_talking_view">
+      <div class="ai_emoji" style="min-width: 45px;max-width: 45px;min-height: 55px;max-height: 55px;margin-right: 8px"
+           @click="show_write_view=false;show_talking_view=!show_talking_view">
         <transition>
           <img style="width: 45px;height: 45px" v-if="!isLoading&&answer==''" src="../../assets/emojis/watch.svg"
                alt="ai_emoji">
@@ -261,7 +292,9 @@ function decodeJsonToShow(decodeValue: string) {
 
         <div class="colorful_bold_text" style="font-size: 11px">AI便笺</div>
       </div>
-      <div class="ai_emoji" style="min-width: 45px;max-width: 45px;min-height: 55px;max-height: 55px;margin-top: 15px;margin-right: 8px" @click="show_talking_view=false;show_write_view=!show_write_view" v-if="props.note">
+      <div class="ai_emoji"
+           style="min-width: 45px;max-width: 45px;min-height: 55px;max-height: 55px;margin-top: 15px;margin-right: 8px"
+           @click="show_talking_view=false;show_write_view=!show_write_view" v-if="props.note">
         <img src="../../assets/emojis/pen.svg" style="width: 45px;height: 45px" alt="pen_emoji">
         <div class="blue_bold_text" style="font-size: 11px">文字便笺</div>
       </div>
@@ -285,7 +318,7 @@ function decodeJsonToShow(decodeValue: string) {
   opacity: 0;
 }
 
-.choice_talk{
+.choice_talk {
   min-width: max-content;
   background: #1e1e1e;
   color: rgba(255, 255, 255, 0.9);

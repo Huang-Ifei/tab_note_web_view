@@ -31,24 +31,29 @@ export async function getTokenData(): Promise<string> {
 
     //判断是否有未加密的token被存储，如果有，则使其加密存储进加密token里面，并销毁未加密的token
     const css = Cookies.default.get('token');
-    if (typeof css !== 'undefined'){
+    if (typeof css !== 'undefined') {
         const crypt = new JSEncrypt();
         crypt.setPublicKey(publicKey)
         const encryptToken = crypt.encrypt(css).toString()
-        Cookies.default.set('encryptionToken',encryptToken,{ expires: 1024 });
+        localStorage.setItem('encryptionToken', encryptToken);
         Cookies.default.remove('token')
     }
-
+    //判断是否有存储在Cookie当中的加密token,如果有就变更为localStorage
+    const csss = Cookies.default.get('encryptionToken');
+    if (typeof csss !== 'undefined') {
+        localStorage.setItem('encryptionToken', csss);
+        Cookies.default.remove('encryptionToken')
+    }
     const ss = sessionStorage.getItem('encryptionToken');
-    if (ss == null){
-        const cs = Cookies.default.get('encryptionToken')
-        if (typeof cs === "undefined") {
+    if (ss == null) {
+        const cs = localStorage.getItem('encryptionToken')
+        if (cs == null) {
             return ""
         } else {
             sessionStorage.setItem('encryptionToken', cs)
             return getDecryptAndEncryptToken(cs);
         }
-    }else {
+    } else {
         return getDecryptAndEncryptToken(ss.toString());
     }
 }

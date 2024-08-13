@@ -19,6 +19,7 @@ const rightChoice = ref(false)
 const ai_history = ref([])
 const all_html = ref('')
 const alr = ref('')
+const tryDC = ref(false)
 
 getNoteAiHistory()
 
@@ -336,6 +337,7 @@ onBeforeUnmount(() => {
   if (editor == null) return
   editor.destroy()
 })
+
 </script>
 
 <template>
@@ -344,13 +346,12 @@ onBeforeUnmount(() => {
       <note_ai_right_choice :list="ai_history" v-if="rightChoice" @rightClose="rightChoice = false" @newChat="newChat"
                             :note_ai_id="note_ai_id" @getHistoryAiMessages="getHistoryNoteAi"/>
     </transition>
-    <note_ai_action_button :alr="alr" :small="smallScreen" :all_text="''" :note="true"
-                           @push_to_server="pushNoteAiToServer({},all_html,note_ai_id)"/>
+    <note_ai_action_button :alr="alr" :small="smallScreen" :all_text="getWholeText()" :note="true"
+                           @push_to_server="pushNoteAiToServer({},all_html,note_ai_id)" :tryDC="tryDC"/>
     <artificial_emoji :small="smallScreen" :all_text="getWholeText()" :selected="selectedText.replace(/ /g,' ')"
-                      v-if="showAE(selectedText)"
+                      v-if="showAE(selectedText)" :tryDC="tryDC"
                       @add_note="addTick" :note="true" @stop-select="selectedText=''"/>
-    <note_ai_title @rightChoice="rightChoice=true"/>
-
+    <note_ai_title :small="smallScreen" @rightChoice="rightChoice=true" @tryDC="tryDC=!tryDC"/>
 
     <Toolbar
         :editor="editorRef"

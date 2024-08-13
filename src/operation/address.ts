@@ -4,3 +4,5 @@ export function getAddress():string{
     //return 'http://192.168.31.238:7845'
     //return 'http://localhost:7845'
 }
+
+export const aiDCAddress = "http://localhost:11713"

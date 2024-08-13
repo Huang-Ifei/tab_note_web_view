@@ -153,8 +153,12 @@ async function getAiHistory() {
       id: getLocalData("id"),
       token: tk
     });
-    aiHistory.value = response.data.list
-    console.log(aiHistory.value)
+    if(response.data.response == "token_check_failed"){
+      alert("登录已经失效，请重新登录")
+    }else{
+      aiHistory.value = response.data.list
+      console.log(aiHistory.value)
+    }
   } catch (error) {
     console.error(error)
   }

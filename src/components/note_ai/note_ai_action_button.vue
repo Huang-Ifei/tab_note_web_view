@@ -6,21 +6,21 @@ import {escapeHTML, getLocalData, getTokenData} from "../../operation/dataOperat
 import Loading from "../weight/loading.vue";
 import {getAddress} from "../../operation/address.ts";
 
-const props = defineProps(['selected', 'all_text', 'note', 'small','alr'])
+const props = defineProps(['selected', 'all_text', 'note', 'small','alr','tryDC'])
 const emit = defineEmits(['add_note', 'push_to_server'])
 const show_talking_view = ref(false);
 const question = ref('')
 const answer = ref('')
 const isLoading = ref(false)
 const note_ai_id = ref('')
-const withWholeText = ref(false)
+const withWholeText = ref(true)
+const process_info = ref({computerName:"",memory:"",memoryUsage:"",ip:""})
 
 function makeMessage(): {}[] {
   let start = "";
-  let second = "";
   let ques = ""
   if (withWholeText.value===true&&props.all_text!=""){
-    start = '现有内容如下：\n' + props.all_text + '\n'
+    start = '现有内容如下：\n' + props.all_text + '(内容到此结束)\n\n'
     ques = '你需要跟我说的是：' + question.value
   }else{
     ques = question.value
@@ -28,7 +28,7 @@ function makeMessage(): {}[] {
 
   let mess = [{
     role: "user",
-    content: start + second + ques + "\n（备注：回答需要简单提炼，但是如果有重要过程或者代码要说）"
+    content: start + ques + "\n（备注：回答需要简单提炼，但是如果有重要过程或者代码要说）"
   }]
   return mess
 }
@@ -48,9 +48,16 @@ async function post(messages: {}[]) {
     isLoading.value = true
     try {
       const tk = await getTokenData()
+      let address = ""
+      if (props.tryDC) {
+        process_info.value = {computerName:"",memory:"",memoryUsage:"",ip:""}
+        address = getAddress() + "/ai/dc"
+      } else {
+        address = getAddress() + "/ai/note"
+      }
       // 发起 POST 请求
       const response = await fetch(
-          getAddress() + "/ai/note",
+          address,
           {
             method: 'POST',
             headers: {'Content-Type': 'application/json;charset=utf-8'},
@@ -70,6 +77,11 @@ async function post(messages: {}[]) {
       if (response.body != null) {
         // 请求成功，处理返回的数据
         const reader = response.body.getReader()
+        //分布式AI要处理第一行设备信息
+        if(props.tryDC){
+          const info = await reader.read()
+          process_info.value = JSON.parse(new TextDecoder().decode(info.value));
+        }
         while (true) {
           const {done, value} = await reader.read()
           if (done) break
@@ -121,7 +133,10 @@ function decodeJsonToShow(decodeValue: string) {
     }
   } else {
     try {
-      answer.value += JSON.parse(decodeValue).message.content
+      const ss = JSON.parse(decodeValue).message.content
+      if(ss!='undefined'&&ss!=""){
+        answer.value += ss
+      }
     } catch (e) {
       console.error("get mess but:" + e)
     }
@@ -147,7 +162,7 @@ function copyText(s: string) {
   <div class="background">
 
     <div v-if="!small" style="flex-direction: column">
-      <div class="ai_emoji" @click="show_talking_view=!show_talking_view;answer='';question='';">
+      <div class="ai_emoji" @click="process_info = {computerName:'',memory:'',memoryUsage:'',ip:''};show_talking_view=!show_talking_view;answer='';question='';">
         <img style="width: 40px;height: 40px" src="../../assets/messages.svg"
              alt="messages">
       </div>
@@ -158,7 +173,7 @@ function copyText(s: string) {
     </div>
     <div v-else-if="small">
       <div class="ai_emoji" style="width: fit-content;height: fit-content"
-           @click="show_talking_view=!show_talking_view;answer='';question='';">
+           @click="show_talking_view=!show_talking_view;answer='';question=''">
         <img style="width: 35px;height: 35px" src="../../assets/messages.svg"
              alt="messages">
       </div>
@@ -184,7 +199,12 @@ function copyText(s: string) {
               style="border: transparent">
         复制回答
       </button>
-
+      <div v-if="props.tryDC&&isLoading&&process_info.ip==''" style="width: 100%;text-align: center;overflow: auto;overflow-wrap: break-word;color: #8a8a8a;font-size: 8px">
+        正在分配算力贡献设备请稍后...
+      </div>
+      <div v-if="props.tryDC&&process_info.ip!=''" style="width: 100%;text-align: center;overflow-x: auto;overflow-y: hidden; min-height:10px;overflow-wrap: break-word;color: #8a8a8a;font-size: 8px">
+        算力贡献设备信息：ip地址：{{process_info.ip}}，设备名称：{{process_info.computerName}}，内存大小：{{process_info.memory}}
+      </div>
       <loading v-if="isLoading"/>
 
       <div style="display: flex;flex-direction: row;font-size: 14px">
