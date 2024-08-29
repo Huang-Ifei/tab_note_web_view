@@ -156,34 +156,10 @@ function copyText(s: string) {
 
 <template>
   <div class="background">
-
-    <div v-if="!small" style="flex-direction: column">
-      <div class="ai_emoji"
-           @click="process_info = {computerName:'',memory:'',memoryUsage:'',ip:''};show_talking_view=!show_talking_view;answer='';question='';">
-        <img style="width: 40px;height: 40px" src="../../assets/messages.svg"
-             alt="messages">
-      </div>
-      <div class="ai_emoji" style="margin-top: 10px;margin-bottom: 10px" @click="emit('push_to_server')"
-           v-if="props.note">
-        <img style="width: 40px;height: 40px" src="../../assets/save.svg" alt="save">
-      </div>
-    </div>
-    <div v-else-if="small">
-      <div class="ai_emoji" style="width: fit-content;height: fit-content"
-           @click="show_talking_view=!show_talking_view;answer='';question=''">
-        <img style="width: 35px;height: 35px" src="../../assets/messages.svg"
-             alt="messages">
-      </div>
-      <div class="ai_emoji" style="width: fit-content;height: fit-content;margin-bottom: 10px;margin-top: 10px"
-           @click="emit('push_to_server')" v-if="props.note">
-        <img style="width: 35px;height: 35px" src="../../assets/save.svg" alt="save">
-      </div>
-    </div>
-
     <div class="write_view" v-if="alr!=''&&!small">
       {{ alr }}
     </div>
-    <div class="write_view" v-if="alr!=''&&small" style="margin-bottom: 15px;margin-left: 75px">
+    <div class="write_view" v-if="alr!=''&&small" style="margin-bottom: 15px;margin-right: 80px;">
       {{ alr }}
     </div>
 
@@ -222,7 +198,7 @@ function copyText(s: string) {
       </div>
     </div>
 
-    <div v-if="show_talking_view&&small" class="talking_view" style="max-width: calc(100% - 115px);margin-bottom: 75px">
+    <div v-if="show_talking_view&&small" class="talking_view" style="max-width: calc(100% - 115px);margin-bottom: 90px">
 
       <div v-if="answer!=''" v-html="escapeHTML(answer)"
            style="overflow: auto;overflow-wrap: break-word;padding: 0 10px;margin-bottom: 5px;margin-top: 5px">
@@ -246,13 +222,49 @@ function copyText(s: string) {
           发送
         </button>
       </div>
-
     </div>
 
+    <div v-if="!small" style="flex-direction: column">
+      <div class="ai_emoji"
+           @click="process_info = {computerName:'',memory:'',memoryUsage:'',ip:''};show_talking_view=!show_talking_view;answer='';question='';">
+        <img style="width: 45px;height: 45px" src="../../assets/messages.svg"
+             alt="messages">
+        <div class="colorful_bold_font">
+          随手问
+        </div>
+      </div>
+      <div class="ai_emoji" style="margin-top: 10px;margin-bottom: 10px" @click="emit('push_to_server')"
+           v-if="props.note">
+        <img style="width: 45px;height: 45px" src="../../assets/save.svg" alt="save">
+        <div class="colorful_bold_font">
+          保存
+        </div>
+      </div>
+    </div>
+    <div v-else-if="small">
+      <div class="ai_emoji" style="margin-right: 8px"
+           @click="show_talking_view=!show_talking_view;answer='';question=''">
+        <img style="width: 45px;height: 45px" src="../../assets/messages.svg"
+             alt="messages">
+        <div class="colorful_bold_font">
+          随手问
+        </div>
+      </div>
+      <div class="ai_emoji" style="margin-bottom: 10px;margin-top: 10px;margin-right: 8px"
+           @click="emit('push_to_server')" v-if="props.note">
+        <img style="width: 45px;height: 45px" src="../../assets/save.svg" alt="save">
+        <div class="colorful_bold_font">
+          保存
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
+input{
+  background: transparent;
+}
 .background {
   width: 100%;
   height: 100%;
@@ -261,18 +273,19 @@ function copyText(s: string) {
   display: flex;
   flex-direction: row;
   z-index: 550;
-  justify-content: start;
+  justify-content: end;
   align-items: end;
   pointer-events: none;
 }
 
 .talking_view {
   position: relative;
-  margin: 30vh 10px 80px;
-  box-shadow: 0 0 8px #bebebe;
-  background-color: #f4f5f6;
+  margin: 30vh 10px 93px 10px;
+  box-shadow: 0 0 5px rgb(0, 0, 0, 0.2);
+  background-color: rgba(250, 250, 250, 0.85);
+  backdrop-filter: blur(5px);
   border-radius: 10px;
-  max-width: 60%;
+  max-width: calc(100% - 60px);
   display: flex;
   height: fit-content;
   padding: 10px;
@@ -288,10 +301,11 @@ function copyText(s: string) {
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
   position: absolute;
-  margin-left: 80px;
+  margin-right: 95px;
   margin-bottom: 18px;
-  box-shadow: 0 0 8px #bebebe;
-  background-color: #f4f5f6;
+  box-shadow: 0 0 5px rgb(0, 0, 0, 0.2);
+  background-color: rgba(250, 250, 250, 0.85);
+  backdrop-filter: blur(5px);
   border-radius: 10px;
   max-width: 60%;
   display: flex;
@@ -302,35 +316,26 @@ function copyText(s: string) {
   max-height: 60%;
 }
 
+.colorful_bold_font{
+  background: linear-gradient(0deg, #17375e, #0fa4d7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: bold;
+  font-size: 12px;
+}
+
 .ai_emoji {
   cursor: pointer;
   position: relative;
-  margin-top: 30vh;
-  margin-left: 10px;
-  box-shadow: 0 0 8px #bebebe;
-  background-color: #f4f5f6;
+  width: 48px;
+  margin-right: 20px;
+  box-shadow: 0 0 5px rgb(0, 0, 0, 0.2);
+  background-color: rgba(250, 250, 250, 0.85);
+  backdrop-filter: blur(5px);
   display: flex;
-  padding: 10px;
-  border-radius: 50px;
-  align-items: center;
-  flex-direction: column;
-  pointer-events: visible;
-}
-
-.ai_emoji_small {
-  position: relative;
-  margin-top: 25vh;
-  margin-right: 10px;
-  box-shadow: 0 0 8px #bebebe;
-  background-color: #f4f5f6;
+  padding: 8px;
   border-radius: 10px;
-  display: flex;
   align-items: center;
-  padding: 5px;
-  min-width: 55px;
-  max-width: 55px;
-  min-height: 72px;
-  max-height: 72px;
   flex-direction: column;
   pointer-events: visible;
 }

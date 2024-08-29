@@ -53,9 +53,13 @@ console.log(Cookies.default.get("name"))
 
 <style scoped>
 .small_title {
-  background: #1e1e1e;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
   color: rgb(255, 255, 255);
   height: 54px;
+  position: absolute;
+  width: calc(100% - 30px);
+  z-index: 500;
   padding: 0 20px 0 10px;
   display: flex;
   flex-direction: row;
@@ -63,9 +67,13 @@ console.log(Cookies.default.get("name"))
 }
 
 .title {
-  background: #1e1e1e;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 500;
   color: rgb(255, 255, 255);
   height: 54px;
+  width: calc(100% - 30px);
   padding: 0 20px 0 10px;
   display: flex;
   flex-direction: row;
@@ -93,7 +101,6 @@ console.log(Cookies.default.get("name"))
 
 .none_button:hover {
   color: #ffffff;
-  background: #333333;
   outline: 0;
   border: none;
   text-shadow: 0 0 8px #c6e9ff;
@@ -101,7 +108,6 @@ console.log(Cookies.default.get("name"))
 
 .none_button:focus {
   color: #ffffff;
-  background: #333333;
   outline: none;
   border: none;
   text-shadow: 0 0 8px #c6e9ff;

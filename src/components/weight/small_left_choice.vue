@@ -8,7 +8,7 @@ const emit = defineEmits(['leftClose','todoView'])
 </script>
 
 <template>
-  <div class="background">
+  <div class="background" @click="emit('leftClose')">
     <div class="left_background">
       <img src="../../assets/arrow_back_white.svg" @click="emit('leftClose')" class="close_button">
       <div @click="router.push('add_tab_note')" class="choice_button" style="padding-top: 20px">
@@ -41,17 +41,18 @@ const emit = defineEmits(['leftClose','todoView'])
 .background {
   width: 100%;
   height: 100%;
-  background: rgba(28, 28, 28, 0.5);
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
   position: absolute;
   display: flex;
-  z-index: 80;
+  z-index: 580;
   justify-content: start;
 }
 
 .left_background {
   position: relative;
-  box-shadow: 0 0 8px #6a6a6a;
-  background: #1e1e1e;
+  box-shadow: 0 0 8px #181818;
+  background: rgba(30, 30, 30, 0.98);
   border-radius: 0;
   display: flex;
   width: 70%;

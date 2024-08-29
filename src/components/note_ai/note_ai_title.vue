@@ -16,20 +16,20 @@ console.log(Cookies.default.get("name"))
 
 <template>
   <div class="small_title">
-    <img @click="router.back()" src="../../assets/arrow_back_white.svg" alt="image"
+    <img @click="router.back()" src="../../assets/arrow_back.svg" alt="image"
          style="padding-left: 10px;padding-right: 2px;height: 25px;cursor: pointer"/>
     <a href="/">
-      <h3 style="margin: 0;color: white">
+      <h3 style="margin: 0;color: #434343">
         TabNote_
       </h3>
     </a>
-    <h3 style=" background: linear-gradient(45deg, #ec86ff, #34dbff);-webkit-background-clip: text;-webkit-text-fill-color: transparent;min-width: fit-content">
+    <h3 style=" background: linear-gradient(45deg, #e961fb, #13c2e6);-webkit-background-clip: text;-webkit-text-fill-color: transparent;min-width: fit-content">
       AI笔记</h3>
     <div class="icons">
       <div v-if="!props.small"
            style="color: white;height: 60px;display: flex;flex-direction: row;justify-content: center;align-items: center">
         <input type="checkbox" @click="emit('tryDC')">
-        <p style="font-size: 12px;margin-right: 10px" @mousemove="show_aiDC_info=true">分布式AI</p>
+        <p style="font-size: 13px;margin-right: 10px;color: #434343" @mousemove="show_aiDC_info=true">分布式AI</p>
       </div>
       <button id="ai_button" @click="emit('rightChoice')">
         历史记录
@@ -55,7 +55,8 @@ console.log(Cookies.default.get("name"))
   max-width: 360px;
   min-height: 320px;
   border-radius: 10px;
-  background: white;
+  background: rgba(250, 250, 250, 0.8);
+  backdrop-filter: blur(5px);
   color: #1c1c1c;
   z-index: 500;
   box-shadow: 0 0 12px #d0d0d0;
@@ -67,7 +68,8 @@ console.log(Cookies.default.get("name"))
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
-  background: #1e1e1e;
+  background-color: rgb(253, 253, 253);
+  backdrop-filter: blur(10px);
   color: rgb(255, 255, 255);
   height: 54px;
   padding: 0 20px 0 10px;
@@ -78,9 +80,9 @@ console.log(Cookies.default.get("name"))
 }
 
 #ai_button {
-  font-size: 14px;
-  color: rgba(0, 0, 0, 0.8);
-  background: white;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  background: #434343;
   padding: 9px 20px;
   margin: 9px 10px 9px 5px;
   box-shadow: none;

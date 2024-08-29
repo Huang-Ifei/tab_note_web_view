@@ -12,7 +12,7 @@ const emit = defineEmits(['rightClose','choice','newChat','getHistoryAiMessages'
 </script>
 
 <template>
-  <div class="background">
+  <div class="background" @click="emit('rightClose')" >
     <div class="left_background">
       <img src="../../assets/arrow_forward.svg" @click="emit('rightClose')" class="close_button">
       <div style="min-height: 3px;display: flex;">
@@ -64,7 +64,8 @@ const emit = defineEmits(['rightClose','choice','newChat','getHistoryAiMessages'
 .background {
   width: 100%;
   height: 100%;
-  background: rgba(28, 28, 28, 0.5);
+  background-color: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
   position: absolute;
   display: flex;
   z-index: 580;
@@ -73,8 +74,8 @@ const emit = defineEmits(['rightClose','choice','newChat','getHistoryAiMessages'
 
 .left_background {
   position: relative;
-  box-shadow: 0 0 8px #6a6a6a;
-  background-color: #f6f7f8;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  background-color: rgba(250, 250, 250, 0.9);
   border-radius: 0;
   overflow: auto;
   display: flex;

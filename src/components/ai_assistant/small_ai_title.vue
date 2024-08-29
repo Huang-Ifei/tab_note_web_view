@@ -34,7 +34,11 @@ console.log(Cookies.default.get("name"))
 
 <style scoped>
 .small_title {
-  background: #1e1e1e;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 500;
+  width: calc(100% - 30px);
   color: rgb(255, 255, 255);
   height: 54px;
   padding: 0 20px 0 10px;

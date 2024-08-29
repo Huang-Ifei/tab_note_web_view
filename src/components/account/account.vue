@@ -14,7 +14,6 @@ import {onBeforeMount, onBeforeUnmount, ref} from "vue";
 import axios from 'axios';
 import {getAddress} from "../../operation/address.ts";
 import Image_cutter from "../weight/image_cutter.vue";
-import Small_account_title from "./small_account_title.vue";
 
 const show_content = ref("需要怎样操作您的账户？")
 const new_id = ref("")
@@ -199,9 +198,12 @@ const renderResize = () => {
 </script>
 
 <template>
+  <icon_to_home/>
+  <div style="min-height: 54px">
+
+  </div>
   <div id="account_view" v-if="!smallScreen">
     <div id="left_view">
-      <icon_to_home/>
       <img id="account_img" :src="getAccountImg()" alt="">
       <div id="operation_choice">
         账户：{{getLocalData('id')}}
@@ -270,8 +272,7 @@ const renderResize = () => {
   </div>
 
 
-  <div v-if="smallScreen" style="display: flex;flex-direction: column;overflow: auto;background-color: #f6f7f8;height: 100%;position: absolute;width: 100%">
-    <small_account_title/>
+  <div v-if="smallScreen" style="display: flex;flex-direction: column;overflow: auto;background-color: #f6f7f8;height: calc(100% - 54px);position: absolute;width: 100%">
     <img id="account_img" :src="getAccountImg()" alt="" @click="requestSetAccImg" style="margin-top: 15px;">
     <div id="operation_choice" style="margin-top: 30px;margin-right: 20px;margin-left: 20px;width: calc(100% - 40px)">
       <button @click="requestChangeName">
@@ -386,7 +387,7 @@ button {
   flex-direction: row;
   justify-content: flex-start;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 54px);
 }
 
 #operation_choice {

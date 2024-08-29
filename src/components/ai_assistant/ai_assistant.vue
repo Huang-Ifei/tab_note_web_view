@@ -310,7 +310,7 @@ async function redoAiMessage(ii: number) {
     <div class="left_items">
       <wide_ai_icon_to_home/>
       <div id="usrTalkHistory">
-        <div style="min-height: 3px;display: flex;">
+        <div style="min-height: 57px;display: flex;">
 
         </div>
         <button @click="newChat" style="display: flex; align-items: center;justify-content: center;padding: 10px">
@@ -335,6 +335,9 @@ async function redoAiMessage(ii: number) {
             {{ JSON.parse(JSON.stringify(value)).mainly }}
           </button>
         </div>
+      </div>
+      <div class="bottom_hidden">
+
       </div>
       <button onclick="location.href='login'" id="usr">
         <button onclick="location.href='login'" class="imageButton">
@@ -390,7 +393,7 @@ async function redoAiMessage(ii: number) {
         </div>
       </div>
       <div class="bottomInput">
-        <resize_textarea @doSend="send" :smallScreen="smallScreen" v-model="text"/>
+        <resize_textarea @doSend="send" :smallScreen="false" v-model="text"/>
       </div>
     </div>
   </div>
@@ -399,7 +402,7 @@ async function redoAiMessage(ii: number) {
   <div v-if="smallScreen"
        style="width: 100%;max-height: 100%;height: 100%;position: absolute;flex-direction: column;display: flex">
     <small_ai_title :smallScreen="smallScreen" @rightChoice="right_choice=true"/>
-    <div class="ai_talking" style="width: 100%;position: relative;max-height: calc(100% - 60px)">
+    <div class="ai_talking" style="width: 100%;position: relative;max-height: 100%;">
       <div id="talking_view">
         <div v-if="messages.length==0&&ai_ms_id==''">
           <div id="hello1" style="font-size: 40px;font-weight: bold">{{ getLocalData("name") }}</div>
@@ -443,8 +446,8 @@ async function redoAiMessage(ii: number) {
           </div>
         </div>
       </div>
-      <div class="bottomInput" style="width: calc(100% - 20px);padding-left: 10px;padding-right: 10px">
-        <resize_textarea @doSend="send" :smallScreen="smallScreen" v-model="text"/>
+      <div class="bottomInput" style="width: 100%">
+        <resize_textarea @doSend="send" :smallScreen="true" v-model="text"/>
       </div>
     </div>
   </div>
@@ -515,10 +518,21 @@ async function redoAiMessage(ii: number) {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+.bottom_hidden{
+  position: absolute;
+  min-width: 260px;
+  max-width: 260px;
+  min-height: 90px;
+  max-height: 90px;
+  top: calc(100% - 80px);
+  background: linear-gradient(0deg, #f3f3f3 70%, rgba(255, 255, 255, 0));
+  backdrop-filter: ;
 
+}
 #usrTalkHistory {
-  height: calc(100% - 80px - 50px);
   width: 100%;
+  height: calc(100% - 70px);
+  padding-bottom: 70px;
   display: flex;
   flex-direction: column;
   padding-top: 10px;
@@ -559,7 +573,8 @@ async function redoAiMessage(ii: number) {
 #talking_view {
   max-width: 100%;
   height: 100%;
-  padding-top: 10px;
+  padding-bottom: 60px;
+  padding-top: 54px;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -569,7 +584,7 @@ async function redoAiMessage(ii: number) {
 .left_items {
   position: relative;
   background: rgb(245, 245, 245);
-  height: 100%;
+  height: calc(100% - 10px);
   margin: 0;
   padding: 0;
   width: 260px;
@@ -585,11 +600,13 @@ async function redoAiMessage(ii: number) {
 }
 
 .bottomInput {
-  width: 80%;
-  padding: 15px 10%;
+  width: calc(100% - 260px);
+  height: 100%;
   display: flex;
+  align-items: end;
+  pointer-events: none;
   flex-direction: row;
-  background: white;
+  position: absolute;
 }
 
 #usr {
@@ -598,12 +615,15 @@ async function redoAiMessage(ii: number) {
   margin: 7px 10px;
   display: flex;
   flex-direction: row;
+  top: calc(100% - 60px);
   padding-left: 15px;
   width: calc(100% - 20px);
   height: 52px;
+  position: absolute;
   align-items: center;
   justify-items: center;
   background: #ffffff;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
 }
 
 #usr button {
@@ -633,5 +653,20 @@ async function redoAiMessage(ii: number) {
   margin: 10px 5px 2px 5px;
   width: 22px;
   height: 22px;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #8a8a8a;
+  border-radius: 10px;
+  border: none;
+  outline: none;
 }
 </style>

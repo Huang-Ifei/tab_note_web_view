@@ -112,9 +112,10 @@ const renderResize = () => {
 </script>
 
 <template>
+  <icon_to_home/>
   <div style="position: absolute;overflow: auto;width: 100%;height: 100%">
-    <div>
-      <icon_to_home/>
+    <div style="min-height: 54px">
+
     </div>
     <div id="background">
       <h2>

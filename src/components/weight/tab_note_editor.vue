@@ -20,27 +20,28 @@ const valueHtml = defineModel()
 //})
 
 const toolbarConfig = {}
-const editorConfig = {placeholder: '请输入内容...',MENU_CONF:{}}
+const editorConfig = {placeholder: '请输入内容...', MENU_CONF: {}}
 const mode = 'default'
 
 toolbarConfig.excludeKeys = [
-    'group-video',
-    'italic'
+  'group-video',
+  'fullScreen',
+  'italic'
 ]
 
-editorConfig.MENU_CONF['uploadImage']={
-  server:getAddress()+"/upload_tab_note_img",
+editorConfig.MENU_CONF['uploadImage'] = {
+  server: getAddress() + "/upload_tab_note_img",
   maxFileSize: 1048576,
   onSuccess() {
     console.log("success")
   },
-  onFailed(file,res){
-    console.log("上传失败"+file.name)
-    alert(file.name+"上传失败，请核对图片格式，建议使用：JPEG，JPG，PNG格式的图片")
+  onFailed(file, res) {
+    console.log("上传失败" + file.name)
+    alert(file.name + "上传失败，请核对图片格式，建议使用：JPEG，JPG，PNG格式的图片")
   },
-  onError(file,err,res){
-    if (err.toString().includes("maximum allowed")){
-      alert(file.name+"的大小超过1MB，请压缩后上传")
+  onError(file, err, res) {
+    if (err.toString().includes("maximum allowed")) {
+      alert(file.name + "的大小超过1MB，请压缩后上传")
     }
     console.log(err.toString().includes("maximum allowed"))
   },

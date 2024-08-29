@@ -19,11 +19,13 @@ import router from "../../router";
 
 <style scoped>
 .title{
-  background-color: #1e1e1e;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
   min-width: 100%;
   height: 54px;
   display: flex;
   align-items: center;
   justify-content: start;
+  position: absolute;
 }
 </style>

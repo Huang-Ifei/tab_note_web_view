@@ -108,8 +108,11 @@ const sourceCode = "```typescript\n" +
 </script>
 
 <template>
+  <icon_to_home/>
   <div id="background">
-    <icon_to_home/>
+    <div style="min-height: 54px">
+
+    </div>
     <div style="margin: 0 20px">
       <h2>
         TabNote贴文 特殊字符操作手册
@@ -151,6 +154,7 @@ const sourceCode = "```typescript\n" +
 
 #background {
   width: 100%;
+  height: 100%;
   overflow: auto;
   position: absolute;
   display: flex;

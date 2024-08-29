@@ -54,7 +54,7 @@ async function login(){
 </script>
 
 <template>
-  <div id="title">
+  <div style="min-height: 54px">
     <icon_to_home/>
   </div>
   <div id="login_view">

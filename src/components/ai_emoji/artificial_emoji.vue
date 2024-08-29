@@ -149,11 +149,6 @@ function decodeJsonToShow(decodeValue: string) {
 </script>
 
 <template>
-  <img src="../../assets/emojis/watch.svg" alt="ai_emoji" style="position: absolute;z-index: -1;width: 0;height: 0">
-  <img src="../../assets/emojis/think.svg" alt="ai_emoji" style="position: absolute;z-index: -1;width: 0;height: 0">
-  <img src="../../assets/emojis/boom.svg" alt="ai_emoji" style="position: absolute;z-index: -1;width: 0;height: 0">
-  <img src="../../assets/emojis/selute.svg" alt="ai_emoji" style="position: absolute;z-index: -1;width: 0;height: 0">
-  <img src="../../assets/emojis/pen.svg" alt="pen_emoji" style="position: absolute;z-index: -1;width: 0;height: 0">
   <div class="background">
     <div v-if="show_talking_view&&!small" class="talking_view">
       <div
@@ -180,7 +175,7 @@ function decodeJsonToShow(decodeValue: string) {
       </div>
       <loading v-if="isLoading"/>
       <div v-if="props.tryDC&&isLoading&&process_info.ip==''"
-           style="width: 100%;text-align: center;overflow: auto;overflow-wrap: break-word;pcolor: #8a8a8a;font-size: 8px">
+           style="width: 100%;text-align: center;overflow: auto;overflow-wrap: break-word;color: #8a8a8a;font-size: 8px">
         正在分配算力贡献设备请稍后...
       </div>
       <div v-if="props.tryDC&&process_info.ip!=''"
@@ -237,7 +232,7 @@ function decodeJsonToShow(decodeValue: string) {
       <textarea v-model="write" style="width: calc(100% - 35px);margin: 5px 5px;padding: 10px" rows="5"/>
       <button @click="emit('add_note',selected,'',write);emit('stop-select')" v-if="write!=''"
               style="border: transparent">
-        添加便签
+        添加便笺
       </button>
     </div>
 
@@ -249,7 +244,7 @@ function decodeJsonToShow(decodeValue: string) {
       <textarea v-model="write" style="width: calc(100% - 35px);margin: 5px 5px;padding: 10px" rows="5"/>
       <button @click="emit('add_note',selected,'',write);emit('stop-select')" v-if="write!=''"
               style="border: transparent">
-        添加便签
+        添加便笺
       </button>
     </div>
 
@@ -257,45 +252,45 @@ function decodeJsonToShow(decodeValue: string) {
     <div v-if="!small" style="flex-direction: column">
       <div class="ai_emoji" @click="show_write_view=false;show_talking_view=!show_talking_view">
         <transition>
-          <img style="width: 55px;height: 55px" v-if="!isLoading&&answer==''" src="../../assets/emojis/watch.svg"
-               alt="ai_emoji">
-          <img style="width: 55px;height: 55px" v-else-if="isLoading" src="../../assets/emojis/think.svg"
-               alt="ai_emoji">
-          <img style="width: 55px;height: 55px" v-else-if="!isLoading&&answer=='failed'"
-               src="../../assets/emojis/boom.svg" alt="ai_emoji">
-          <img style="width: 55px;height: 55px" v-else-if="!isLoading&&answer!=''" src="../../assets/emojis/selute.svg"
-               alt="ai_emoji">
+          <img style="width: 45px;height: 45px" v-if="!isLoading&&answer==''" src="../../assets/emojis/watch.svg"
+               alt="emoji">
+          <img style="width: 45px;height: 45px" v-else-if="isLoading" src="../../assets/emojis/think.svg"
+               alt="emoji">
+          <img style="width: 45px;height: 45px" v-else-if="!isLoading&&answer=='failed'"
+               src="../../assets/emojis/boom.svg" alt="emoji">
+          <img style="width: 45px;height: 45px" v-else-if="!isLoading&&answer!=''" src="../../assets/emojis/selute.svg"
+               alt="emoji">
         </transition>
 
         <div class="colorful_bold_text">AI便笺</div>
       </div>
       <div class="ai_emoji" style="margin-top: 15px" @click="show_talking_view=false;show_write_view=!show_write_view"
            v-if="props.note">
-        <img src="../../assets/emojis/pen.svg" alt="pen_emoji" style="width: 55px;height: 55px">
-        <div class="blue_bold_text">文字便笺</div>
+        <img src="../../assets/emojis/pen.svg" alt="pen_emoji" style="width: 45px;height: 45px">
+        <div class="blue_bold_text">新便笺</div>
       </div>
     </div>
     <div v-else-if="small">
-      <div class="ai_emoji" style="min-width: 45px;max-width: 45px;min-height: 55px;max-height: 55px;margin-right: 8px"
+      <div class="ai_emoji" style="margin-right: 8px"
            @click="show_write_view=false;show_talking_view=!show_talking_view">
         <transition>
           <img style="width: 45px;height: 45px" v-if="!isLoading&&answer==''" src="../../assets/emojis/watch.svg"
-               alt="ai_emoji">
+               alt="emoji">
           <img style="width: 45px;height: 45px" v-else-if="isLoading" src="../../assets/emojis/think.svg"
-               alt="ai_emoji">
+               alt="emoji">
           <img style="width: 45px;height: 45px" v-else-if="!isLoading&&answer=='failed'"
-               src="../../assets/emojis/boom.svg" alt="ai_emoji">
+               src="../../assets/emojis/boom.svg" alt="emoji">
           <img style="width: 45px;height: 45px" v-else-if="!isLoading&&answer!=''" src="../../assets/emojis/selute.svg"
-               alt="ai_emoji">
+               alt="emoji">
         </transition>
 
-        <div class="colorful_bold_text" style="font-size: 11px">AI便笺</div>
+        <div class="colorful_bold_text">AI便笺</div>
       </div>
       <div class="ai_emoji"
-           style="min-width: 45px;max-width: 45px;min-height: 55px;max-height: 55px;margin-top: 15px;margin-right: 8px"
+           style="margin-top: 15px;margin-right: 8px"
            @click="show_talking_view=false;show_write_view=!show_write_view" v-if="props.note">
         <img src="../../assets/emojis/pen.svg" style="width: 45px;height: 45px" alt="pen_emoji">
-        <div class="blue_bold_text" style="font-size: 11px">文字便笺</div>
+        <div class="blue_bold_text">新便笺</div>
       </div>
     </div>
   </div>
@@ -317,10 +312,16 @@ function decodeJsonToShow(decodeValue: string) {
   opacity: 0;
 }
 
+input {
+  background: transparent;
+}
+textarea {
+  background: transparent;
+}
 .choice_talk {
   min-width: max-content;
-  background: #1e1e1e;
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.85);
+  color: rgba(255, 255, 255, 0.85);
   border: transparent;
   width: calc(33% - 10px);
   padding: 12px 25px;
@@ -333,7 +334,7 @@ function decodeJsonToShow(decodeValue: string) {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: bold;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .colorful_bold_text {
@@ -341,7 +342,7 @@ function decodeJsonToShow(decodeValue: string) {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: bold;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .background {
@@ -366,8 +367,9 @@ function decodeJsonToShow(decodeValue: string) {
   margin-left: 10px;
   margin-top: 30vh;
   margin-right: 10px;
-  box-shadow: 0 0 8px #bebebe;
-  background-color: #f4f5f6;
+  box-shadow: 0 0 5px rgb(0, 0, 0, 0.2);
+  background-color: rgba(250, 250, 250, 0.85);
+  backdrop-filter: blur(5px);
   border-radius: 10px;
   max-width: 60%;
   display: flex;
@@ -388,8 +390,9 @@ function decodeJsonToShow(decodeValue: string) {
   margin-left: 10px;
   margin-top: calc(30vh + 85px);
   margin-right: 10px;
-  box-shadow: 0 0 8px #bebebe;
-  background-color: #f4f5f6;
+  box-shadow: 0 0 5px rgb(0, 0, 0, 0.2);
+  background-color: rgba(250, 250, 250, 0.85);
+  backdrop-filter: blur(5px);
   border-radius: 10px;
   max-width: 60%;
   display: flex;
@@ -405,35 +408,15 @@ function decodeJsonToShow(decodeValue: string) {
   cursor: pointer;
   position: relative;
   margin-top: 30vh;
+  width: 48px;
   margin-right: 20px;
-  box-shadow: 0 0 8px #bebebe;
-  background-color: #f4f5f6;
+  box-shadow: 0 0 5px rgb(0, 0, 0, 0.2);
+  background-color: rgba(250, 250, 250, 0.85);
+  backdrop-filter: blur(5px);
   border-radius: 10px;
   display: flex;
-  padding: 10px;
+  padding: 8px;
   align-items: center;
-  min-width: 55px;
-  max-width: 55px;
-  min-height: 72px;
-  max-height: 72px;
-  flex-direction: column;
-  pointer-events: visible;
-}
-
-.ai_emoji_small {
-  position: relative;
-  margin-top: 25vh;
-  margin-right: 10px;
-  box-shadow: 0 0 8px #bebebe;
-  background-color: #f4f5f6;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  padding: 5px;
-  min-width: 55px;
-  max-width: 55px;
-  min-height: 72px;
-  max-height: 72px;
   flex-direction: column;
   pointer-events: visible;
 }

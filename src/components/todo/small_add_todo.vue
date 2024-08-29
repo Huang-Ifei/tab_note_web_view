@@ -42,8 +42,7 @@ async function insertNewPlan() {
 </script>
 
 <template>
-  <div
-      style="color: #1c1c1c;width: 100%; height: 100%;background: rgba(28,28,28,0.5);border-radius: 0;position: absolute;display: flex;flex-direction: column;justify-content: center;align-items: center;padding: 0">
+  <div class="small_add_todo_bg">
     <div
         style="display: flex;flex-direction: column;justify-content: flex-start;z-index: 120;background: white;padding:  15px 0.8rem 20px 0.8rem;margin: 4rem;border-radius: 10px;width: calc(100% - 4rem)">
       <div
@@ -77,6 +76,21 @@ async function insertNewPlan() {
 </template>
 
 <style scoped>
+.small_add_todo_bg {
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  color: #1c1c1c;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0
+}
+
 .date_picker {
   background: #f4f5f6;
   border: transparent;

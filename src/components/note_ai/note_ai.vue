@@ -360,6 +360,8 @@ onBeforeUnmount(() => {
         :mode="mode"
         v-if="!smallScreen"
     />
+
+
     <div v-if="!smallScreen" class="text_div_background" @keyup.stop="handleSelect"
          @mouseup.stop="handleSelect();console.log(editorRef.selection)"
          @touchend.stop="handleSelect()"
@@ -381,7 +383,11 @@ onBeforeUnmount(() => {
         :mode="mode"
         v-if="smallScreen"
     />
-    <div v-if="smallScreen" class="text_div_background"
+    <div v-if="smallScreen" style="min-width: 100%;height: 1px;background: #e7e7e7">
+
+    </div>
+    <div  class="text_div_background"
+          v-if="smallScreen"
          @keyup.stop="handleSelect"
          @touchend.stop="handleSelect"
          @mouseup.stop="handleSelect">
@@ -459,7 +465,7 @@ onBeforeUnmount(() => {
   font-size: 16px;
   min-width: calc(100% - 40px);
   max-width: calc(100% - 40px);
-  padding: 20px 20px 140px;
+  padding: 20px 20px 180px;
 }
 
 .text:empty::before {

@@ -106,6 +106,9 @@ getClasses()
 
 <template>
   <div id="main_tab_notes_view" v-if="smallScreen">
+    <div style="min-height: 54px">
+
+    </div>
     <div v-if="smallScreen"
         style="font-size: 1.5rem;margin: 12px 10px 10px 10px;font-weight: bold;display: flex;flex-direction: row;align-items: center">
       贴文&nbsp;
@@ -181,7 +184,7 @@ getClasses()
     </div>
     <div id="page_tab_notes">
 
-      <div v-if="!smallScreen" style="min-height: 10px">
+      <div v-if="!smallScreen" style="min-height: calc(10px + 54px)">
 
       </div>
 
@@ -291,7 +294,7 @@ getClasses()
   display: flex;
   flex-direction: column;
   width: 28%;
-  margin-top: 18px;
+  margin-top: calc(12px + 54px);
   margin-bottom: 10px;
   max-height: calc(100% - 20px);
 }

@@ -159,7 +159,6 @@ function openNewWindow(s: string) {
   height: 24px;
   left: auto;
   border: none;
-  z-index: 120;
   justify-content: right;
   margin-left: auto;
   display: flex;
@@ -230,11 +229,27 @@ function openNewWindow(s: string) {
   pointer-events: none;
 }
 
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #8a8a8a;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+}
+
 .todo_background {
   position: relative;
   margin-top: 58px;
   box-shadow: 0 0 8px #bebebe;
-  background-color: #f4f5f6;
+  background-color: rgba(244, 245, 246, 0.8);
+  backdrop-filter: blur(10px);
   margin-right: 50px;
   border-radius: 10px;
   display: flex;

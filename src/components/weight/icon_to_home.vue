@@ -17,7 +17,10 @@ import router from "../../router";
 
 <style scoped>
 .title{
-  background-color: #1e1e1e;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 500;
+  position: absolute;
   min-width: 100%;
   min-height: 54px;
   max-height: 54px;

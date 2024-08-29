@@ -124,8 +124,11 @@ function handleFileChange(event: Event) {
 </script>
 
 <template>
+  <icon_to_home/>
   <div id="background">
-    <icon_to_home/>
+    <div style="min-height: 54px">
+
+    </div>
     <div id="items">
       <h1 style="font-size: 30px">
         创建您的贴文
@@ -241,6 +244,7 @@ textarea {
   position: absolute;
   background: #ffffff;
   width: 100%;
+  height: 100%;
   overflow: auto;
   display: flex;
   flex-direction: column;

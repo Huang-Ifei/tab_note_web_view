@@ -74,8 +74,8 @@ function openNewWindow(s: string) {
       <!--标题-->
       <div class="todo-title">
         计划/待办
-        <button @click="emit('doClose')" class="close_button" style="width: 2rem;height: 2rem;">
-          <img src="../../assets/close.svg" @click="emit('doClose',false)" style="width: 2rem;height: 2rem;" />
+        <button @click="emit('doClose')" class="close_button" style="width: 30px;height: 30px">
+          <img src="../../assets/close.svg" @click="emit('doClose',false)" style="width: 30px;height: 30px" />
         </button>
       </div>
     </div>
@@ -157,7 +157,6 @@ function openNewWindow(s: string) {
   height: 24px;
   left: auto;
   border: none;
-  z-index: 120;
   justify-content: right;
   margin-left: auto;
   display: flex;
@@ -173,7 +172,7 @@ function openNewWindow(s: string) {
   align-items: center;
   color: #1c1c1c;
   width: calc(100% - 2rem);
-  margin-top: 0.8rem;
+  margin-bottom: 0.7rem;
   margin-right: 1rem;
   margin-left: 1rem;
   padding: 1.2rem 1rem;
@@ -182,8 +181,8 @@ function openNewWindow(s: string) {
 
 .todo-title {
   font-weight: bold;
-  font-size: 1.5rem;
-  padding: 1.5rem 1.2rem 0.7rem 1.2rem;
+  font-size: 23px;
+  padding: 12px 15px 8px 15px;
   display: flex;
   align-items: center;
 }
@@ -218,9 +217,12 @@ function openNewWindow(s: string) {
 
 .small_todo_background {
   width: 100%;
-  height: 100%;
+  height: calc( 100% - 54px);
   position: absolute;
-  background-color: #f4f5f6;
+  box-shadow: 0 0 8px #bebebe;
+  background-color: rgba(244, 245, 246, 0.9);
+  backdrop-filter: blur(20px);
+  margin-top: 54px;
   border-radius: 0;
   display: flex;
   flex-direction: column;
