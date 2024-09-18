@@ -5,7 +5,7 @@ import router from "../../router";
 
 <template>
   <div class="title">
-    <img @click="router.back()" src="../../assets/arrow_back_white.svg" alt="image"
+    <img @click="router.back()" src="../../assets/arrow_back.svg" alt="image"
          style="padding-left: 20px;padding-right: 2px;height: 25px;cursor: pointer"/>
     <a href="/">
       <h3 style="margin: 0">
@@ -17,7 +17,7 @@ import router from "../../router";
 
 <style scoped>
 .title{
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(242, 242, 242, 0.8);
   backdrop-filter: blur(10px);
   z-index: 500;
   position: absolute;

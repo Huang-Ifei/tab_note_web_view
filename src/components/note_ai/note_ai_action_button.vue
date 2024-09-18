@@ -64,7 +64,7 @@ async function post(messages: {}[]) {
             body: JSON.stringify({
               note_ai_id: note_ai_id.value,
               messages: messages,
-              model: 'gemini-1.5-pro-latest',
+              model: 'gpt-4o-mini',
               id: getLocalData('id'),
               token: tk,
               selected: props.selected,

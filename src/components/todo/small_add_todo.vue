@@ -58,17 +58,17 @@ async function insertNewPlan() {
       <div style="font-size: 0.9rem;margin-left: 5px">
         内容
       </div>
-      <textarea rows="4" style="width: auto;overflow: auto" v-model="new_content">
+      <textarea rows="4" style="width: auto;overflow: auto;font-size: 17px" v-model="new_content">
         </textarea>
       <div style="font-size: 0.9rem;margin-left: 5px">
         日期
       </div>
-      <input class="date_picker" type="date" v-model="new_date">
+      <input class="date_picker" type="date" style="font-size: 17px" v-model="new_date">
       <div style="font-size: 0.9rem;margin-left: 5px">
         链接（可选）
       </div>
       <input class="date_picker" type="text" v-model="new_link">
-      <button @click="insertNewPlan" style="margin-top: 10px;padding: 12px;font-size: 1rem; border:transparent;">
+      <button @click="insertNewPlan" style="margin-top: 10px;margin-bottom: 10px;padding: 12px;font-size: 17px; border:transparent;">
         {{ add_button }}
       </button>
     </div>
@@ -94,6 +94,9 @@ async function insertNewPlan() {
 .date_picker {
   background: #f4f5f6;
   border: transparent;
+  font-size: 17px;
+  padding: 10px 12px;
+  font-weight: normal;
 }
 
 .date_picker:hover,

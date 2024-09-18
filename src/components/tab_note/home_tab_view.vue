@@ -28,7 +28,7 @@ const search_value = ref("")
 const class_name = ref("")
 const post_show = ref(true)
 const classes = ref([])
-const tags = ref(["#Oracle","#JavaWeb期末复习","#git","#Vue","#数据库期末复习","#数据库","#视图","#SpringBoot"])
+const tags = ref(["#Oracle", "#JavaWeb期末复习", "#git", "#Vue", "#数据库期末复习", "#数据库", "#视图", "#SpringBoot"])
 
 search_value.value = getLocalData("search_value")
 class_name.value = getLocalData("class_name")
@@ -91,11 +91,11 @@ async function valueChange() {
   }
 }
 
-async function getClasses(){
+async function getClasses() {
   const axiosResponse = await axios.get(getAddress() + "/getClasses")
   if (axiosResponse.data.response == "success") {
     classes.value = axiosResponse.data.classes
-  }else {
+  } else {
     console.log(axiosResponse.data.response)
   }
 }
@@ -110,7 +110,7 @@ getClasses()
 
     </div>
     <div v-if="smallScreen"
-        style="font-size: 1.5rem;margin: 12px 10px 10px 10px;font-weight: bold;display: flex;flex-direction: row;align-items: center">
+         style="font-size: 1.5rem;margin: 12px 10px 10px 10px;font-weight: bold;display: flex;flex-direction: row;align-items: center">
       贴文&nbsp;
       <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 1.2rem"
            @click="search_value='';class_name='';page_size=1;searchTabNotePage()">
@@ -133,8 +133,14 @@ getClasses()
 
       <post_bar v-if="post_show" @doSearch="postSearch" :smallScreen="props.smallScreen"/>
 
-      <div v-if="page_list.length==0" style="width: 100%;height: calc(100vh - 230px);display: flex;flex-direction: column;justify-content: center;align-items: center;">
+      <div v-if="page_list.length==0"
+           style="width: 100%;height: calc(100vh - 230px);display: flex;flex-direction: column;justify-content: center;align-items: center;">
         暂无对应内容，点击重置刷新
+      </div>
+
+      <div v-if="smallScreen && post_show" @click="router.push('beat_question')"
+           style="background: white;height: 50px;display: flex;flex-direction: row;justify-content: center;align-items: center;border-radius: 10px;border: 1px solid #e6e7ec;margin: 5px 8px 0;font-weight: bold">
+        <img alt="相机" style="width: 20px;height: 20px;margin-right: 5px" src="../../assets/camera.svg"/>AI识题
       </div>
 
       <div v-for="tab in page_list">
@@ -190,7 +196,8 @@ getClasses()
 
       <post_bar v-if="post_show" @doSearch="postSearch" :smallScreen="props.smallScreen"/>
 
-      <div v-if="page_list.length==0" style="width: 100%;height: calc(100vh - 64px);display: flex;flex-direction: column;justify-content: center;align-items: center;">
+      <div v-if="page_list.length==0"
+           style="width: 100%;height: calc(100vh - 64px);display: flex;flex-direction: column;justify-content: center;align-items: center;">
         暂无对应内容，点击重置刷新
       </div>
 
@@ -229,7 +236,8 @@ getClasses()
 
   <div class="right_list" v-if="!smallScreen">
     <div style=" display: flex;flex-direction: row;max-width: 100%">
-      <div style="display: flex;flex-direction: column;font-size: 10px;align-items: center;justify-content: center;margin-right: 5px">
+      <div
+          style="display: flex;flex-direction: column;font-size: 10px;align-items: center;justify-content: center;margin-right: 5px;min-width: fit-content">
         <img src="../../assets/forward_media.svg" style="cursor: pointer;height: 22px"
              @click="search_value='';class_name='';page_size=1;searchTabNotePage()">
         重置
@@ -245,12 +253,12 @@ getClasses()
           分类选择
         </div>
         <div style="overflow-y: auto;">
-          <div v-for="(class_n , index) in classes"  :key="index" class="choice_class">
+          <div v-for="(class_n , index) in classes" :key="index" class="choice_class">
             <div v-if="class_name==class_n" @click="doChoice('')" style="font-weight: bold;color: #009bff">
-              {{class_n}}
+              {{ class_n }}
             </div>
             <div v-else @click="doChoice(class_n)">
-              {{class_n}}
+              {{ class_n }}
             </div>
           </div>
         </div>
@@ -263,12 +271,12 @@ getClasses()
           标签选择
         </div>
         <div style="overflow-y: auto;">
-          <div  v-for="(tag , index) in tags"  :key="index" class="choice_class">
+          <div v-for="(tag , index) in tags" :key="index" class="choice_class">
             <div v-if="search_value==tag" @click="postSearch('')" style="font-weight: bold;color: #009bff">
-              {{tag}}
+              {{ tag }}
             </div>
             <div v-else @click="postSearch(tag)">
-              {{tag}}
+              {{ tag }}
             </div>
           </div>
         </div>
@@ -278,11 +286,12 @@ getClasses()
 </template>
 
 <style scoped>
-.choice_class{
+.choice_class {
   padding: 5px 10px;
   cursor: pointer;
 }
-.right_items{
+
+.right_items {
   height: calc(100% - 54px);
   width: 100%;
   margin: 10px 0;
@@ -290,7 +299,8 @@ getClasses()
   background: white;
   border: 1px solid #e6e7ec;
 }
-.right_list{
+
+.right_list {
   display: flex;
   flex-direction: column;
   width: 28%;
@@ -298,6 +308,7 @@ getClasses()
   margin-bottom: 10px;
   max-height: calc(100% - 20px);
 }
+
 .page_select {
   cursor: pointer;
   display: flex;
@@ -307,15 +318,17 @@ getClasses()
   width: 88px;
   font-weight: bold;
 }
+
 .page_select:focus {
   color: #009bff
 }
+
 .page_select:hover {
   color: #009bff
 }
+
 #search_button {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
   padding: 0.5rem 1rem;
   border-radius: 2rem;
   border: transparent;
@@ -331,7 +344,7 @@ getClasses()
 #search_input {
   width: 10rem;
   min-width: 4rem;
-  font-size: 1rem;
+  font-size: 16px;
   padding: 0.5rem 1rem;
   border-radius: 2rem;
   margin-right: 0.2rem;
@@ -346,7 +359,8 @@ getClasses()
 }
 
 .tab_note_title {
-  font-size: 18px;
+  font-size: 17px;
+  color: #222323;
   font-weight: bold;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -355,12 +369,12 @@ getClasses()
 
 .small_title {
   font-size: 12px;
-  color: #626771
+  color: #777b80
 }
 
 .tab_note {
   cursor: pointer;
-  padding: 32px 20px;
+  padding: 28px 20px;
   margin: 8px 8px;
   background: white;
   border-radius: 10px;
@@ -381,7 +395,7 @@ getClasses()
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin-bottom: 50px;
+  margin-bottom: 110px;
   color: #1c1c1c;
 }
 
@@ -394,6 +408,7 @@ getClasses()
   padding: 0 2%;
   overflow: auto;
 }
+
 #main_tab_notes_view::-webkit-scrollbar {
   display: none;
   background-color: transparent;

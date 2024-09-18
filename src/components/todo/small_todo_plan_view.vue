@@ -86,16 +86,16 @@ function openNewWindow(s: string) {
           class="plans" v-if="todo_width>70"
           v-for="plan in plans" :key="JSON.parse(JSON.stringify(plan)).plan_id">
         <div style="display: flex;flex-direction: column;justify-content: flex-start;">
-          <div style="overflow-wrap: break-word;text-align: left;font-size: 1.1rem;" v-html="escapeHTMLWithOutConsole(JSON.parse(JSON.stringify(plan)).content)">
+          <div style="overflow-wrap: break-word;text-align: left;font-size: 17px;font-weight: normal" v-html="escapeHTMLWithOutConsole(JSON.parse(JSON.stringify(plan)).content)">
           </div>
           <div style="display: flex;flex-direction: row;justify-content: flex-start;margin-top: 5px;">
-            <div style="text-align: left;font-size: 0.9rem">
+            <div style="text-align: left;font-size: 13px;color: #777b80">
               {{ JSON.parse(JSON.stringify(plan)).date }}
             </div>
             <div class="open_window"
                  v-if=" JSON.parse(JSON.stringify(plan)).link!=''&& JSON.parse(JSON.stringify(plan)).link!=' '"
                  @click.stop="openNewWindow(JSON.parse(JSON.stringify(plan)).link)"
-                 style="margin-left: 5px;text-align: left;font-size: 0.9rem;color: #1a98ee">
+                 style="margin-left: 5px;text-align: left;font-size: 13px;color: #1a98ee">
               打开链接
             </div>
           </div>
@@ -162,8 +162,11 @@ function openNewWindow(s: string) {
   display: flex;
 }
 
-.close_button:hover {
-  outline: #1c99ee solid 1px;
+button:hover,
+button:focus {
+  outline: none;
+  border: transparent 1px solid;
+  box-shadow: none;
 }
 
 .plans {
@@ -208,6 +211,7 @@ function openNewWindow(s: string) {
 .add_button {
   font-weight: normal;
   font-size: 1.1rem;
+  border-radius: 10px;
   position: absolute;
   padding: 1rem 1.6rem;
   top: calc(100% - 4.5rem);

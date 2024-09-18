@@ -38,12 +38,12 @@ console.log(Cookies.default.get("name"))
   </div>
 
   <div class="small_title" v-if="props.smallScreen">
-    <img @click="emit('leftChoice')" src="../../assets/menu.svg" alt="image" style="padding-left: 10px;padding-right: 10px;height: 25px"/>
+    <img @click="emit('leftChoice')" src="../../assets/menu_gray.svg" alt="image" style="padding-left: 10px;padding-right: 10px;height: 25px"/>
     <h3 style="margin: 0">
       TabNote_
     </h3>
     <div class="icons">
-      <button id="ai_button" onclick="location.href='/ai_assistant'">
+      <button id="ai_button" style="font-size: 15px" onclick="location.href='/ai_assistant'">
         AI助手
       </button>
       <img v-if="!isApp()" @click="router.push('login')" id="usrImage" :src="imageURL" alt="image"/>
@@ -53,9 +53,8 @@ console.log(Cookies.default.get("name"))
 
 <style scoped>
 .small_title {
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(253, 253, 254, 0.8);
   backdrop-filter: blur(10px);
-  color: rgb(255, 255, 255);
   height: 54px;
   position: absolute;
   width: calc(100% - 30px);
@@ -65,13 +64,11 @@ console.log(Cookies.default.get("name"))
   flex-direction: row;
   align-items: center;
 }
-
 .title {
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(253, 253, 254, 0.8);
   backdrop-filter: blur(10px);
   z-index: 500;
-  color: rgb(255, 255, 255);
   height: 54px;
   width: calc(100% - 30px);
   padding: 0 20px 0 10px;
@@ -95,36 +92,34 @@ console.log(Cookies.default.get("name"))
   height: 54px;
   margin-top: 3px;
   box-shadow: none;
-  color: #eaeaea;
+  color: rgba(0, 0, 0, 0.8);
   border: none;
 }
 
 .none_button:hover {
-  color: #ffffff;
   outline: 0;
   border: none;
-  text-shadow: 0 0 8px #c6e9ff;
+  text-shadow: 0 0 8px #eaeaea;
 }
 
 .none_button:focus {
-  color: #ffffff;
-  outline: none;
+  outline: 0;
   border: none;
-  text-shadow: 0 0 8px #c6e9ff;
+  text-shadow: 0 0 8px #eaeaea;
 }
 
 #ai_button {
-  font-size: 14px;
-  color: rgba(0, 0, 0, 0.8);
-  background: white;
-  padding: 9px 20px;
-  margin: 9px 10px 9px 5px;
+  font-size: 13px;
+  color: rgb(255, 255, 255);
+  background: #0d94f7;
+  padding: 8px 20px;
+  margin: 10px 10px 10px 5px;
   box-shadow: none;
   border: none;
 }
 
 #ai_button:hover {
-  box-shadow: 0 0 8px #c6e9ff;
+  box-shadow: 0 0 8px #eaeaea;
   border: none;
 }
 

@@ -26,11 +26,11 @@ onBeforeUnmount(() => {
 const smallScreen = ref(false);
 const renderResize = () => {
   let width = document.documentElement.clientWidth;
-  if (width < 680||isApp()) {
+  if (width < 680 || isApp()) {
     smallScreen.value = true;
   }
-  //else if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
-  //  smallScreen.value = true;
+      //else if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+      //  smallScreen.value = true;
   //}
   else {
     smallScreen.value = false;
@@ -40,28 +40,24 @@ const renderResize = () => {
 </script>
 
 <template>
-  <div id="home_view" v-if="!smallScreen" style="background:#f6f7f8">
-    <div class="title">
-      <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" :todo="todo_view"/>
-    </div>
+  <div id="home_view" v-if="!smallScreen" style="background:#f3f3f5">
+    <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" :todo="todo_view"/>
     <transition name="todo">
       <todo_plan_view v-if="todo_view" @doClose="showTodoView" smallScreen="false"/>
     </transition>
     <div style="display: flex;flex-direction: row;padding: 0 10%;overflow-y: auto">
-      <home_tab_view :small-screen="smallScreen" />
+      <home_tab_view :small-screen="smallScreen"/>
     </div>
   </div>
 
-  <div id="small_home_view" v-if="smallScreen" style="background:#f6f7f8">
+  <div id="small_home_view" v-if="smallScreen" style="background:#f3f3f5">
     <transition name="todo">
       <small_todo_plan_view v-if="todo_view" @doClose="showTodoView" smallScreen="true" style="z-index: 200"/>
     </transition>
     <transition name="small_left_choice">
       <small_left_choice v-if="left_choice" @leftClose="left_choice=false" @todoView="showTodoView"/>
     </transition>
-    <div class="title">
-      <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" @leftChoice="left_choice=true" :todo="todo_view"/>
-    </div>
+    <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" @leftChoice="left_choice=true" :todo="todo_view"/>
     <home_tab_view :small-screen="smallScreen"/>
   </div>
 
@@ -91,6 +87,7 @@ const renderResize = () => {
 .small_left_choice-leave-to {
   opacity: 0;
 }
+
 #home_view {
   position: absolute;
   display: flex;

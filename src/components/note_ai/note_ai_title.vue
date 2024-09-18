@@ -23,7 +23,7 @@ console.log(Cookies.default.get("name"))
         TabNote_
       </h3>
     </a>
-    <h3 style=" background: linear-gradient(45deg, #e961fb, #13c2e6);-webkit-background-clip: text;-webkit-text-fill-color: transparent;min-width: fit-content">
+    <h3 style="background: linear-gradient(45deg, #e961fb, #13c2e6);-webkit-background-clip: text;-webkit-text-fill-color: transparent;min-width: fit-content">
       AI笔记</h3>
     <div class="icons">
       <div v-if="!props.small"
@@ -68,9 +68,8 @@ console.log(Cookies.default.get("name"))
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
-  background-color: rgb(253, 253, 253);
+  background-color: rgb(255, 255, 255);
   backdrop-filter: blur(10px);
-  color: rgb(255, 255, 255);
   height: 54px;
   padding: 0 20px 0 10px;
   display: flex;
@@ -81,8 +80,8 @@ console.log(Cookies.default.get("name"))
 
 #ai_button {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.8);
-  background: #434343;
+  color: rgba(0, 0, 0, 0.8);
+  background: #ececec;
   padding: 9px 20px;
   margin: 9px 10px 9px 5px;
   box-shadow: none;

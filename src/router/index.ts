@@ -10,6 +10,7 @@ import {loginCheck} from "../operation/dataOperation.ts";
 import Tab_note_view from '../components/tab_note/tab_note_view.vue'
 import Tab_manual from '../components/tab_manual.vue'
 import Note_ai from '../components/note_ai/note_ai.vue'
+import Beat_question from "../components/beat_question/beat_question.vue";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -45,6 +46,9 @@ const router = createRouter({
         {
             path:"/note_ai",
             component: noteAiRouteCheck()
+        },{
+        path:"/beat_question",
+            component: Beat_question
         }
     ]
 })

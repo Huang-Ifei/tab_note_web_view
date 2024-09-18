@@ -10,7 +10,7 @@ const emit = defineEmits(['leftClose','todoView'])
 <template>
   <div class="background" @click="emit('leftClose')">
     <div class="left_background">
-      <img src="../../assets/arrow_back_white.svg" @click="emit('leftClose')" class="close_button">
+      <img src="../../assets/arrow_back.svg" @click="emit('leftClose')" class="close_button">
       <div @click="router.push('add_tab_note')" class="choice_button" style="padding-top: 20px">
         新建贴文
       </div>
@@ -27,7 +27,7 @@ const emit = defineEmits(['leftClose','todoView'])
 <style scoped>
 .choice_button{
   padding: 0.4rem 2rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(31, 31, 31,0.9);
   font-weight: bold;
   font-size: 1.5rem;
 }
@@ -41,7 +41,7 @@ const emit = defineEmits(['leftClose','todoView'])
 .background {
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(10px);
   position: absolute;
   display: flex;
@@ -51,8 +51,8 @@ const emit = defineEmits(['leftClose','todoView'])
 
 .left_background {
   position: relative;
-  box-shadow: 0 0 8px #181818;
-  background: rgba(30, 30, 30, 0.98);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 0;
   display: flex;
   width: 70%;

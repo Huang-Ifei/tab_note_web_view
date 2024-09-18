@@ -258,17 +258,4 @@ function openNewWindow(s: string) {
   flex-direction: column;
   pointer-events: visible;
 }
-
-.small_todo_background {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  box-shadow: 0 0 8px #bebebe;
-  background-color: #f4f5f6;
-  border-radius: 0;
-  display: flex;
-  flex-direction: column;
-  pointer-events: visible;
-}
-
 </style>

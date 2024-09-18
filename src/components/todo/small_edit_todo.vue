@@ -86,22 +86,22 @@ async function updatePlan() {
         <div style="font-size: 0.9rem;margin-left: 5px">
           内容
         </div>
-        <textarea rows="4" style="width: auto;overflow: auto;font-size: 1rem"
+        <textarea rows="4" style="width: auto;overflow: auto;font-size: 17px"
                   v-model="edit_content">
         </textarea>
         <div style="font-size: 0.9rem;margin-left: 5px">
           日期
         </div>
-        <input class="date_picker" type="date" v-model="edit_date" value="">
-        <div style="font-size: 0.9rem;margin-left: 5px">
+        <input class="date_picker" type="date" style="font-size: 17px" v-model="edit_date" value="">
+        <div style="font-size: 17px;margin-left: 5px">
           链接（可选）
         </div>
         <input class="date_picker" type="text" v-model="edit_link">
-        <button @click="updatePlan" style="margin-top: 10px;padding: 12px;font-size: 1rem;  border:transparent;">
+        <button @click="updatePlan" style="margin-top: 10px;padding: 12px;font-size: 17px;  border:transparent;">
           {{ edit_button }}
         </button>
         <button @click="deletePlan"
-                style="background: linear-gradient(45deg, #1e1e1e, #313131) ;margin-top: 10px;padding: 12px;font-size: 1rem;  border:transparent;">
+                style="background: linear-gradient(45deg, #1e1e1e, #313131) ;margin-top: 10px;padding: 12px;font-size: 17px;  border:transparent;">
           {{ delete_button }}
         </button>
       </div>
@@ -129,6 +129,9 @@ async function updatePlan() {
 .date_picker {
   background: #f4f5f6;
   border: transparent;
+  font-size: 17px;
+  padding: 10px 12px;
+  font-weight: normal;
 }
 
 .date_picker:hover,

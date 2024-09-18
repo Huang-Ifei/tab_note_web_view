@@ -229,7 +229,7 @@ img {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: fit-content;
+  min-width: fit-content;
   height: fit-content;
   white-space: nowrap;
   margin-right: 10px;
@@ -246,6 +246,7 @@ img {
   flex-direction: row;
   align-items: center;
   width: fit-content;
+  min-width: fit-content;
   white-space: nowrap;
   height: fit-content;
   margin-right: 10px;

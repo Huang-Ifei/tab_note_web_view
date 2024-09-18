@@ -71,7 +71,7 @@ async function post(messages: {}[]) {
             body: JSON.stringify({
               note_ai_id: note_ai_id.value,
               messages: messages,
-              model: 'gemini-1.5-pro',
+              model: 'gpt-4o-mini',
               id: getLocalData('id'),
               token: tk,
               selected: props.selected,
@@ -321,7 +321,7 @@ textarea {
 .choice_talk {
   min-width: max-content;
   background: rgba(0, 0, 0, 0.85);
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.95);
   border: transparent;
   width: calc(33% - 10px);
   padding: 12px 25px;

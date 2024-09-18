@@ -225,7 +225,7 @@ export function escapeHTML(str: string): string {
             let isTitle = false
             while (x < n && htmlString[x] != '\n') {
                 if (htmlString[x] + htmlString[x + 1] == '**') {
-                    newString += "<div style='font-weight: bold;display: inline-block;overflow-wrap: break-word;text-overflow: ellipsis;'>" + name + "</div>"
+                    newString += "<p style='font-weight: bold;display: inline-block;overflow-wrap: break-word;text-overflow: ellipsis;max-width: 100%'>" + name + "</p>"
                     i = x + 1;
                     isTitle = true
                     break

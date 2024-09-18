@@ -83,7 +83,6 @@ button {
   width: 120px;
   padding: 8px 5px;
   margin: 8px 0 7px 0;
-  color: rgba(255, 255, 255, 0.9);
   border-radius: 10px;
   border: none;
 }

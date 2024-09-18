@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import resize_textarea from "../weight/resize_textarea.vue";
-import {onBeforeMount, onBeforeUnmount,  Ref, ref} from "vue";
+import {onBeforeMount, onBeforeUnmount, Ref, ref} from "vue";
 import {
   delay,
   escapeHTML,
@@ -55,6 +55,7 @@ const renderResize = () => {
 async function post() {
   if (!isLoading.value) {
     isLoading.value = true
+    console.log(messages.value)
     try {
       const tk = await getTokenData()
       // 发起 POST 请求
@@ -67,7 +68,7 @@ async function post() {
               ai_ms_id: ai_ms_id.value,
               messages: messages.value,
               preview: true,
-              model: 'gemini-1.5-pro',
+              model: 'gpt-4o-mini',
               id: getLocalData('id'),
               token: tk
             }),
@@ -103,7 +104,7 @@ async function post() {
             decodeJsonToShow(decodeValue, allValue)
           }
         }
-        messages.value.push({role: 'model', content: allValue.value})
+        messages.value.push({role: 'assistant', content: allValue.value})
         streamText.value = ""
         count.value = messages.value.length
         await delay(500)
@@ -153,9 +154,9 @@ async function getAiHistory() {
       id: getLocalData("id"),
       token: tk
     });
-    if(response.data.response == "token_check_failed"){
+    if (response.data.response == "token_check_failed") {
       alert("登录已经失效，请重新登录")
-    }else{
+    } else {
       aiHistory.value = response.data.list
       console.log(aiHistory.value)
     }
@@ -340,24 +341,24 @@ async function redoAiMessage(ii: number) {
 
       </div>
       <button onclick="location.href='login'" id="usr">
-        <button onclick="location.href='login'" class="imageButton">
-          <img id="usrImage" :src="getAccountImg()" alt="image"/>
+        <button onclick="location.href='login'" style="width: auto;height: auto">
+          <img id="usrImage" :src="getAccountImg()" style="width: 50px;margin-top: 5px;height: auto" alt="image"/>
         </button>
-        <div style="width: 100%;text-align: center;margin: 5px">
+        <a href="/login" style="width: 100%;text-align: center;margin: 5px;color: #1a1a1a">
           {{ getLocalData('name') }}
-        </div>
+        </a>
       </button>
     </div>
     <div class="ai_talking">
       <div id="talking_view" style=" padding-top: 20px;">
         <div v-if="messages.length==0&&ai_ms_id==''">
           <div id="hello1">你好，{{ getLocalData("name") }}</div>
-          <div id="hello2">欢迎使用AI助手，当Gemini 1.5 Pro受支持时，我们将优先为您分配</div>
+          <div id="hello2"></div>
         </div>
         <div class="contents_view" style="padding: 0 7%">
           <div v-for="(value,ii) in messages" :key="ii">
             <transition>
-              <div v-if="value.role=='model'&&count>ii" class="model_talk">
+              <div v-if="(value.role=='assistant'||value.role=='model')&&count>ii" class="model_talk">
                 <div style="display: flex;flex-direction: row;align-items: center;">
                   <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
                   <img @click="copyText(value.content)" class="copy_img"
@@ -404,14 +405,29 @@ async function redoAiMessage(ii: number) {
     <small_ai_title :smallScreen="smallScreen" @rightChoice="right_choice=true"/>
     <div class="ai_talking" style="width: 100%;position: relative;max-height: 100%;">
       <div id="talking_view">
+        <!--初始画面-->
         <div v-if="messages.length==0&&ai_ms_id==''">
           <div id="hello1" style="font-size: 40px;font-weight: bold">{{ getLocalData("name") }}</div>
           <div id="hello2" style="font-size: 30px">你好，AI助手随时待命</div>
+          <div style="margin-top: 20px;margin-left: 20px;font-weight: bold;font-size: 18px">
+            TabNote特色AI功能
+          </div>
+          <div
+              style="width: 100%;overflow-x: auto;display: flex;flex-direction: row;color: #434343">
+            <div @click="router.push('beat_question')" style="margin-left: 20px" class="others_action">
+              <img alt="相机" style="width: 70px;height: 70px" src="../../assets/camera.svg"/>
+              AI识题(内测版)
+            </div>
+            <div @click="router.push('note_ai')" class="others_action">
+              <img alt="笔记" style="width: 70px;height: 70px" src="../../assets/edit_note_gray.svg"/>
+              笔记型AI
+            </div>
+          </div>
         </div>
         <div class="contents_view">
           <div v-for="(value,ii) in messages" :key="ii">
             <transition>
-              <div v-if="value.role=='model'&&count>ii" class="model_talk">
+              <div v-if="(value.role=='assistant'||value.role=='model')&&count>ii" class="model_talk">
                 <div style="display: flex;flex-direction: row;align-items: center;">
                   <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
                   <img @click="copyText(value.content)" class="copy_img"
@@ -518,7 +534,8 @@ async function redoAiMessage(ii: number) {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.bottom_hidden{
+
+.bottom_hidden {
   position: absolute;
   min-width: 260px;
   max-width: 260px;
@@ -529,10 +546,12 @@ async function redoAiMessage(ii: number) {
   backdrop-filter: ;
 
 }
+
 #usrTalkHistory {
   width: 100%;
   height: calc(100% - 70px);
   padding-bottom: 70px;
+  background: #f3f3f3;
   display: flex;
   flex-direction: column;
   padding-top: 10px;
@@ -573,7 +592,7 @@ async function redoAiMessage(ii: number) {
 #talking_view {
   max-width: 100%;
   height: 100%;
-  padding-bottom: 60px;
+  padding-bottom: 65px;
   padding-top: 54px;
   display: flex;
   flex-direction: column;
@@ -657,7 +676,7 @@ async function redoAiMessage(ii: number) {
 
 ::-webkit-scrollbar {
   width: 5px;
-  height: 5px;
+  height: 0;
   background-color: transparent;
   border: none;
   outline: none;
@@ -668,5 +687,17 @@ async function redoAiMessage(ii: number) {
   border-radius: 10px;
   border: none;
   outline: none;
+}
+
+.others_action {
+  min-width: 200px;
+  height: 200px;
+  margin: 10px 10px 10px 10px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 </style>

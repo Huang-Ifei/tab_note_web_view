@@ -24,11 +24,8 @@ console.log(Cookies.default.get("name"))
       </h3>
     </a>
     <h3 style="background: linear-gradient(45deg, #e961fb, #13c2e6);-webkit-background-clip: text;-webkit-text-fill-color: transparent;min-width: fit-content">
-      AI</h3>
+      AI识题</h3>
     <div class="icons">
-      <button id="ai_button" @click="emit('rightChoice')">
-        历史记录
-      </button>
       <img v-if="!isApp()" @click="router.push('login')" id="usrImage" :src="imageURL" alt="image"/>
     </div>
   </div>
