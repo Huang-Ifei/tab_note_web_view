@@ -27,6 +27,9 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
+h2{
+  color: rgb(67, 67, 67);
+}
 h3{
   color: rgb(67, 67, 67);
 }

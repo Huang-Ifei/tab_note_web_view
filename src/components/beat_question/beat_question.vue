@@ -224,6 +224,15 @@ function handleTouchMove(event: TouchEvent) {
   }
 }
 
+function handleTouchEnd() {
+  isDragging.value = false;
+  if (bqHistoryHeight.value > 75) {
+    bqHistoryHeight.value = 100; // 如果高度超过 75%，完全展开
+  } else {
+    bqHistoryHeight.value = 15; // 如果高度小于等于 75%，回到初始高度
+  }
+}
+
 onMounted(() => {
   const bqHistoryElement = document.getElementById('bq_history');
   bqHistoryElement?.addEventListener('touchstart', handleTouchStart);
@@ -238,14 +247,6 @@ onUnmounted(() => {
   bqHistoryElement?.removeEventListener('touchend', handleTouchEnd);
 });
 
-function handleTouchEnd() {
-  isDragging.value = false;
-  if (bqHistoryHeight.value > 75) {
-    bqHistoryHeight.value = 100; // 如果高度超过 75%，完全展开
-  } else {
-    bqHistoryHeight.value = 15; // 如果高度小于等于 75%，回到初始高度
-  }
-}
 
 //同步历史记录
 async function insertBQ() {
@@ -359,7 +360,7 @@ async function getBQ(s:string) {
            :src="imageSrc"/>
       <div class="show_items" style="margin-top: 10px">
         <div class="action_choice">
-          AI识别结果
+          AI识题
         </div>
         <div v-html="escapeHTML(aiAnswer)" class="content">
 
@@ -369,7 +370,7 @@ async function getBQ(s:string) {
       </div>
       <div class="show_items">
         <div class="action_choice">
-          大学搜题酱结果
+          大学搜题酱识题
         </div>
         <div style="overflow: auto;display: flex;flex-direction: row">
           <div v-for="(json,ii) in dxstj" :key="ii" class="action_choice"

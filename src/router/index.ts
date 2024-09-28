@@ -48,7 +48,7 @@ const router = createRouter({
             component: noteAiRouteCheck()
         },{
         path:"/beat_question",
-            component: Beat_question
+            component: bqAiRouteCheck()
         }
     ]
 })
@@ -82,6 +82,14 @@ function aiRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMix
 function noteAiRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{}>>, {}, {}> {
     if (loginCheck()){
         return Note_ai
+    }else{
+        return login
+    }
+}
+
+function bqAiRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{}>>, {}, {}> {
+    if (loginCheck()){
+        return Beat_question
     }else{
         return login
     }

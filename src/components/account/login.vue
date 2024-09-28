@@ -40,7 +40,7 @@ async function login(){
     sessionStorage.setItem('id', setId);
     sessionStorage.setItem('name', response.data.name);
     sessionStorage.setItem('encryptionToken', encryptToken);
-    if (isRemember.value==true){
+    if (isRemember.value){
       Cookies.default.set('id',  setId.toString(),{ expires: 1024 });
       Cookies.default.set('name', response.data.name,{ expires: 1024 });
       Cookies.default.set('encryptionToken', encryptToken,{ expires: 1024 });
@@ -83,12 +83,13 @@ async function login(){
   flex-direction: column;
   width: 100%;
   padding-bottom: 30px;
-  height: calc(100% - 96px);
+  height: calc(100% - 84px);
   justify-content: center;
   align-items: center;
 }
 #login_content{
   width: 350px;
+  max-width: calc(100vw - 50px);
   background: rgba(242, 242, 242, 0.85);
   padding: 20px;
   border-radius: 10px;

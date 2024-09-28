@@ -88,11 +88,6 @@ console.log(Cookies.default.get("name"))
   border: none;
 }
 
-#ai_button:hover {
-  box-shadow: 0 0 8px #c6e9ff;
-  border: none;
-}
-
 .icons {
   left: auto;
   position: marker;

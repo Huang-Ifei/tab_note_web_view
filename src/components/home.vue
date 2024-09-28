@@ -9,6 +9,7 @@ import {isApp} from "../operation/dataOperation.ts";
 
 const todo_view = ref(false)
 const left_choice = ref(false)
+const main_view = ref(false)
 
 function showTodoView(active: boolean) {
   console.log(active);
@@ -41,7 +42,7 @@ const renderResize = () => {
 
 <template>
   <div id="home_view" v-if="!smallScreen" style="background:#f3f3f5">
-    <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" :todo="todo_view"/>
+    <HelloTitle v-model:model-value="main_view" @todoView="showTodoView" :smallScreen="smallScreen" :todo="todo_view"/>
     <transition name="todo">
       <todo_plan_view v-if="todo_view" @doClose="showTodoView" smallScreen="false"/>
     </transition>
@@ -57,7 +58,7 @@ const renderResize = () => {
     <transition name="small_left_choice">
       <small_left_choice v-if="left_choice" @leftClose="left_choice=false" @todoView="showTodoView"/>
     </transition>
-    <HelloTitle @todoView="showTodoView" :smallScreen="smallScreen" @leftChoice="left_choice=true" :todo="todo_view"/>
+    <HelloTitle v-model:model-value="main_view" @todoView="showTodoView" :smallScreen="smallScreen" @leftChoice="left_choice=true" :todo="todo_view"/>
     <home_tab_view :small-screen="smallScreen"/>
   </div>
 
@@ -99,6 +100,7 @@ const renderResize = () => {
 #small_home_view {
   position: absolute;
   display: flex;
+  overflow: hidden;
   flex-direction: column;
   width: 100%;
   height: 100%;

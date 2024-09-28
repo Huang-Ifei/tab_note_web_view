@@ -233,12 +233,13 @@ function saveSessionAndSignUp(){
   flex-direction: column;
   width: 100%;
   padding-bottom: 30px;
-  height: calc(100% - 96px);
+  height: calc(100% - 84px);
   justify-content: center;
   align-items: center;
 }
 #login_content{
   width: 350px;
+  max-width: calc(100vw - 50px);
   background: rgba(242, 242, 242, 0.85);
   padding: 20px;
   border-radius: 10px;

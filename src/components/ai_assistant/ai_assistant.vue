@@ -353,7 +353,7 @@ async function redoAiMessage(ii: number) {
       <div id="talking_view" style=" padding-top: 20px;">
         <div v-if="messages.length==0&&ai_ms_id==''">
           <div id="hello1">你好，{{ getLocalData("name") }}</div>
-          <div id="hello2"></div>
+          <div id="hello2">AI助手随时待命</div>
         </div>
         <div class="contents_view" style="padding: 0 7%">
           <div v-for="(value,ii) in messages" :key="ii">
@@ -414,13 +414,27 @@ async function redoAiMessage(ii: number) {
           </div>
           <div
               style="width: 100%;overflow-x: auto;display: flex;flex-direction: row;color: #434343">
-            <div @click="router.push('beat_question')" style="margin-left: 20px" class="others_action">
-              <img alt="相机" style="width: 70px;height: 70px" src="../../assets/camera.svg"/>
-              AI识题(内测版)
+            <div @touchstart.stop @touchmove.stop @touchend.stop @click.stop="router.push('beat_question')"
+                 style="margin-left: 20px" class="others_action">
+              <img alt="AI VISION" style="height: 100%;width: auto;border-radius: 15px"
+                   src="../../assets/post/ai_vision.png"/>
+              <p style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">
+                AI识题
+              </p>
+              <p style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">
+                遇到难题？<br>
+                两位“学霸”在线解答！
+              </p>
             </div>
-            <div @click="router.push('note_ai')" class="others_action">
-              <img alt="笔记" style="width: 70px;height: 70px" src="../../assets/edit_note_gray.svg"/>
-              笔记型AI
+            <div @touchstart.stop @touchmove.stop @touchend.stop @click.stop="router.push('note_ai')" class="others_action">
+              <img alt="AI Note" style="height: 100%;width: auto;border-radius: 15px" src="../../assets/post/ai_note.png"/>
+              <p style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">
+                AI笔记
+              </p>
+              <p style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">
+                随笔记，随手问<br>
+                快问快答，高效速记！
+              </p>
             </div>
           </div>
         </div>
@@ -690,14 +704,15 @@ async function redoAiMessage(ii: number) {
 }
 
 .others_action {
-  min-width: 200px;
-  height: 200px;
+  width: 26vw;
+  position: relative;
+  min-width: 250px;
+  border-radius: 15px;
   margin: 10px 10px 10px 10px;
-  background: #f5f5f5;
-  border-radius: 10px;
+  background: #f3f3f5;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  color: #1a1a1a;
+  cursor: pointer;
 }
 </style>

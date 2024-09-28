@@ -7,6 +7,7 @@ import router from "../../router";
 import Classes_bar from "../weight/classes_bar.vue";
 import {getLocalData, getLocalNumber} from "../../operation/dataOperation.ts";
 import Post_bar from "../post/post_bar.vue";
+import Bei_an from "../bei_an.vue";
 
 const props = defineProps(['smallScreen'])
 
@@ -174,6 +175,7 @@ getClasses()
       <div style="background: transparent;width: 88px" v-else-if="!(page_size<page_count)">
       </div>
     </div>
+    <bei_an style="width: calc(100% - 20px)"/>
   </div>
   <div id="main_tab_notes_view" v-else style="width: 66%">
     <div v-if="smallScreen"
@@ -232,6 +234,7 @@ getClasses()
       <div style="background: transparent;width: 88px" v-else-if="!(page_size<page_count)">
       </div>
     </div>
+    <bei_an style="width: calc(100% - 20px)"/>
   </div>
 
   <div class="right_list" v-if="!smallScreen">
@@ -395,7 +398,7 @@ getClasses()
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin-bottom: 110px;
+  margin-bottom: 20px;
   color: #1c1c1c;
 }
 
