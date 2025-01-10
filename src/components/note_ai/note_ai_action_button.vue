@@ -273,8 +273,8 @@ input{
   display: flex;
   flex-direction: row;
   z-index: 550;
-  justify-content: end;
-  align-items: end;
+  justify-content: flex-end;
+  align-items: flex-end;
   pointer-events: none;
 }
 

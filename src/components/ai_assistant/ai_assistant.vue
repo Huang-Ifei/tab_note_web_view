@@ -2,14 +2,14 @@
 import resize_textarea from "../weight/resize_textarea.vue";
 import {onBeforeMount, onBeforeUnmount, Ref, ref} from "vue";
 import {
-  delay,
+  delay, deleteAccount,
   escapeHTML,
   escapeHTMLWithOutConsole,
   getAccountImg,
   getLocalData, getTokenData,
   isApp
 } from "../../operation/dataOperation.ts";
-import {getAddress} from "../../operation/address.ts";
+import {getAddress, getWholeAddress} from "../../operation/address.ts";
 import axios from "axios";
 import Small_ai_title from "./small_ai_title.vue";
 import Wide_ai_icon_to_home from "./wide_ai_icon_to_home.vue";
@@ -21,7 +21,15 @@ const right_choice = ref(false)
 
 type talk = {
   role: string,
-  content: string
+  content: string | Array<imgType | imgTextType>,
+}
+type imgType = {
+  type: string,
+  image_url: { url: string }
+}
+type imgTextType = {
+  type: string,
+  text: string
 }
 
 const messages: Ref<talk[]> = ref([])
@@ -32,6 +40,7 @@ const ai_ms_id = ref("")
 const text = ref("");
 const streamText = ref("")
 const isLoading = ref(false)
+const model = ref("gpt-4o-mini")
 
 //监听大小
 onBeforeMount(() => {
@@ -68,7 +77,7 @@ async function post() {
               ai_ms_id: ai_ms_id.value,
               messages: messages.value,
               preview: true,
-              model: 'gpt-4o-mini',
+              model: model.value,
               id: getLocalData('id'),
               token: tk
             }),
@@ -124,14 +133,9 @@ function decodeJsonToShow(decodeValue: string, allValue: Ref<string>) {
   //如果是末尾条，添加返回的ai表id：
   if (decodeValue.startsWith('{"response":"')) {
     console.log(JSON.parse(decodeValue).response)
-    try {
-      ai_ms_id.value = JSON.parse(decodeValue).response
 
-      streamText.value = ""
-      count.value = messages.value.length
-    } catch (e) {
-      console.error("done but:" + e)
-    }
+  } else if (decodeValue.startsWith('{"ai_ms_id":"')) {
+    ai_ms_id.value = JSON.parse(decodeValue).ai_ms_id
   } else {
     try {
       allValue.value += JSON.parse(decodeValue).message.content
@@ -156,6 +160,8 @@ async function getAiHistory() {
     });
     if (response.data.response == "token_check_failed") {
       alert("登录已经失效，请重新登录")
+      await deleteAccount()
+      await router.push("login")
     } else {
       aiHistory.value = response.data.list
       console.log(aiHistory.value)
@@ -234,6 +240,24 @@ async function send(s: string) {
   }
 }
 
+async function addPicture(name: string) {
+  if (!isLoading.value) {
+    messages.value.push({
+      role: "user",
+      content: [{
+        type: "image_url",
+        image_url: {url: getWholeAddress() + "/tabNoteImg?name=" + name}
+      }, {
+        type: "text",
+        text: ""
+      }]
+    })
+    await delay(200)
+    count.value = messages.value.length
+    console.log(messages)
+  }
+}
+
 function copyText(s: string) {
   //创建一个textarea并且放在-100层，并且提交一个copy操作
   const el = document.createElement('textarea');
@@ -255,7 +279,7 @@ async function redoUsrMessage(ii: number) {
       if (i < ii) {
         newMessage.push(messages.value[i])
       } else if (i == ii) {
-        setText(messages.value[i].content)
+        setText(messages.value[i].content.toString())
 
         if (count.value - newMessage.length > 3) {
           count.value = newMessage.length + 3
@@ -303,6 +327,22 @@ async function redoAiMessage(ii: number) {
   }
 }
 
+getRank()
+
+const rank = ref(0)
+
+async function getRank() {
+  const response = await axios.get(getAddress() + "/vip/rank?id=" + getLocalData("id"))
+  rank.value = response.data.rank
+  if (response.data.rank <= 0) {
+    await router.push("afa")
+  }
+}
+
+function setModel(s:string) {
+  model.value = s
+}
+
 </script>
 
 <template>
@@ -317,11 +357,6 @@ async function redoAiMessage(ii: number) {
         <button @click="newChat" style="display: flex; align-items: center;justify-content: center;padding: 10px">
           <img src="../../assets/edit.svg" alt="edit" style="margin-right: 2px"/>
           新建对话
-        </button>
-        <button @click="router.push('note_ai')"
-                style="display: flex; align-items: center;justify-content: center;padding: 10px">
-          <img src="../../assets/edit_note.svg" alt="edit" style="margin-right: 2px"/>
-          笔记型AI
         </button>
         <div style="min-height: 8px;display: flex;">
 
@@ -341,9 +376,9 @@ async function redoAiMessage(ii: number) {
 
       </div>
       <button onclick="location.href='login'" id="usr">
-        <button onclick="location.href='login'" style="width: auto;height: auto">
+        <div @click="router.push('login')" style="width: auto;height: auto;">
           <img id="usrImage" :src="getAccountImg()" style="width: 50px;margin-top: 5px;height: auto" alt="image"/>
-        </button>
+        </div>
         <a href="/login" style="width: 100%;text-align: center;margin: 5px;color: #1a1a1a">
           {{ getLocalData('name') }}
         </a>
@@ -361,17 +396,17 @@ async function redoAiMessage(ii: number) {
               <div v-if="(value.role=='assistant'||value.role=='model')&&count>ii" class="model_talk">
                 <div style="display: flex;flex-direction: row;align-items: center;">
                   <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
-                  <img @click="copyText(value.content)" class="copy_img"
+                  <img @click="copyText(value.content.toString())" class="copy_img"
                        src="../../assets/content_copy.svg" alt="copy"/>
                   <img @click="redoAiMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
                        alt="copy"/>
                 </div>
-                <div v-html="escapeHTML(value.content)" class="content">
+                <div v-html="escapeHTML(value.content.toString())" class="content">
                 </div>
               </div>
             </transition>
             <transition>
-              <div v-if="value.role=='user'&&count>ii" class="usr_talk">
+              <div v-if="value.role=='user'&&count>ii&&typeof value.content!='object'" class="usr_talk">
                 <div style="display: flex;flex-direction: row;align-items: center;">
                   <img @click="redoUsrMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
                        alt="copy"/>
@@ -381,6 +416,17 @@ async function redoAiMessage(ii: number) {
                 </div>
                 <div v-html="escapeHTMLWithOutConsole(value.content)" class="content"
                      style="background: #009bff;color: white">
+                </div>
+              </div>
+            </transition>
+            <transition>
+              <div v-if="value.role=='user'&&count>ii&&typeof value.content=='object'" class="usr_talk">
+                <div style="display: flex;flex-direction: row;align-items: center;">
+                  <img class="usr_img" :src="getAccountImg()" alt="usr"/>
+                </div>
+                <div class="content" style="background: #009bff;color: white">
+                  <img :src="(value.content[0] as imgType).image_url.url"
+                       style="border-radius: 5px"/>
                 </div>
               </div>
             </transition>
@@ -394,7 +440,7 @@ async function redoAiMessage(ii: number) {
         </div>
       </div>
       <div class="bottomInput">
-        <resize_textarea @doSend="send" :smallScreen="false" v-model="text"/>
+        <resize_textarea @addPicture="addPicture" @doSend="send" :modelChoice="model" @setModel="setModel" :smallScreen="false" v-model="text"/>
       </div>
     </div>
   </div>
@@ -426,8 +472,10 @@ async function redoAiMessage(ii: number) {
                 两位“学霸”在线解答！
               </p>
             </div>
-            <div @touchstart.stop @touchmove.stop @touchend.stop @click.stop="router.push('note_ai')" class="others_action">
-              <img alt="AI Note" style="height: 100%;width: auto;border-radius: 15px" src="../../assets/post/ai_note.png"/>
+            <div @touchstart.stop @touchmove.stop @touchend.stop @click.stop="router.push('note_ai')"
+                 class="others_action">
+              <img alt="AI Note" style="height: 100%;width: auto;border-radius: 15px"
+                   src="../../assets/post/ai_note.png"/>
               <p style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">
                 AI笔记
               </p>
@@ -444,17 +492,17 @@ async function redoAiMessage(ii: number) {
               <div v-if="(value.role=='assistant'||value.role=='model')&&count>ii" class="model_talk">
                 <div style="display: flex;flex-direction: row;align-items: center;">
                   <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
-                  <img @click="copyText(value.content)" class="copy_img"
+                  <img @click="copyText(value.content.toString())" class="copy_img"
                        src="../../assets/content_copy.svg" alt="copy"/>
                   <img @click="redoAiMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
                        alt="copy"/>
                 </div>
-                <div v-html="escapeHTML(value.content)" class="content">
+                <div v-html="escapeHTML(value.content.toString())" class="content">
                 </div>
               </div>
             </transition>
             <transition>
-              <div v-if="value.role=='user'&&count>ii" class="usr_talk">
+              <div v-if="value.role=='user'&&count>ii&&typeof value.content!='object'" class="usr_talk">
                 <div style="display: flex;flex-direction: row;align-items: center;">
                   <img @click="redoUsrMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
                        alt="copy"/>
@@ -464,6 +512,17 @@ async function redoAiMessage(ii: number) {
                 </div>
                 <div v-html="escapeHTMLWithOutConsole(value.content)" class="content"
                      style="background: #009bff;color: white">
+                </div>
+              </div>
+            </transition>
+            <transition>
+              <div v-if="value.role=='user'&&count>ii&&typeof value.content=='object'" class="usr_talk">
+                <div style="display: flex;flex-direction: row;align-items: center;">
+                  <img class="usr_img" :src="getAccountImg()" alt="usr"/>
+                </div>
+                <div class="content" style="background: #009bff;color: white">
+                  <img :src="(value.content[0] as imgType).image_url.url"
+                       style="border-radius: 5px"/>
                 </div>
               </div>
             </transition>
@@ -477,7 +536,7 @@ async function redoAiMessage(ii: number) {
         </div>
       </div>
       <div class="bottomInput" style="width: 100%">
-        <resize_textarea @doSend="send" :smallScreen="true" v-model="text"/>
+        <resize_textarea @addPicture="addPicture" :modelChoice="model" @setModel="setModel"  @doSend="send" :smallScreen="true" v-model="text"/>
       </div>
     </div>
   </div>
@@ -522,7 +581,7 @@ async function redoAiMessage(ii: number) {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  align-items: end;
+  align-items: flex-end;
   position: relative;
   max-width: 100%;
   margin: 10px 10px 10px 20px;
@@ -542,8 +601,9 @@ async function redoAiMessage(ii: number) {
 }
 
 #hello1 {
-  padding: 1% 5% 0 5%;
-  font-size: 60px;
+  padding: 1% 5% 0 8%;
+  font-size: 45px;
+  font-weight: bold;
   background: linear-gradient(45deg, #ec86ff, #34dbff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -582,8 +642,8 @@ async function redoAiMessage(ii: number) {
 }
 
 #hello2 {
-  padding: 0 5% 0 5%;
-  font-size: 40px;
+  padding: 0 5% 0 8%;
+  font-size: 35px;
   color: #bcbcbc;
 }
 
@@ -636,7 +696,7 @@ async function redoAiMessage(ii: number) {
   width: calc(100% - 260px);
   height: 100%;
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   pointer-events: none;
   flex-direction: row;
   position: absolute;

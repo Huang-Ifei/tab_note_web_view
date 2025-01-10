@@ -2,7 +2,7 @@
 
 import {useRoute} from "vue-router";
 import axios from "axios";
-import {getAddress} from "../../operation/address.ts";
+import {addressOperation, getAddress} from "../../operation/address.ts";
 import {onBeforeMount, onBeforeUnmount, Ref, ref} from "vue";
 import {escapeTabNoteToHTML, getIdImg, getLocalData, getTokenData, isApp} from "../../operation/dataOperation.ts";
 import Icon_to_home from "../weight/icon_to_home.vue";
@@ -44,7 +44,7 @@ async function getTabNote() {
       class_name.value = axiosResponse.data.class_name
       tab_note_name.value = axiosResponse.data.tab_note_name
       tags.value = axiosResponse.data.tags
-      tab_note.value = axiosResponse.data.tab_note
+      tab_note.value = addressOperation(axiosResponse.data.tab_note)
       click.value = axiosResponse.data.click
       like_this.value = axiosResponse.data.like_this
       date_time.value = axiosResponse.data.date_time

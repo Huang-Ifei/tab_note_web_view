@@ -11,14 +11,20 @@ const emit = defineEmits(['leftClose','todoView'])
   <div class="background" @click="emit('leftClose')">
     <div class="left_background">
       <img src="../../assets/arrow_back.svg" @click="emit('leftClose')" class="close_button">
-      <div @click="router.push('add_tab_note')" class="choice_button" style="padding-top: 20px">
+      <div @click="emit('todoView',true)" class="choice_button" style="padding-top: 20px" v-if="!isApp()">
+        待办/计划
+      </div>
+      <div @click="router.push('add_tab_note')" class="choice_button">
         新建贴文
+      </div>
+      <div @click="router.push('ai_assistant')" class="choice_button">
+        AI对话
+      </div>
+      <div @click="router.push('beat_question')" class="choice_button">
+        AI识题
       </div>
       <div @click="router.push('note_ai')" class="choice_button">
         AI笔记
-      </div>
-      <div @click="emit('todoView',true)" class="choice_button" v-if="!isApp()">
-        待办/计划
       </div>
     </div>
   </div>

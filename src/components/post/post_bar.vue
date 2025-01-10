@@ -19,21 +19,21 @@ const post_num = ref(0)
 const post_values: Ref<postJson[]> = ref([
   {
     post_id: "",
-    post_picture: getAddress() + "/tabNoteImg?name=java_web_qm",
-    post_name: "Java Web期末复习专栏",
-    post_tag: "#JavaWeb期末复习"
-  },
-  {
-    post_id: "",
-    post_picture: getAddress() + "/tabNoteImg?name=java_web",
-    post_name: "Java Web综合实验专栏",
-    post_tag: "#JavaWeb信息管理系统"
+    post_picture: getAddress() + "/tabNoteImg?name=linux",
+    post_name: "Linux期末复习",
+    post_tag: "#Linux期末复习"
   },
   {
     post_id: "",
     post_picture: getAddress() + "/tabNoteImg?name=sql",
     post_name: "数据库期末复习专栏",
     post_tag: "#数据库期末复习"
+  },
+  {
+    post_id: "",
+    post_picture: getAddress() + "/tabNoteImg?name=java_web",
+    post_name: "Java Web综合实验专栏",
+    post_tag: "#JavaWeb信息管理系统"
   },
 ])
 

@@ -195,6 +195,14 @@ const renderResize = () => {
     smallScreen.value = false;
   }
 }
+
+getRank()
+const rank = ref(0)
+async function getRank(){
+  const response = await axios.get(getAddress()+"/vip/rank?id="+getLocalData("id"))
+  rank.value = response.data.rank
+}
+
 </script>
 
 <template>
@@ -206,8 +214,16 @@ const renderResize = () => {
     <div id="left_view">
       <img id="account_img" :src="getAccountImg()" alt="">
       <div id="operation_choice">
-        账户：{{getLocalData('id')}}
-        <button @click="requestSetAccImg" style="margin-top: 10px">
+        <p style="font-size: 18px;font-weight: bold;color: #282f37">{{getLocalData('name')}}</p>
+        <p style="font-size: 14px;color: #8a8a8a">{{getLocalData('id')}}</p>
+        <img v-if="rank==2" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA.svg" style="height: 25px"/>
+        <img v-if="rank==4" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA+.svg" style="height: 25px"/>
+        <img v-if="rank==6" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA++.svg" style="height: 25px"/>
+        <button @click="router.push('afa')" style="margin-top: 10px;border-radius: 10px">
+          获取高级功能授权
+        </button>
+
+        <button @click="requestSetAccImg" style="margin-top: 20px;border-radius: 10px 10px 0 0">
           设置头像
         </button>
         <button @click="requestChangeName">
@@ -222,7 +238,7 @@ const renderResize = () => {
         <button @click="requestRemove">
           删除账户
         </button>
-        <button @click="requestDelete">
+        <button @click="requestDelete" style="border-bottom: #f2f2f2 solid 1px;border-radius: 0 0 10px 10px">
           退出登录
         </button>
       </div>
@@ -271,15 +287,22 @@ const renderResize = () => {
     </div>
   </div>
 
-
-  <div v-if="smallScreen" style="display: flex;flex-direction: column;overflow: auto;background-color: #f6f7f8;height: calc(100% - 54px);position: absolute;width: 100%">
+  <div v-if="smallScreen" style="display: flex;flex-direction: column;overflow: auto;background-color:rgba(242, 242, 242, 0.8);height: calc(100% - 54px);position: absolute;width: 100%">
     <img id="account_img" :src="getAccountImg()" alt="" @click="requestSetAccImg" style="margin-top: 15px;">
-    <div id="operation_choice" style="margin-top: 30px;margin-right: 20px;margin-left: 20px;width: calc(100% - 40px)">
-      <button @click="requestChangeName">
-        用户名：{{getLocalData('name')}}
+    <div id="operation_choice" style="margin-right: 20px;margin-left: 20px;width: calc(100% - 40px)">
+      <p style="font-size: 20px;font-weight: bold;color: #282f37">{{getLocalData('name')}}</p>
+      <p style="font-size: 16px;color: #8a8a8a;margin-bottom: 5px">{{getLocalData('id')}}</p>
+      <img v-if="rank==2" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA.svg" style="height: 25px"/>
+      <img v-if="rank==4" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA+.svg" style="height: 25px"/>
+      <img v-if="rank==6" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA++.svg" style="height: 25px"/>
+      <button @click="router.push('afa')" style="margin-top: 12px;margin-bottom: 20px;border-radius: 10px">
+        获取高级功能授权
+      </button>
+      <button @click="requestChangeName" style="border-radius:10px 10px 0 0 ">
+        更改用户名
       </button>
       <button @click="requestChangeId">
-        账号：{{getLocalData('id')}}
+        更改账号
       </button>
       <button @click="requestChangePwd">
         更改密码
@@ -287,7 +310,7 @@ const renderResize = () => {
       <button @click="requestRemove">
         删除账户
       </button>
-      <button @click="requestDelete">
+      <button @click="requestDelete" style="border-radius: 0 0 10px 10px">
         退出登录
       </button>
     </div>
@@ -298,20 +321,24 @@ const renderResize = () => {
         </div>
 
         <div class="secondView" v-if="action=='changeName'">
-          新用户名：<br>
+          <p style="padding: 0;font-size: 1rem;margin: 0 0 10px;" v-if="show_content!=''">{{show_content}}</p>
           <input v-model="new_name" style="width: calc(100% - 20px);margin-bottom: 10px">
           <button class="secondInput" @click="sendNameChange">
             确认更新用户名
           </button>
         </div>
+        <div class="secondView" style="max-width: 100vw;width: fit-content" v-if="action=='serverAction'">
+          {{show_content}}
+        </div>
         <div class="secondView" v-if="action=='changeId'">
-          新账号：<br>
+          <p style="padding: 0;margin: 0 0 10px;font-size: 1rem" v-if="show_content!=''">{{show_content}}</p>
           <input v-model="new_id" style="width: calc(100% - 20px);margin-bottom: 10px">
           <button class="secondInput" @click="sendIdChange">
             确认更新账号
           </button>
         </div>
         <div class="secondView" v-if="action=='changePwd'">
+          <p style="padding: 0;margin: 0 0 10px;font-size: 1rem" v-if="show_content!=''">{{show_content}}</p>
           原密码：<br>
           <input v-model="old_password" style="width: calc(100% - 20px);margin-bottom: 10px">
           新密码：<br>
@@ -321,6 +348,7 @@ const renderResize = () => {
           </button>
         </div>
         <div class="secondView" v-if="action=='removeAccount'">
+          <p style="padding: 0;margin: 0 0 10px;font-size: 1rem" v-if="show_content!=''">{{show_content}}</p>
           请在下面的输入栏中输入：<br>I need remove my account.<br>
           <input v-model="checkDelete" style="width: calc(100% - 20px);margin-bottom: 10px">
           <button class="secondInput" @click="">
@@ -340,16 +368,19 @@ const renderResize = () => {
   border-radius: 10px;
   margin: 20px 12%;
   padding: 20px;
-  background: rgb(245, 245, 245);
+  background-color: rgb(243, 243, 243,0.9);
+  backdrop-filter: blur(10px);
 }
 
 .secondInput {
+  border-radius: 10px;
   width: 100%;
   height: 60px;
   margin: 0;
 }
 
 .action {
+  border-radius: 10px;
   height: 100px;
   width: 80%;
   margin-top: 40px;
@@ -360,7 +391,8 @@ const renderResize = () => {
 
 #hello1 {
   padding: 3% 5% 0 5%;
-  font-size: 60px;
+  font-size: 45px;
+  font-weight: bold;
   background: linear-gradient(45deg, #ec86ff, #34dbff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -368,17 +400,21 @@ const renderResize = () => {
 
 #hello2 {
   padding: 0 5% 0 5%;
-  font-size: 40px;
+  font-size: 35px;
   color: #bcbcbc;
 }
 
 button {
   color: #000000;
   background: white;
-  width: calc(100% - 20px);
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-bottom: 10px;
+  width: calc(100% - 30px);
+  margin:0 15px;
+  padding: 1.7vh;
+  border-radius: 0;
+  border-left: #f2f2f2 solid 1px;
+  border-right: #f2f2f2 solid 1px;
+  border-top: #f2f2f2 solid 1px;
+  border-bottom: #f2f2f2 solid 0;
 }
 
 #account_view {
@@ -406,9 +442,9 @@ button {
   flex-direction: column;
   justify-content: flex-start;
   width: 25%;
-  min-width: 200px;
+  min-width: 300px;
   height: 100%;
-  background: rgb(245, 245, 245);
+  background-color: rgba(242, 242, 242, 0.8);
 }
 
 #account_img {
@@ -418,9 +454,11 @@ button {
   height: 90px;
   max-width: 90px;
   max-height: 90px;
-  padding-top: 20px;
-  padding-bottom: 10px;
-  margin: auto;
+  border-radius: 90px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #right_view {

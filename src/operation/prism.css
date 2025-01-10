@@ -109,6 +109,10 @@ https://prismjs.com/download.html#themes=prism-tomorrow&languages=markup+css+cli
 	color: #67cdcc;
 }
 
+.token.inserted {
+	color: green;
+}
+
 .token.important,
 .token.bold {
 	font-weight: bold;

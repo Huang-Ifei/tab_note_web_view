@@ -1,6 +1,6 @@
 <script setup>
 
-import {delay, getLocalData, getTokenData, isApp} from "../../operation/dataOperation.ts";
+import {delay, deleteAccount, getLocalData, getTokenData, isApp} from "../../operation/dataOperation.ts";
 import Note_ai_title from "./note_ai_title.vue";
 import Artificial_emoji from "../ai_emoji/artificial_emoji.vue";
 import {onBeforeUnmount, onMounted, ref, shallowRef} from "vue";
@@ -13,6 +13,7 @@ import {Editor, Toolbar} from "@wangeditor/editor-for-vue";
 import {Boot, DomEditor} from "@wangeditor/editor";
 
 import {h} from 'snabbdom'
+import router from "../../router";
 
 const note_ai_id = ref('')
 const rightChoice = ref(false)
@@ -20,7 +21,7 @@ const ai_history = ref([])
 const all_html = ref('')
 const alr = ref('')
 const tryDC = ref(false)
-const text =ref("")
+const text = ref("")
 
 getNoteAiHistory()
 
@@ -55,7 +56,7 @@ async function pushNoteAiToServer(noteTick, note, noteAiId) {
       token: tk,
       note_ticks: noteTick,
       note_ai_id: noteAiId,
-      note_content:getWholeText(),
+      note_content: getWholeText(),
       note: note
     })
     console.log("note:" + note)
@@ -94,6 +95,8 @@ async function getNoteAiHistory() {
     ai_history.value = response.data.list
   } else if (response.data.response === 'token_check_failed') {
     alert("请重新登录")
+    await deleteAccount()
+    await router.push("login")
   } else {
     alert("服务器错误")
   }
@@ -101,7 +104,7 @@ async function getNoteAiHistory() {
 
 async function getHistoryNoteAi(noteAiId) {
   note_ai_id.value = noteAiId
-  const tk =  await getTokenData();
+  const tk = await getTokenData();
   const response = await axios.post(getAddress() + "/ai/note_history", {
     id: getLocalData('id'),
     token: tk,
@@ -111,9 +114,9 @@ async function getHistoryNoteAi(noteAiId) {
     all_html.value = ""
     await delay(100)
     all_html.value = response.data.note
-    while(true){
+    while (true) {
       await delay(500)
-      if (editorRef.value.getHtml()!=='<p><br></p>')break
+      if (editorRef.value.getHtml() !== '<p><br></p>') break
       else all_html.value = response.data.note
     }
     console.log("all:" + all_html.value)
@@ -175,12 +178,19 @@ function ctPaste(editor, event) {
   const text = event.clipboardData.getData('text/plain') // 获取粘贴的纯文本
   const rtf = event.clipboardData.getData('text/rtf') // 获取 rtf 数据（如从 word wsp 复制粘贴）
 
-  // 同步
-  editor.insertText(text)
+  if (html.startsWith("<html>")) {
+    const isHtmlCode = html.includes('<code>') || html.includes('<pre>');
+    const isPlainTextCode = /function |suspend |event\.|public class |public void |const |let |var |if |\{|}|;/.test(text);
+    if (isHtmlCode || isPlainTextCode) {
+      console.log("text:"+text)
+      editor.insertNode([{text: text ,fontSize : '12px'}])
+    } else {
+      editor.insertText(text)
+    }
+  }
 
-
-  event.preventDefault()
-  console.log()
+  event.preventDefault(text)
+  console.log("html"+html)
   return false;
 }
 
@@ -339,6 +349,18 @@ onBeforeUnmount(() => {
   editor.destroy()
 })
 
+getRank()
+
+const rank = ref(0)
+
+async function getRank(){
+  const response = await axios.get(getAddress()+"/vip/rank?id="+getLocalData("id"))
+  rank.value = response.data.rank
+  if (response.data.rank<=0){
+    await router.push("afa")
+  }
+}
+
 </script>
 
 <template>
@@ -361,18 +383,18 @@ onBeforeUnmount(() => {
         v-if="!smallScreen"
     />
 
-
     <div v-if="!smallScreen" class="text_div_background" @keyup.stop="handleSelect"
          @mouseup.stop="handleSelect();console.log(editorRef.selection)"
          @touchend.stop="handleSelect()"
          @copy="handleSelect">
       <div class="text_div">
+        <!--@customPaste="ctPaste"-->
         <Editor
             style="height: 100%"
             v-model="all_html"
             :defaultConfig="editorConfig"
-            @customPaste="ctPaste"
             :mode="mode"
+            @customPaste="ctPaste"
             @onCreated="handleCreated"
         />
       </div>
@@ -386,12 +408,13 @@ onBeforeUnmount(() => {
     <div v-if="smallScreen" style="min-width: 100%;height: 1px;background: #e7e7e7">
 
     </div>
-    <div  class="text_div_background"
-          v-if="smallScreen"
+    <div class="text_div_background"
+         v-if="smallScreen"
          @keyup.stop="handleSelect"
          @touchend.stop="handleSelect"
          @mouseup.stop="handleSelect">
       <div class="text_div_small">
+        <!--@customPaste="ctPaste"-->
         <Editor
             style="height: 100%"
             v-model="all_html"

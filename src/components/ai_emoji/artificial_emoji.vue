@@ -14,7 +14,6 @@ const question = ref('')
 const answer = ref('')
 const write = ref('')
 const isLoading = ref(false)
-const note_ai_id = ref('')
 const process_info = ref({computerName: "", memory: "", memoryUsage: "", ip: ""})
 
 function makeMessage(): {}[] {
@@ -69,14 +68,10 @@ async function post(messages: {}[]) {
             method: 'POST',
             headers: {'Content-Type': 'application/json;charset=utf-8'},
             body: JSON.stringify({
-              note_ai_id: note_ai_id.value,
               messages: messages,
               model: 'gpt-4o-mini',
               id: getLocalData('id'),
               token: tk,
-              selected: props.selected,
-              question: question,
-              allValue: props.all_text
             }),
           }
       );
@@ -126,12 +121,7 @@ function decodeJsonToShow(decodeValue: string) {
   console.log(decodeValue)
   //如果是末尾条，添加返回的ai表id：
   if (decodeValue.startsWith('{"response":"')) {
-    try {
-      note_ai_id.value = JSON.parse(decodeValue).response
 
-    } catch (e) {
-      console.error("done but:" + e)
-    }
   } else if (props.tryDC && decodeValue.startsWith(`{"computerName":`)) {
     answer.value = ""
     process_info.value = JSON.parse(decodeValue);

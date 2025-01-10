@@ -198,7 +198,10 @@ function openNewWindow(s: string) {
   cursor: pointer;
   color: #1a1a1a;
   padding: 0;
+  min-height: 25px;
   height: 25px;
+  width: 25px;
+  min-width: 25px;
   margin-left: auto;
   background: transparent;
 }

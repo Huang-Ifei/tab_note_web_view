@@ -27,9 +27,9 @@ console.log(Cookies.default.get("name"))
       AI笔记</h3>
     <div class="icons">
       <div v-if="!props.small"
-           style="color: white;height: 60px;display: flex;flex-direction: row;justify-content: center;align-items: center">
+           style="color: white;height: 60px;display: flex;flex-direction: row;justify-content: center;align-items: center"><!--
         <input type="checkbox" @click="emit('tryDC')">
-        <p style="font-size: 13px;margin-right: 10px;color: #434343" @mousemove="show_aiDC_info=true">分布式AI</p>
+        <p style="font-size: 13px;margin-right: 10px;color: #434343" @mousemove="show_aiDC_info=true">分布式AI</p>-->
       </div>
       <button id="ai_button" @click="emit('rightChoice')">
         历史记录

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import ai_assistant from '../components/ai_assistant/ai_assistant.vue'
 import add_tab_note from '../components/tab_note/add_tab_note.vue'
 import login from '../components/account/login.vue'
@@ -11,45 +11,53 @@ import Tab_note_view from '../components/tab_note/tab_note_view.vue'
 import Tab_manual from '../components/tab_manual.vue'
 import Note_ai from '../components/note_ai/note_ai.vue'
 import Beat_question from "../components/beat_question/beat_question.vue";
+import Xian_basic from "../xian_components/xian_basic.vue";
+import Adv_fun_auth from "../components/account/adv_fun_auth.vue";
 
 const router = createRouter({
     history: createWebHistory(),
-    routes:[
+    routes: [
         {
-            path:"/",
+            path: "/",
             component: Home,
         },
         {
-            path:"/ai_assistant",
+            path: "/ai_assistant",
             component: aiRouteCheck(),
         },
         {
-            path:"/login",
+            path: "/login",
             component: loginRouteCheck(),
         },
         {
-            path:"/signup",
+            path: "/signup",
             component: signupRouteCheck(),
         },
         {
-            path:"/add_tab_note",
+            path: "/add_tab_note",
             component: add_tab_note,
         },
         {
-            path:"/tab_note_view",
+            path: "/tab_note_view",
             component: Tab_note_view
         },
         {
-            path:"/tab_manual",
+            path: "/tab_manual",
             component: Tab_manual
         },
         {
-            path:"/note_ai",
+            path: "/note_ai",
             component: noteAiRouteCheck()
-        },{
-        path:"/beat_question",
+        }, {
+            path: "/beat_question",
             component: bqAiRouteCheck()
-        }
+        }, {
+            path: "/xian_de_zhu",
+            component: Xian_basic
+        }, {
+            path: "/afa",
+            component: afaRouteCheck()
+        },
     ]
 })
 
@@ -57,40 +65,49 @@ const router = createRouter({
 export default router
 
 function loginRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{}>>, {}, {}> {
-    if (loginCheck()){
+    if (loginCheck()) {
         return account
-    }else{
+    } else {
         return login
     }
 }
+
 function signupRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{}>>, {}, {}> {
-    if (loginCheck()){
+    if (loginCheck()) {
         return account
-    }else{
+    } else {
         return signup
     }
 }
 
 function aiRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{}>>, {}, {}> {
-    if (loginCheck()){
+    if (loginCheck()) {
         return ai_assistant
-    }else{
+    } else {
         return login
     }
 }
 
 function noteAiRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{}>>, {}, {}> {
-    if (loginCheck()){
+    if (loginCheck()) {
         return Note_ai
-    }else{
+    } else {
         return login
     }
 }
 
 function bqAiRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{}>>, {}, {}> {
-    if (loginCheck()){
+    if (loginCheck()) {
         return Beat_question
-    }else{
+    } else {
+        return login
+    }
+}
+
+function afaRouteCheck(): DefineComponent<{}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{}>>, {}, {}> {
+    if (loginCheck()) {
+        return Adv_fun_auth
+    } else {
         return login
     }
 }

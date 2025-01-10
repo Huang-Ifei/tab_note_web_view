@@ -31,7 +31,7 @@ toolbarConfig.excludeKeys = [
 
 editorConfig.MENU_CONF['uploadImage'] = {
   server: getAddress() + "/upload_tab_note_img",
-  maxFileSize: 1048576,
+  maxFileSize: 5000000,
   onSuccess() {
     console.log("success")
   },
@@ -41,7 +41,7 @@ editorConfig.MENU_CONF['uploadImage'] = {
   },
   onError(file, err, res) {
     if (err.toString().includes("maximum allowed")) {
-      alert(file.name + "的大小超过1MB，请压缩后上传")
+      alert(file.name + "的大小超过5MB，请压缩后上传")
     }
     console.log(err.toString().includes("maximum allowed"))
   },

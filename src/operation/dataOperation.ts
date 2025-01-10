@@ -3,6 +3,8 @@ import {getAddress} from "./address.ts"
 import {privateKey, publicKey} from "./cryptic.ts";
 import {JSEncrypt} from "jsencrypt";
 import axios from "axios";
+import router from "../router";
+import katex from 'katex';
 
 export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -213,6 +215,16 @@ export function escapeHTML(str: string): string {
                 newString += "`".repeat(3) + name + "\n" + content;
                 break
             }
+        } else if ((i === 0 || htmlString[i - 1] === '\n') && (htmlString[i] === '#' && htmlString[i + 1] === '#' && htmlString[i + 2] === '#')) {
+            let title = ""
+            let x = i + 3
+            //将回车之前的内容并为代码名称
+            while (x < n && htmlString[x] != '\n') {
+                title += htmlString[x];
+                x++
+            }
+            i = x
+            newString += `<h3 style="color: #213547;padding: 0;margin: 0">${title}</h3>`
         } else if (htmlString[i] === '\n' && htmlString[i + 1] === '*' && htmlString.substring(i + 2, i + 8) === '&nbsp;') {
             newString += "\n·&nbsp;"
             i = i + 7
@@ -229,15 +241,108 @@ export function escapeHTML(str: string): string {
                     i = x + 1;
                     isTitle = true
                     break
+                } else if (htmlString[x] + htmlString[x + 1] == '\\(') {
+                    let content = ``
+                    let y = x + 2
+                    while (y < n && htmlString[y] != '\n' && htmlString[y] + htmlString[y + 1] != '\\)') {
+                        content += htmlString[y];
+                        y++
+                    }
+                    content = content.replace(/&amp;/g, "&")
+                        .replace(/&lt;/g, "<")
+                        .replace(/&gt;/g, ">")
+                        .replace(/&quot;/g, "\"")
+                        .replace(/&#039;/g, "'")
+                        .replace(/&nbsp;/g, " ")
+                        .replace(/&#9;/g, "\t")
+                    try {
+                        let renderString = katex.renderToString(content, {
+                            displayMode: false,
+                            output: 'mathml',
+                        })
+                        renderString = renderString.replace(content.replace(/&/g, "&amp;"), '')
+                        name += renderString
+                        console.log(renderString)
+                    } catch (e) {
+                        console.error(e)
+                    }
+                    x = y + 2
+                    isTitle = true
+                } else {
+                    name += htmlString[x];
+                    x++
                 }
-                name += htmlString[x];
-                x++
             }
             if (x > n) {
                 break
             }
             if (!isTitle) {
                 newString += htmlString[i];
+            }
+        } else if (htmlString[i] + htmlString[i + 1] === `\\[`) {
+            let x = i + 2
+            let content = ``
+            while (x < n && htmlString[x] + htmlString[x + 1] != '\\]') {
+                content += htmlString[x];
+                x++
+            }
+            content = content.replace(/&amp;/g, "&")
+                .replace(/&lt;/g, "<")
+                .replace(/&gt;/g, ">")
+                .replace(/&quot;/g, "\"")
+                .replace(/&#039;/g, "'")
+                .replace(/&nbsp;/g, " ")
+                .replace(/&#9;/g, "\t")
+            try {
+                let renderString = katex.renderToString(content, {
+                    displayMode: true,
+                    output: 'mathml',
+                })
+                console.log(`\\[` + content + `\\]`)
+                renderString = renderString.replace(content.replace(/&/g, "&amp;"), '')
+                newString += renderString
+                console.log(renderString)
+            } catch (e) {
+                console.error(e)
+            }
+
+            if (x + 2 > n) {
+                break
+            } else {
+                i = x + 1
+            }
+        } else if (htmlString[i] + htmlString[i + 1] === `\\(`) {
+            let x = i + 2
+            let content = ``
+            while (x < n && htmlString[x] + htmlString[x + 1] != '\\)') {
+                content += htmlString[x];
+                x++
+            }
+            console.log(`\\(` + content + `\\)`)
+            content = content.replace(/&amp;/g, "&")
+                .replace(/&lt;/g, "<")
+                .replace(/&gt;/g, ">")
+                .replace(/&quot;/g, "\"")
+                .replace(/&#039;/g, "'")
+                .replace(/&nbsp;/g, " ")
+                .replace(/&#9;/g, "\t")
+
+            try {
+                let renderString = katex.renderToString(content, {
+                    displayMode: false,
+                    output: 'mathml',
+                })
+                renderString = renderString.replace(content.replace(/&/g, "&amp;"), '')
+                newString += renderString
+                console.log(renderString)
+            } catch (e) {
+                console.error(e)
+            }
+
+            if (x + 2 > n) {
+                break
+            } else {
+                i = x + 1
             }
         } else {
             newString += htmlString[i]
@@ -349,4 +454,22 @@ export function escapeTabNoteToHTML(str: string, pics: string[]): string {
     }
     //最后变更回车交还
     return newString.replace(/\n/g, "<br>")
+}
+
+export async function deleteAccount() {
+
+    const tk = await getTokenData()
+
+    const deleteRequest = await axios.post(getAddress() + "/account", {
+        mesType: -1,
+        token: tk,
+    })
+
+    deleteLocalData('id')
+    deleteLocalData('name')
+    deleteLocalData('token')
+    console.log(deleteRequest.data.response)
+
+    await router.push("/")
+    window.location.reload()
 }

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 
 import Compressor from "compressorjs";
-import {onMounted, onUnmounted, Ref, ref} from "vue";
+import {onBeforeUnmount, onMounted, onUnmounted, Ref, ref} from "vue";
 import axios from "axios";
-import {getAddress} from "../../operation/address.ts";
-import {delay, escapeHTML, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
+import {addressOperation, getAddress, getWholeAddress} from "../../operation/address.ts";
+import {delay, deleteAccount, escapeHTML, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
 import Bq_title from "./bq_title.vue";
+import router from "../../router";
 
 const imageSrc = ref("")
 
@@ -20,9 +21,9 @@ function handleFileChange(event: Event) {
       //压缩文件
       new Compressor(file, {
         quality: 0.8,
-        maxWidth: 720,
-        maxHeight: 720,
-        convertSize: 50000,
+        maxWidth: 1000,
+        maxHeight: 1000,
+        convertSize: 100000,
         mimeType: 'image/jpeg',
         success(result) {//成功执行：reader读取内容到imageSrc中（base64编码）
           const reader = new FileReader();
@@ -51,6 +52,8 @@ function handleFileChange(event: Event) {
 function clickInputImg() {
   document?.getElementById('add_new')?.click()
 }
+
+const model = ref("gpt-4o")
 
 type dxstjJson = {
   text: string,
@@ -81,24 +84,14 @@ async function getDXSTJ() {
       text.value = text.value.replace(/-\|\|\|-/g, "\n");
       console.log(text.value)
       dxstj.value = axiosResponse.data.questionList
-      //await post({role: "user", content: "现在有题目：" + text.value + "\n请你告诉我这个题目的答案"},'gpt-4o-mini')
-      await post({
-        role: "user",
-        content: [{type: "text", text: "请你帮我解答图中的题目"}, {
-          type: "image_url",
-          image_url: {url: getAddress() + "/tabNoteImg?name=" + imgName.value}
-        }]
-      }, 'gpt-4o-2024-08-06')
+      await post( model.value, dxstj.value)
     } else {
       dxstj.value = [{text: "", question: "<p style='padding: 10px'>大学搜题酱搜索失败</p>", answer: ""},]
-      await post({
-        role: "user",
-        content: [{type: "text", text: "请你帮我解答图中的题目"}, {
-          type: "image_url",
-          image_url: {url: getAddress() + "/tabNoteImg?name=" + imgName.value}
-        }]
-      }, 'gpt-4o-2024-08-06')
+      await post(model.value, [{text: "", question: "", answer: ""}])
     }
+    //刷新历史记录
+    historyBQ.value = []
+    await getBQList()
   } catch (e) {
     console.error(e)
   }
@@ -119,22 +112,31 @@ async function insertTabNoteImg(s: string) {
 const aiAnswer = ref("")
 
 //发送信息并获取内容流式传输
-async function post(m: {}, model: string) {
+async function post(model: string, dxstjJsonArray: dxstjJson[]) {
   try {
     const tk = await getTokenData()
     // 发起 POST 请求
-    console.log(text.value)
+    console.log(JSON.stringify({
+          img: getWholeAddress() + "/tabNoteImg?name=" + imgName.value,
+          model: model,
+          id: getLocalData('id'),
+          token: tk,
+          text: text.value,
+          dxstjJsonArray: dxstjJsonArray
+        })
+    )
     const response = await fetch(
-        getAddress() + "/ai/gpt",
+        getAddress() + "/ai/bq",
         {
           method: 'POST',
           headers: {'Content-Type': 'application/json;charset=utf-8'},
           body: JSON.stringify({
-            messages: [m],
-            preview: true,
+            img: getWholeAddress() + "/tabNoteImg?name=" + imgName.value,
             model: model,
             id: getLocalData('id'),
-            token: tk
+            token: tk,
+            text: text.value,
+            dxstjJsonArray: dxstjJsonArray
           }),
         }
     );
@@ -169,8 +171,6 @@ async function post(m: {}, model: string) {
       }
       await delay(500)
       aiAnswer.value = allValue.value;
-      //发送同步历史记录请求
-      await insertBQ()
     }
   } catch (error) {
     // 请求失败，处理错误
@@ -249,22 +249,23 @@ onUnmounted(() => {
 
 
 //同步历史记录
-async function insertBQ() {
-  const tk = await getTokenData()
-  const axiosResponse = await axios.post(getAddress() + "/ai/insertBQ", {
-    usr_id: getLocalData("id"),
-    token: tk,
-    text: text.value,
-    ai_answer: aiAnswer.value,
-    dxstj: dxstj.value,
-    img: getAddress() + "/tabNoteImg?name=" + imgName.value
-  })
-  if (axiosResponse.data.response == "success") {
-    console.log("上传历史记录成功")
-  } else {
-    alert("上传历史记录失败")
-  }
-}
+// async function insertBQ() {
+//   const tk = await getTokenData()
+//   const axiosResponse = await axios.post(getAddress() + "/ai/insertBQ", {
+//     usr_id: getLocalData("id"),
+//     token: tk,
+//     text: text.value,
+//     ai_answer: aiAnswer.value,
+//     dxstj: dxstj.value,
+//     img: getWholeAddress() + "/tabNoteImg?name=" + imgName.value
+//   })
+//   if (axiosResponse.data.response == "success") {
+//     console.log("上传历史记录成功")
+//
+//   } else {
+//     alert("上传历史记录失败")
+//   }
+// }
 
 //历史
 type BQForList = {
@@ -281,12 +282,17 @@ async function getBQList() {
   const axiosResponse = await axios.post(getAddress() + "/ai/BQList", {
     id: getLocalData("id"),
     token: tk,
+    index: historyBQ.value.length
   })
   if (axiosResponse.data.response == "success") {
     console.log(axiosResponse.data.list)
-    historyBQ.value = axiosResponse.data.list
+    for (let i = 0; i < axiosResponse.data.list.length; i++) {
+      historyBQ.value.push(axiosResponse.data.list[i])
+    }
   } else if (axiosResponse.data.response == "token_check_failed") {
     alert("登录令牌失效，请重新登录")
+    await deleteAccount()
+    await router.push("login")
   } else {
     alert("历史记录获取失败")
   }
@@ -296,16 +302,21 @@ async function getBQList() {
 getBQList()
 
 //获取某条历史内容
-async function getBQ(s:string) {
+async function getBQ(s: string, pic: string) {
+  dxstj_choice.value = 0
+  imageSrc.value = addressOperation(pic)
+  aiAnswer.value = ""
+  text.value = ""
+  dxstj.value = []
   const tk = await getTokenData()
   const axiosResponse = await axios.post(getAddress() + "/ai/BQ", {
     id: getLocalData("id"),
     token: tk,
-    bq_id:s
+    bq_id: s
   })
   if (axiosResponse.data.response == "success") {
     dxstj_choice.value = 0
-    imageSrc.value = axiosResponse.data.img
+    imageSrc.value = addressOperation(axiosResponse.data.img)
     aiAnswer.value = axiosResponse.data.ai_answer
     text.value = axiosResponse.data.text
     dxstj.value = axiosResponse.data.dxstj
@@ -316,12 +327,65 @@ async function getBQ(s:string) {
   }
 }
 
+getRank()
+
+const rank = ref(0)
+
+async function getRank() {
+  const response = await axios.get(getAddress() + "/vip/rank?id=" + getLocalData("id"))
+  rank.value = response.data.rank
+  if (response.data.rank <= 0) {
+    await router.push("afa")
+  }
+  if (response.data.rank >3) {
+    //DEBUG NOW
+    //model.value= 'o1-mini'
+  }
+}
+
+function choiceO1Mini(){
+  if (rank.value >3){
+    alert("o1-mini GPT工作流现在正在内测阶段，可能会出现错误，请谨慎使用")
+    model.value= 'o1-mini'
+  }
+}
+
+let scrollTime = 0
+
+// 检测是否到达底部并加载数据
+async function handleScroll() {
+  const scrollTop = document.getElementById("bq_history_items")?.scrollTop
+  const clientHeight = document.getElementById("bq_history_items")?.clientHeight
+  const maxHeight = document.getElementById("bq_history_items")?.scrollHeight
+  if (typeof scrollTop == 'undefined' || typeof clientHeight == 'undefined' || typeof maxHeight == 'undefined') {
+    return
+  }
+  if ((scrollTop + clientHeight > maxHeight - 10) && (scrollTime + 200 < Date.now())) {
+    scrollTime = Date.now()
+    await getBQList()
+  }
+}
+
+onMounted(() => {
+  document.getElementById("bq_history_items")?.addEventListener("scroll", handleScroll);
+})
+
+onBeforeUnmount(() => {
+  document.getElementById("bq_history_items")?.removeEventListener("scroll", handleScroll);
+})
+
 </script>
 
 <template>
   <Bq_title/>
   <!--拍照界面-->
   <div class="shot_view">
+    <div v-if="imageSrc==''">
+      <img alt="" @click="choiceO1Mini()" v-if="model==='gpt-4o'" style="width: 130px;margin-bottom: 5px"
+           src="../../assets/vip/GPT4o.svg">
+      <img alt="" @click="model='gpt-4o'" v-if="model==='o1-mini'" style="width: 130px;margin-bottom: 5px"
+           src="../../assets/vip/o1miniGPT.svg">
+    </div>
     <button v-if="imageSrc==''" id="add" @click="clickInputImg">
       <input id="add_new" type="file" accept="image/*" @change="handleFileChange($event)"/>
       <img alt="相机" style="width: 70px;height: 70px" src="../../assets/camera.svg"/>
@@ -335,10 +399,11 @@ async function getBQ(s:string) {
         <h3 style="margin: 0 10px;padding: 0;font-size: 18px">
           历史记录
         </h3>
-        <div style="overflow: auto;max-height: calc(100% - 48px)" @touchstart.stop>
+        <div id="bq_history_items" style="overflow: auto;max-height: calc(100% - 48px)" @touchstart.stop>
           <div style="min-height: 10px"></div>
-          <div v-for="(bq,ii) in historyBQ" :key="ii" @click="getBQ(bq.bq_id)" class="bq_history_item">
-            <img :src="bq.img" style="width: 100%;height: 20vh;border-radius: 8px; object-fit: cover;">
+          <div v-for="(bq,ii) in historyBQ" :key="ii" @click="getBQ(bq.bq_id,bq.img)" class="bq_history_item">
+            <img :src="addressOperation(bq.img)"
+                 style="width: 100%;height: 20vh;border-radius: 8px; object-fit: cover;">
             <p>{{ bq.date_time }}</p>
           </div>
           <div style="min-height: 20px"></div>
@@ -370,7 +435,7 @@ async function getBQ(s:string) {
       </div>
       <div class="show_items">
         <div class="action_choice">
-          大学搜题酱识题
+          大学搜题酱
         </div>
         <div style="overflow: auto;display: flex;flex-direction: row">
           <div v-for="(json,ii) in dxstj" :key="ii" class="action_choice"
@@ -426,7 +491,7 @@ img {
 </style>
 
 <style scoped>
-.bq_history_item{
+.bq_history_item {
   width: calc(100% - 40px);
   height: fit-content;
   box-shadow: rgba(149, 157, 165, 0.2) 0 0 12px;
@@ -437,6 +502,7 @@ img {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.8);
 }
+
 .search_view {
   width: 100%;
   height: 100%;
@@ -482,7 +548,7 @@ img {
   position: absolute;
   display: flex;
   flex-direction: column;
-  justify-content: end;
+  justify-content: flex-end;
   overflow: auto;
   pointer-events: none;
   margin-top: 84px;
@@ -529,6 +595,7 @@ img {
 #add {
   border: none;
   background: rgba(245, 245, 245, 0.8);
+  margin-bottom: 20px;
   color: #545454;
   z-index: 5;
   width: 200px;

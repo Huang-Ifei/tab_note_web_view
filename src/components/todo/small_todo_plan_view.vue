@@ -198,8 +198,10 @@ button:focus {
   cursor: pointer;
   color: #1a1a1a;
   padding: 0;
-  height: 2rem;
+  min-height: 2rem;
   width: 2rem;
+  min-width: 2rem;
+  height: 2rem;
   margin-left: auto;
   background: transparent;
 }

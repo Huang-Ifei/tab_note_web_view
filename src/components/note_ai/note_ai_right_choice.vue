@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import {Ref, ref} from "vue";
-import router from "../../router";
 
 const props = defineProps(['list','note_ai_id'])
 
@@ -21,10 +20,6 @@ const emit = defineEmits(['rightClose','choice','newChat','getHistoryAiMessages'
       <button style="display: flex; align-items: center;justify-content: center;padding: 10px" @click="emit('newChat');emit('rightClose')" class="his_button">
         <img src="../../assets/edit.svg" alt="edit" style="margin-right: 2px"/>
         新建笔记
-      </button>
-      <button @click="router.push('ai_assistant')" style="display: flex; align-items: center;justify-content: center;padding: 10px" class="his_button">
-        <img src="../../assets/messages.svg" alt="edit" style="margin-right: 2px"/>
-        对话式AI
       </button>
       <div style="min-height: 8px;display: flex;">
 
@@ -69,7 +64,7 @@ const emit = defineEmits(['rightClose','choice','newChat','getHistoryAiMessages'
   position: absolute;
   display: flex;
   z-index: 580;
-  justify-content: end;
+  justify-content: flex-end;
 }
 
 .left_background {
