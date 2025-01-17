@@ -19,7 +19,8 @@ console.log(sessionStorage.getItem("dont_main_view"))
 if (sessionStorage.getItem("dont_main_view") == null || sessionStorage.getItem("dont_main_view") == "false") {
   startMainView()
 }
-async function startMainView(){
+
+async function startMainView() {
   h.value = '100%'
   await delay(1)
   opc.value = 1
@@ -107,65 +108,79 @@ async function handleCloseTouchEnd() {
 }
 
 const scrollContainer = ref<HTMLDivElement | null>(null);
-const max_value = 3
-let choice = 0
-let startX = 0
-let currentX = 0
-let drag = false
+const max_value = 3;
+let choice = 0;
+let startX = 0;
+let currentX = 0;
+let nowLeft = 0;
+let drag = false;
 
 function handleScrollStart(event: TouchEvent) {
   event.preventDefault();
   startX = event.touches[0].clientX;
 }
 
-//监听滚动
-function handleScroll(event: TouchEvent) {
-  drag = true
+// 监听滚动，并实时设置 scrollLeft
+async function handleScroll(event: TouchEvent) {
+  drag = true;  // 开启拖动
+  if (scrollContainer.value == null) return;
+
   currentX = event.touches[0].clientX;
+
+  const wWidth = window.innerWidth;
+  const diff = currentX - startX; // 计算滑动距离
+  scrollContainer.value.scrollLeft = choice * (wWidth - 60) - diff; // 实时更新滚动位置
 }
 
 async function handleScrollEnd() {
   if (drag) {
     if (startX > (currentX + 30)) {
       if (choice < max_value - 1) {
-        console.log(choice + 1)
-        choice = choice + 1
+        choice = choice + 1;
       }
     } else if (startX < (currentX - 30)) {
       if (choice > 0) {
-        choice = choice - 1
+        choice = choice - 1;
       }
     }
 
-    if (scrollContainer.value == null) return
+    if (scrollContainer.value == null) return;
     const wWidth = window.innerWidth;
+    let choiceIndex = choice
+    nowLeft = choiceIndex * (wWidth - 60)
+    console.log(nowLeft)
+
     scrollContainer.value.scrollTo({
-      left: choice * (wWidth - 60),
+      left: nowLeft,
       behavior: "smooth"
     });
-    drag = false
+    drag = false;
+    await delay(500)
+    if (!drag) {
+      scrollContainer.value.scrollLeft = nowLeft
+    }
+
   } else {
     switch (choice) {
-      case 0 :
+      case 0:
         await router.push('ai_assistant');
         break;
-      case 1 :
+      case 1:
         await router.push('beat_question');
         break;
-      case 2 :
+      case 2:
         await router.push('note_ai');
         break;
     }
   }
-
 }
 
 getRank()
 
 const rank = ref(0)
 
-async function getRank(){
-  const response = await axios.get(getAddress()+"/vip/rank?id="+getLocalData("id"))
+async function getRank() {
+  const response = await axios.get(getAddress() + "/vip/rank?id=" + getLocalData("id"))
   rank.value = response.data.rank
 }
 
@@ -183,10 +198,14 @@ async function getRank(){
         <p style="margin: 30px 10px 5px 40px;font-size: 1.5rem;font-weight: bold">
           TabNote_
         </p>
-        <div style="width: 100%;height: 3rem;display: flex;flex-direction: row; align-items:center;justify-content:flex-end">
-          <img v-if="rank==2" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA.svg" style="width: 5rem;margin-right: 0.4rem;margin-top: 0.9rem"/>
-          <img v-if="rank==4" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA+.svg" style="width: 5rem;margin-right: 0.4rem;margin-top: 0.9rem"/>
-          <img v-if="rank==6" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA++.svg" style="width: 5rem;margin-right: 0.4rem;margin-top: 0.9rem"/>
+        <div
+            style="width: 100%;height: 3rem;display: flex;flex-direction: row; align-items:center;justify-content:flex-end">
+          <img v-if="rank==2" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA.svg"
+               style="width: 5rem;margin-right: 0.4rem;margin-top: 0.9rem"/>
+          <img v-if="rank==4" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA+.svg"
+               style="width: 5rem;margin-right: 0.4rem;margin-top: 0.9rem"/>
+          <img v-if="rank==6" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA++.svg"
+               style="width: 5rem;margin-right: 0.4rem;margin-top: 0.9rem"/>
           <img v-if="!isApp()" @touchstart.stop @touchmove.stop @touchend.stop @click.stop="router.push('login')"
                style="height: 3rem;width: 3rem;border-radius: 3rem;margin-right: 40px" :src="imageURL" alt="image"/>
         </div>
@@ -344,6 +363,7 @@ async function getRank(){
 .v-enter-active {
   transition: opacity 0.25s ease 0.2s;
 }
+
 .v-leave-active {
   transition: opacity 0.25s ease;
 }

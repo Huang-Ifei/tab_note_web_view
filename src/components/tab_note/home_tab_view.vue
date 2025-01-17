@@ -29,12 +29,27 @@ const search_value = ref("")
 const class_name = ref("")
 const post_show = ref(true)
 const classes = ref([])
-const tags = ref(["#Oracle", "#JavaWeb期末复习", "#git", "#Vue", "#数据库期末复习", "#数据库", "#视图", "#SpringBoot"])
+const tags = ref([])
 
 search_value.value = getLocalData("search_value")
 class_name.value = getLocalData("class_name")
 page_size.value = getLocalNumber("page_size")
+
 searchTabNotePage()
+getTags()
+
+async function getTags() {
+  const id = getLocalData("id")
+  const getTags = await axios.post(getAddress() + "/tags", {
+    usr_id: id
+  })
+  if (getTags.data.response == "success") {
+    tags.value = getTags.data.tags
+    console.log(tags.value)
+  }else{
+
+  }
+}
 
 async function searchTabNotePage() {
   page_count.value = 1;
@@ -130,18 +145,13 @@ getClasses()
 
       <classes_bar v-if="smallScreen" :classes="classes" :class_name="class_name" @doChoice="doChoice"/>
 
-      <classes_bar v-if="smallScreen" :class_name="search_value" :classes="tags" @doChoice="postSearch"/>
+      <classes_bar v-if="smallScreen&&tags.length>0" :class_name="search_value" :classes="tags" @doChoice="postSearch"/>
 
       <post_bar v-if="post_show" @doSearch="postSearch" :smallScreen="props.smallScreen"/>
 
       <div v-if="page_list.length==0"
            style="width: 100%;height: calc(100vh - 230px);display: flex;flex-direction: column;justify-content: center;align-items: center;">
         暂无对应内容，点击重置刷新
-      </div>
-
-      <div v-if="smallScreen && post_show" @click="router.push('beat_question')"
-           style="background: white;height: 50px;display: flex;flex-direction: row;justify-content: center;align-items: center;border-radius: 10px;border: 1px solid #e6e7ec;margin: 5px 8px 0;font-weight: bold">
-        <img alt="相机" style="width: 20px;height: 20px;margin-right: 5px" src="../../assets/camera.svg"/>AI识题
       </div>
 
       <div v-for="tab in page_list">
@@ -271,7 +281,7 @@ getClasses()
       </div>
       <div style="display: flex;flex-direction: column;height: 50%;overflow-x: hidden">
         <div style="font-size: 1.2rem;font-weight: bold;padding: 5px 5px 0 5px">
-          标签选择
+          智能推荐
         </div>
         <div style="overflow-y: auto;">
           <div v-for="(tag , index) in tags" :key="index" class="choice_class">
