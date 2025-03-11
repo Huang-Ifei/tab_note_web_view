@@ -13,6 +13,9 @@ import Note_ai from '../components/note_ai/note_ai.vue'
 import Beat_question from "../components/beat_question/beat_question.vue";
 import Xian_basic from "../xian_components/xian_basic.vue";
 import Adv_fun_auth from "../components/account/adv_fun_auth.vue";
+import Low_code_home from "../components/low_code/low_code_home.vue";
+import Huffman from "../components/low_code/huffman.vue";
+import Web_view_maker from "../components/low_code/web_view_maker.vue";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -57,8 +60,16 @@ const router = createRouter({
         }, {
             path: "/afa",
             component: afaRouteCheck()
-        },
-    ]
+        }, {
+            path: "/low_code",
+            component: Low_code_home
+        }, {
+            path: "/huffman",
+            component: Huffman
+        }, {
+            path: "/web_view_maker",
+            component: Web_view_maker
+        }]
 })
 
 //暴露路由

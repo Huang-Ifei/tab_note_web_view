@@ -75,7 +75,7 @@ async function insertTabNoteImg(s: string) {
   if (axiosResponse.data !== "failed") {
     let img = axiosResponse.data
     console.log(img)
-    await emit('addPicture', img)
+    emit('addPicture', img)
 
   } else {
     console.log("failed")

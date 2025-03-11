@@ -7,10 +7,13 @@ import {getAddress} from "../../operation/address.ts";
 
 
 const imageURL = ref("")
+imageURL.value = getAccountImg()
+
+
 const props = defineProps(['smallScreen', 'todo'])
 const h = ref('54px')
 const emit = defineEmits(['todoView', 'leftChoice'])
-imageURL.value = getAccountImg()
+
 
 const vm = defineModel()
 
@@ -114,22 +117,29 @@ let startX = 0;
 let currentX = 0;
 let nowLeft = 0;
 let drag = false;
+let touchCount = 0;
+let systemMove = false;
 
 function handleScrollStart(event: TouchEvent) {
-  event.preventDefault();
-  startX = event.touches[0].clientX;
+  if (!systemMove) {
+    event.preventDefault();
+    startX = event.touches[0].clientX;
+  }
 }
 
 // 监听滚动，并实时设置 scrollLeft
 async function handleScroll(event: TouchEvent) {
-  drag = true;  // 开启拖动
-  if (scrollContainer.value == null) return;
+  if (!systemMove) {
+    touchCount++;
+    drag = true;  // 开启拖动
+    if (scrollContainer.value == null) return;
 
-  currentX = event.touches[0].clientX;
+    currentX = event.touches[0].clientX;
 
-  const wWidth = window.innerWidth;
-  const diff = currentX - startX; // 计算滑动距离
-  scrollContainer.value.scrollLeft = choice * (wWidth - 60) - diff; // 实时更新滚动位置
+    const wWidth = window.innerWidth;
+    const diff = currentX - startX; // 计算滑动距离
+    scrollContainer.value.scrollLeft = choice * (wWidth - 60) - diff; // 实时更新滚动位置
+  }
 }
 
 async function handleScrollEnd() {
@@ -156,7 +166,8 @@ async function handleScrollEnd() {
     });
     drag = false;
     await delay(500)
-    if (!drag) {
+    touchCount--;
+    if (!drag && touchCount == 0) {
       scrollContainer.value.scrollLeft = nowLeft
     }
 
@@ -170,6 +181,9 @@ async function handleScrollEnd() {
         break;
       case 2:
         await router.push('note_ai');
+        break;
+      case 3:
+        await router.push('low_code');
         break;
     }
   }
@@ -252,6 +266,18 @@ async function getRank() {
               快问快答，高效速记！
             </p>
           </div>
+<!--          <div @touchstart.stop @touchmove.stop @touchend.stop @click.stop="router.push('low_code')"-->
+<!--               class="others_action">-->
+<!--            <img alt="AI Code" style="height: 100%;width: auto;border-radius: 15px"-->
+<!--                 src="../../assets/post/low_code.png"/>-->
+<!--            <p style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">-->
+<!--              低代码平台-->
+<!--            </p>-->
+<!--            <p style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">-->
+<!--              期末好助手<br>-->
+<!--              轻松上手 改变生活-->
+<!--            </p>-->
+<!--          </div>-->
           <div style="min-width: 30px;max-width: 30px;width: 30px">
             &nbsp;&nbsp;&nbsp;
           </div>
@@ -298,6 +324,18 @@ async function getRank() {
               快问快答，高效速记！
             </p>
           </div>
+<!--          <div @click.stop="router.push('low_code')" class="others_action"-->
+<!--               style="min-width: calc(100vw - 80px);">-->
+<!--            <img alt="AI Code" style="height: 100%;width: auto;border-radius: 15px"-->
+<!--                 src="../../assets/post/low_code.png"/>-->
+<!--            <p style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">-->
+<!--              低代码平台-->
+<!--            </p>-->
+<!--            <p style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">-->
+<!--              期末好助手<br>-->
+<!--              轻松上手 改变生活-->
+<!--            </p>-->
+<!--          </div>-->
           <div style="min-width: 30px;max-width: 30px;width: 30px">
             &nbsp;&nbsp;&nbsp;
           </div>
@@ -315,20 +353,23 @@ async function getRank() {
         TabNote_
       </h3>
       <div class="icons">
-        <button @touchstart.stop @touchmove.stop @touchend.stop class="none_button"
+        <button v-if="rank>=6" @touchstart.stop @touchmove.stop @touchend.stop class="none_button"
                 onclick="location.href='/add_tab_note'">
           新建贴文
+        </button>
+        <button @click="router.push('low_code')" @touchstart.stop @touchmove.stop @touchend.stop class="none_button">
+          低代码平台
         </button>
         <button @touchstart.stop @touchmove.stop @touchend.stop class="none_button"
                 @click="emit('todoView',!props.todo)">
           计划/待办
         </button>
+        <button @touchstart.stop @touchmove.stop @touchend.stop class="none_button" onclick="location.href='/note_ai'">
+          &nbsp;AI笔记&nbsp;
+        </button>
         <button @touchstart.stop @touchmove.stop @touchend.stop class="none_button"
                 onclick="location.href='/beat_question'">
           &nbsp;AI识题&nbsp;
-        </button>
-        <button @touchstart.stop @touchmove.stop @touchend.stop class="none_button" onclick="location.href='/note_ai'">
-          &nbsp;AI笔记&nbsp;
         </button>
         <button @touchstart.stop @touchmove.stop @touchend.stop id="ai_button" onclick="location.href='/ai_assistant'">
           AI助手
@@ -385,6 +426,7 @@ async function getRank() {
   flex-direction: column;
   color: #1a1a1a;
   cursor: pointer;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
 .others_action:focus,

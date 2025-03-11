@@ -26,6 +26,9 @@ const emit = defineEmits(['leftClose','todoView'])
       <div @click="router.push('note_ai')" class="choice_button">
         AI笔记
       </div>
+      <div @click="router.push('low_code')" class="choice_button">
+        低代码平台
+      </div>
     </div>
   </div>
 </template>

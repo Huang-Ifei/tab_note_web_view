@@ -155,9 +155,15 @@ export function isApp(): boolean {
     }
 }
 
-export function escapeHTML(str: string): string {
-    if (str.length == 0) {
-        return str
+export function escapeHTML(st: string): string {
+    if (st.length == 0) {
+        return st
+    }
+    let str = ""
+    if (st.startsWith("\n\n")){
+        str = st.replace(/^\n\n/, '');
+    }else{
+        str = st
     }
     //替换除了\n以外的字符为html语句
     const htmlString = str
@@ -215,7 +221,17 @@ export function escapeHTML(str: string): string {
                 newString += "`".repeat(3) + name + "\n" + content;
                 break
             }
-        } else if ((i === 0 || htmlString[i - 1] === '\n') && (htmlString[i] === '#' && htmlString[i + 1] === '#' && htmlString[i + 2] === '#')) {
+        } else if ((i === 0 || htmlString[i - 1] === '\n') && (htmlString[i] === '#' && htmlString[i + 1] === '#' && htmlString[i + 2] === '#' && htmlString[i + 3] === '#')) {
+            let title = ""
+            let x = i + 4
+            //将回车之前的内容并为代码名称
+            while (x < n && htmlString[x] != '\n') {
+                title += htmlString[x];
+                x++
+            }
+            i = x
+            newString += `<h4 style="color: #213547;padding: 0;margin: 0">${title}</h4>`
+        }  else if ((i === 0 || htmlString[i - 1] === '\n') && (htmlString[i] === '#' && htmlString[i + 1] === '#' && htmlString[i + 2] === '#')) {
             let title = ""
             let x = i + 3
             //将回车之前的内容并为代码名称
@@ -225,7 +241,17 @@ export function escapeHTML(str: string): string {
             }
             i = x
             newString += `<h3 style="color: #213547;padding: 0;margin: 0">${title}</h3>`
-        } else if (htmlString[i] === '\n' && htmlString[i + 1] === '*' && htmlString.substring(i + 2, i + 8) === '&nbsp;') {
+        }  else if ((i === 0 || htmlString[i - 1] === '\n') && (htmlString[i] === '#' && htmlString[i + 1] === '#')) {
+            let title = ""
+            let x = i + 2
+            //将回车之前的内容并为代码名称
+            while (x < n && htmlString[x] != '\n') {
+                title += htmlString[x];
+                x++
+            }
+            i = x
+            newString += `<h2 style="color: #213547;padding: 0;margin: 0">${title}</h2>`
+        }   else if (htmlString[i] === '\n' && htmlString[i + 1] === '*' && htmlString.substring(i + 2, i + 8) === '&nbsp;') {
             newString += "\n·&nbsp;"
             i = i + 7
         } else if (htmlString.substring(i, i + 32) === '\n&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;') {

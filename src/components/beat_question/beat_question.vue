@@ -7,10 +7,38 @@ import {addressOperation, getAddress, getWholeAddress} from "../../operation/add
 import {delay, deleteAccount, escapeHTML, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
 import Bq_title from "./bq_title.vue";
 import router from "../../router";
+import Loading from "../weight/loading.vue";
 
+
+const model = ref("AM")
+
+type dxstjJson = {
+  text: string,
+  question: string,
+  answer: string,
+}
 const imageSrc = ref("")
+const isLoading = ref(false);
+const dxstj: Ref<dxstjJson[]> = ref([{text: "", question: "", answer: ""}])
+const text = ref("")
+const dxstj_choice = ref(0)
+const imgName = ref("")
+const imgNameHigh = ref("")
+const aiAnswer = ref("")
+const allValue = ref("")
+const thinking = ref("")
 
-function handleFileChange(event: Event) {
+function initView() {
+  aiAnswer.value = ""
+  allValue.value = ""
+  thinking.value = ""
+  text.value = ""
+  dxstj_choice.value = 0
+  dxstj.value = [{text: "", question: "", answer: ""}]
+}
+
+async function handleFileChange(event: Event) {
+  initView();
   //事件的目标作为HTML输入组件
   const target = event.target as HTMLInputElement;
   //输入组件的第0个文件
@@ -20,19 +48,24 @@ function handleFileChange(event: Event) {
     try {
       //压缩文件
       new Compressor(file, {
-        quality: 0.8,
-        maxWidth: 1000,
-        maxHeight: 1000,
-        convertSize: 100000,
+        quality: 0.75,
+        maxWidth: 1500,
+        maxHeight: 1500,
+        convertSize: 150000,
         mimeType: 'image/jpeg',
         success(result) {//成功执行：reader读取内容到imageSrc中（base64编码）
           const reader = new FileReader();
-          reader.onload = () => {
+          reader.onload = async () => {
             const base64String = reader.result as string;
             imageSrc.value = base64String;
             console.log(base64String);
-            insertTabNoteImg(base64String)
-            getDXSTJ()
+            imgNameHigh.value = await insertTabNoteImg(base64String);
+
+            imgName.value = imgNameHigh.value+"_LQ"
+            if (imgNameHigh.value !== "" && imgName.value !== "") {
+              //开始获取大学搜题酱信息
+              await getDXSTJ()
+            }
           };
           reader.readAsDataURL(result instanceof Blob ? result : new Blob([result]));
         },
@@ -53,43 +86,51 @@ function clickInputImg() {
   document?.getElementById('add_new')?.click()
 }
 
-const model = ref("gpt-4o")
 
-type dxstjJson = {
-  text: string,
-  question: string,
-  answer: string,
-}
-
-const dxstj: Ref<dxstjJson[]> = ref([{text: "", question: "", answer: ""}])
-
-const text = ref("")
-const dxstj_choice = ref(0)
+// async function getDXSTJ() {
+//   aiAnswer.value = ""
+//   allValue.value = ""
+//   thinking.value = ""
+//   text.value = ""
+//   dxstj_choice.value = 0
+//   dxstj.value = [{text: "", question: "", answer: ""}]
+//   try {
+//     const axiosResponse = await axios.post(getAddress() + "/ai/dxstj", {
+//       id: getLocalData('id'),
+//       token: await getTokenData(),
+//       img: imageSrc.value
+//     })
+//     console.log(axiosResponse.data)
+//     if (axiosResponse.data.response === 'success' && !axiosResponse.data.questionList[0].answer.includes('当前登录已经失效') ) {
+//       text.value = axiosResponse.data.text
+//       console.log(text.value)
+//       text.value = text.value.replace(/-\|\|\|-/g, "\n");
+//       console.log(text.value)
+//       dxstj.value = axiosResponse.data.questionList
+//       await post(model.value, dxstj.value)
+//     } else if (axiosResponse.data.questionList[0].answer.includes('当前登录已经失效')) {
+//       dxstj.value = [{
+//         text: "",
+//         question: "<p style='padding: 10px'>大学搜题酱已变更验证信息，我们正在努力抢修中，暂时停止提供大学搜题酱答案</p>",
+//         answer: ""
+//       }]
+//       await post(model.value, [{text: "", question: "<p style='padding: 10px'>大学搜题酱已变更验证信息，我们正在努力抢修中，暂时停止提供大学搜题酱答案</p>", answer: ""}])
+//     } else {
+//       dxstj.value = [{text: "", question: "<p style='padding: 10px'>大学搜题酱搜索失败</p>", answer: ""}]
+//       await post(model.value, [{text: "", question: "<p style='padding: 10px'>大学搜题酱搜索失败</p>", answer: ""}])
+//     }
+//     //刷新历史记录
+//     historyBQ.value = []
+//     await getBQList()
+//   } catch (e) {
+//     console.error(e)
+//   }
+// }
 
 async function getDXSTJ() {
-  aiAnswer.value = ""
-  text.value = ""
-  dxstj_choice.value = 0
-  dxstj.value = [{text: "", question: "", answer: ""}]
   try {
-    const axiosResponse = await axios.post(getAddress() + "/ai/dxstj", {
-      id: getLocalData('id'),
-      token: await getTokenData(),
-      img: imageSrc.value
-    })
-    console.log(axiosResponse.data)
-    if (axiosResponse.data.response === 'success') {
-      text.value = axiosResponse.data.text
-      console.log(text.value)
-      text.value = text.value.replace(/-\|\|\|-/g, "\n");
-      console.log(text.value)
-      dxstj.value = axiosResponse.data.questionList
-      await post( model.value, dxstj.value)
-    } else {
-      dxstj.value = [{text: "", question: "<p style='padding: 10px'>大学搜题酱搜索失败</p>", answer: ""},]
-      await post(model.value, [{text: "", question: "", answer: ""}])
-    }
-    //刷新历史记录
+    await post(model.value, [{text: "", question: "", answer: ""}])
+    // //刷新历史记录
     historyBQ.value = []
     await getBQList()
   } catch (e) {
@@ -97,34 +138,28 @@ async function getDXSTJ() {
   }
 }
 
-const imgName = ref("")
 
-async function insertTabNoteImg(s: string) {
+async function insertTabNoteImg(s: string): Promise<string> {
   console.log({img: s})
   const axiosResponse = await axios.post(getAddress() + "/insertTabNoteImg", {img: s})
-  if (axiosResponse.data !== "failed") {
-    imgName.value = axiosResponse.data
+  if (axiosResponse.data !== "failed" && axiosResponse.data !== "" && axiosResponse.data !== "undefined") {
+    let img = axiosResponse.data
+    console.log(img)
+    return axiosResponse.data
   } else {
     console.log("failed")
+    alert("图片上传出错")
+    return ""
   }
 }
 
-const aiAnswer = ref("")
 
 //发送信息并获取内容流式传输
 async function post(model: string, dxstjJsonArray: dxstjJson[]) {
+  isLoading.value = true
   try {
     const tk = await getTokenData()
     // 发起 POST 请求
-    console.log(JSON.stringify({
-          img: getWholeAddress() + "/tabNoteImg?name=" + imgName.value,
-          model: model,
-          id: getLocalData('id'),
-          token: tk,
-          text: text.value,
-          dxstjJsonArray: dxstjJsonArray
-        })
-    )
     const response = await fetch(
         getAddress() + "/ai/bq",
         {
@@ -132,6 +167,7 @@ async function post(model: string, dxstjJsonArray: dxstjJson[]) {
           headers: {'Content-Type': 'application/json;charset=utf-8'},
           body: JSON.stringify({
             img: getWholeAddress() + "/tabNoteImg?name=" + imgName.value,
+            imgHigh: getWholeAddress() + "/tabNoteImg?name=" + imgNameHigh.value,
             model: model,
             id: getLocalData('id'),
             token: tk,
@@ -140,7 +176,7 @@ async function post(model: string, dxstjJsonArray: dxstjJson[]) {
           }),
         }
     );
-    const allValue = ref("")
+
     if (response.body != null) {
       // 请求成功，处理返回的数据
       const reader = response.body.getReader()
@@ -169,10 +205,13 @@ async function post(model: string, dxstjJsonArray: dxstjJson[]) {
           decodeJsonToShow(decodeValue, allValue)
         }
       }
+      isLoading.value = false
       await delay(500)
       aiAnswer.value = allValue.value;
     }
+    isLoading.value = false
   } catch (error) {
+    isLoading.value = false
     // 请求失败，处理错误
     console.error('Error fetching data:', error);
   }
@@ -189,8 +228,13 @@ function decodeJsonToShow(decodeValue: string, allValue: Ref<string>) {
     }
   } else {
     try {
-      aiAnswer.value += JSON.parse(decodeValue).message.content;
-      allValue.value += JSON.parse(decodeValue).message.content;
+      if (JSON.parse(decodeValue).message.content) {
+        aiAnswer.value += JSON.parse(decodeValue).message.content;
+        allValue.value += JSON.parse(decodeValue).message.content;
+      }
+      if (JSON.parse(decodeValue).message.reasoning_content) {
+        thinking.value += JSON.parse(decodeValue).message.reasoning_content
+      }
     } catch (e) {
       console.error("get mess but:" + e)
     }
@@ -303,11 +347,9 @@ getBQList()
 
 //获取某条历史内容
 async function getBQ(s: string, pic: string) {
-  dxstj_choice.value = 0
+  initView();
   imageSrc.value = addressOperation(pic)
-  aiAnswer.value = ""
-  text.value = ""
-  dxstj.value = []
+  isLoading.value = true
   const tk = await getTokenData()
   const axiosResponse = await axios.post(getAddress() + "/ai/BQ", {
     id: getLocalData("id"),
@@ -325,6 +367,7 @@ async function getBQ(s: string, pic: string) {
   } else {
     alert("历史记录获取失败")
   }
+  isLoading.value = false
 }
 
 getRank()
@@ -337,16 +380,17 @@ async function getRank() {
   if (response.data.rank <= 0) {
     await router.push("afa")
   }
-  if (response.data.rank >3) {
-    //DEBUG NOW
-    //model.value= 'o1-mini'
+  if (response.data.rank > 3) {
+    model.value = "AAM"
   }
 }
 
-function choiceO1Mini(){
-  if (rank.value >3){
+function choiceO1Mini() {
+  if (rank.value > 3) {
     alert("o1-mini GPT工作流现在正在内测阶段，可能会出现错误，请谨慎使用")
-    model.value= 'o1-mini'
+    model.value = 'o1-mini'
+  } else {
+    model.value = 'AM'
   }
 }
 
@@ -381,9 +425,13 @@ onBeforeUnmount(() => {
   <!--拍照界面-->
   <div class="shot_view">
     <div v-if="imageSrc==''">
+      <img alt="" @click="model='gpt-4o'" v-if="model==='AAM'" style="width: 130px;margin-bottom: 5px"
+           src="../../assets/vip/AAM.svg">
+      <img alt="" @click="model='gpt-4o'" v-if="model==='AM'" style="width: 130px;margin-bottom: 5px"
+           src="../../assets/vip/AM.svg">
       <img alt="" @click="choiceO1Mini()" v-if="model==='gpt-4o'" style="width: 130px;margin-bottom: 5px"
            src="../../assets/vip/GPT4o.svg">
-      <img alt="" @click="model='gpt-4o'" v-if="model==='o1-mini'" style="width: 130px;margin-bottom: 5px"
+      <img alt="" @click="model='AAM'" v-if="model==='o1-mini'" style="width: 130px;margin-bottom: 5px"
            src="../../assets/vip/o1miniGPT.svg">
     </div>
     <button v-if="imageSrc==''" id="add" @click="clickInputImg">
@@ -427,37 +475,42 @@ onBeforeUnmount(() => {
         <div class="action_choice">
           AI识题
         </div>
+        <loading v-if="isLoading" style="padding: 10px"/>
+        <div v-if="thinking!=''" style="color: #8d8d8d;font-size: 12px;margin-bottom: 0;padding: 20px 20px 0;"
+             v-html="escapeHTML(thinking)">
+
+        </div>
         <div v-html="escapeHTML(aiAnswer)" class="content">
 
         </div>
       </div>
       <div style="min-height: 10px">
       </div>
-      <div class="show_items">
-        <div class="action_choice">
-          大学搜题酱
-        </div>
-        <div style="overflow: auto;display: flex;flex-direction: row">
-          <div v-for="(json,ii) in dxstj" :key="ii" class="action_choice"
-               style="padding:8px 14px;font-size: 12px;background: white"
-               @click="dxstj_choice=ii;console.log(dxstj_choice)">
-            <input type="hidden" :value="json">
-            <p v-if="ii==dxstj_choice" style="color: #1a98ee;">{{ ii + 1 }}</p>
-            <p v-else style="color: #1c1c1c;">{{ ii + 1 }}</p>
-          </div>
-        </div>
+      <!--      <div class="show_items">-->
+      <!--        <div class="action_choice">-->
+      <!--          大学搜题酱-->
+      <!--        </div>-->
+      <!--        <div style="overflow: auto;display: flex;flex-direction: row">-->
+      <!--          <div v-for="(json,ii) in dxstj" :key="ii" class="action_choice"-->
+      <!--               style="padding:8px 14px;font-size: 12px;background: white"-->
+      <!--               @click="dxstj_choice=ii;console.log(dxstj_choice)">-->
+      <!--            <input type="hidden" :value="json">-->
+      <!--            <p v-if="ii==dxstj_choice" style="color: #1a98ee;">{{ ii + 1 }}</p>-->
+      <!--            <p v-else style="color: #1c1c1c;">{{ ii + 1 }}</p>-->
+      <!--          </div>-->
+      <!--        </div>-->
 
-        <div class="answer_items">
-          <p style="font-weight: bold;font-size: 17px">题目：</p>
-          <div v-html="dxstj[dxstj_choice].question">
+      <!--        <div class="answer_items">-->
+      <!--          <p style="font-weight: bold;font-size: 17px">题目：</p>-->
+      <!--          <div v-html="dxstj[dxstj_choice].question">-->
 
-          </div>
-          <p style="font-weight: bold;margin-top: 5px;font-size: 17px">答案：</p>
-          <div v-html="dxstj[dxstj_choice].answer">
+      <!--          </div>-->
+      <!--          <p style="font-weight: bold;margin-top: 5px;font-size: 17px">答案：</p>-->
+      <!--          <div v-html="dxstj[dxstj_choice].answer">-->
 
-          </div>
-        </div>
-      </div>
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
       <div style="min-height: 54px">
       </div>
     </div>

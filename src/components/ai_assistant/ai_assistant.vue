@@ -336,6 +336,8 @@ async function getRank() {
   rank.value = response.data.rank
   if (response.data.rank <= 0) {
     await router.push("afa")
+  }else if (response.data.rank > 2) {
+    setModel("gpt-4o")
   }
 }
 
@@ -617,8 +619,6 @@ function setModel(s:string) {
   max-height: 90px;
   top: calc(100% - 80px);
   background: linear-gradient(0deg, #f3f3f3 70%, rgba(255, 255, 255, 0));
-  backdrop-filter: ;
-
 }
 
 #usrTalkHistory {

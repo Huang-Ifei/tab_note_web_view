@@ -180,17 +180,17 @@ function ctPaste(editor, event) {
 
   if (html.startsWith("<html>")) {
     const isHtmlCode = html.includes('<code>') || html.includes('<pre>');
-    const isPlainTextCode = /function |suspend |event\.|public class |public void |const |let |var |if |\{|}|;/.test(text);
+    const isPlainTextCode = /function |suspend |event\.|public class |public void |const |let |var |if\(|if \(|\{|}|;/.test(text);
     if (isHtmlCode || isPlainTextCode) {
-      console.log("text:"+text)
-      editor.insertNode([{text: text ,fontSize : '12px'}])
+      console.log("text:" + text)
+      editor.insertNode([{text: text, fontSize: '12px'}])
     } else {
       editor.insertText(text)
     }
   }
 
   event.preventDefault(text)
-  console.log("html"+html)
+  console.log("html" + html)
   return false;
 }
 
@@ -214,14 +214,20 @@ const tick = {
 
 async function addTick(sd, question, note) {
 
-  editorRef.value.select(selection.value)
-  editorRef.value.insertNode({text: sd, bgColor: "#96dfff"})
-  editorRef.value.insertNode({
+  await editorRef.value.select(selection.value)
+  const isPlainTextCode = /function |suspend |event\.|public class |public void |const |let |var |if\(|if \(|\{|}|;/.test(sd);
+  if (isPlainTextCode) {
+    await editorRef.value.insertNode({text: sd, bgColor: "#96dfff", fontSize: '12px'})
+  } else {
+    await editorRef.value.insertNode({text: sd, bgColor: "#96dfff"})
+  }
+
+  await editorRef.value.insertNode({
     type: 'tick', question: question, answer: note,
     children: [{text: ""}]
   })
 
-  await delay(1000)
+  await delay(500)
   await pushNoteAiToServer({}, all_html.value, note_ai_id.value)
 }
 
@@ -353,10 +359,10 @@ getRank()
 
 const rank = ref(0)
 
-async function getRank(){
-  const response = await axios.get(getAddress()+"/vip/rank?id="+getLocalData("id"))
+async function getRank() {
+  const response = await axios.get(getAddress() + "/vip/rank?id=" + getLocalData("id"))
   rank.value = response.data.rank
-  if (response.data.rank<=0){
+  if (response.data.rank <= 0) {
     await router.push("afa")
   }
 }
