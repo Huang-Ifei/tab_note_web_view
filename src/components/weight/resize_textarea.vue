@@ -103,8 +103,8 @@ watch(
       <input id="add_new" type="file" accept="image/*" @change="handleFileChange"/>
       <img alt="相机" src="../../assets/camera.svg"/>
     </button>
-    <img style="height: 40px;padding:10px 0" alt="4o" @click="setModel('gpt-4o-mini')" v-if="props.modelChoice=='gpt-4o'"  src="../../assets/4o.svg"/>
-    <img style="height: 40px;padding:10px 0" alt="mini" @click="setModel('gpt-4o')" v-if="props.modelChoice=='gpt-4o-mini'" src="../../assets/min.svg"/>
+    <img style="height: 44px;padding:8px 5px" alt="adv" @click="setModel('gpt-5.5')" v-if="props.modelChoice=='gpt-5.4'"  src="../../assets/vip/GPT-5.4.svg"/>
+    <img style="height: 44px;padding:8px 5px" alt="mini" @click="setModel('gpt-5.4')" v-if="props.modelChoice=='gpt-5.5'" src="../../assets/vip/GPT-5.5.svg"/>
     <textarea id="textareaEl" v-model="content" @input="changeSize" :rows="resizeText"/>
     <button @click="send">
       发送
@@ -115,8 +115,8 @@ watch(
       <input id="add_new" type="file" accept="image/*" @change="handleFileChange"/>
       <img alt="相机" src="../../assets/camera.svg"/>
     </button>
-    <img style="height: 40px;padding:10px 0" alt="4o" @click="setModel('gpt-4o-mini')" v-if="props.modelChoice=='gpt-4o'"  src="../../assets/4o.svg"/>
-    <img style="height: 40px;padding:10px 0" alt="mini" @click="setModel('gpt-4o')" v-if="props.modelChoice=='gpt-4o-mini'" src="../../assets/min.svg"/>
+    <img style="height: 44px;padding:8px 5px" alt="adv" @click="setModel('gpt-5.5')" v-if="props.modelChoice=='gpt-5.4'"  src="../../assets/vip/GPT-5.4.svg"/>
+    <img style="height: 44px;padding:8px 5px" alt="mini" @click="setModel('gpt-5.4')" v-if="props.modelChoice=='gpt-5.5'" src="../../assets/vip/GPT-5.5.svg"/>
     <textarea id="textareaEl" style="width: calc(100% - 130px);" v-model="content" @input="changeSize"
               :rows="resizeText"/>
     <button @click="send" style="width: 55px;padding: 0">

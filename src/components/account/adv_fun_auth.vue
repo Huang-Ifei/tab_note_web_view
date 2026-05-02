@@ -84,17 +84,14 @@ async function getAuthList() {
         <p class="card_title">普通授权&nbsp;AFA</p>
         <p class="quota">每月285万额度</p>
         <div style="height: 15px">&nbsp;</div>
-        <p class="info">AI对话默认使用基础4o mini模型</p>
-        <p class="info">AI对话可选高级4o模型</p>
+        <p class="info">AI对话默认使用GPT-5.4-mini模型</p>
+        <p class="info">AI对话可选高级5.4模型</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI识题可用高级4o OCR+工作流</p>
-        <p class="info">AI识题可用DeepSeek r1 MIX+工作流</p>
+        <p class="info">AI识题可用高级5.4 OCR+工作流</p>
         <p class="info">AI识题默认AM自动融合工作流</p>
         <p class="info">-</p>
-        <p class="info">-</p>
-        <p class="info">AI识题附带大学搜题酱</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI笔记使用基础4o mini模型</p>
+        <p class="info">AI笔记使用基础5.4 mini模型</p>
         <div style="height: 8px">&nbsp;</div>
         <p class="info">-</p>
         <div style="height: 20px">&nbsp;</div>
@@ -104,17 +101,14 @@ async function getAuthList() {
         <p class="card_title">高级授权&nbsp;AFA+</p>
         <p class="quota">每月1140万额度</p>
         <div style="height: 15px">&nbsp;</div>
-        <p class="info">AI对话可选基础4o mini模型</p>
-        <p class="info">AI对话默认高级4o模型</p>
+        <p class="info">AI对话可选GPT-5.4-mini模型</p>
+        <p class="info">AI对话默认高级 模型</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI识题可用高级4o OCR+工作流</p>
-        <p class="info">AI识题可用DeepSeek r1 MIX+工作流</p>
+        <p class="info">AI识题可用高级5.4 OCR+工作流</p>
         <p class="info">AI识题默认AAM融合自动增强工作流</p>
-        <p class="info">即将可用*AI识题o3-mini GPT工作流</p>
-        <p class="info">-</p>
-        <p class="info">AI识题附带大学搜题酱</p>
+        <p class="info">即将可用*AI识题o4-mini GPT工作流</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI笔记使用基础4o mini模型</p>
+        <p class="info">AI笔记使用GPT-5.4-mini模型</p>
         <div style="height: 8px">&nbsp;</div>
         <p class="info">-</p>
         <div style="height: 20px">&nbsp;</div>
@@ -124,37 +118,33 @@ async function getAuthList() {
         <p class="card_title">超级授权&nbsp;AFA++</p>
         <p class="quota">每月0.513亿额度</p>
         <div style="height: 15px">&nbsp;</div>
-        <p class="info">AI对话可选基础4o mini模型</p>
-        <p class="info">AI对话默认高级4o模型</p>
+        <p class="info">AI对话可选GPT-5.4-mini模型</p>
+        <p class="info">AI对话默认高级5.4模型</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI识题可用高级4o OCR+工作流</p>
-        <p class="info">AI识题可用DeepSeek r1 MIX+工作流</p>
+        <p class="info">AI识题可用高级5.4 OCR+工作流</p>
         <p class="info">AI识题默认AAM融合自动增强工作流</p>
-        <p class="info">即将可用*AI识题o3-mini GPT工作流</p>
-        <p class="info">即将可用*AI识题逻辑o3 GPT工作流</p>
+        <p class="info">即将可用*AI识题o4-mini GPT工作流</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI笔记使用基础4o mini模型</p>
+        <p class="info">AI笔记使用GPT-5.4-mini模型</p>
         <div style="height: 8px">&nbsp;</div>
         <p class="info">贴文发布权限</p>
         <div style="height: 20px">&nbsp;</div>
       </div>
     </div>
-    <div v-if="smallScreen" class="row" style="overflow-x: auto;min-height: calc(1.7 * 66vw)">
+    <div v-if="smallScreen" class="row" style="overflow-x: auto;min-height: calc(1.4 * 66vw)">
       <div class="card" style="min-width: 66vw;max-width: 66vw;">
         <img alt="vip_rank" src="../../assets/vip/AFA.svg" style="height: 30px"/>
         <p class="card_title">普通授权&nbsp;AFA</p>
         <p class="quota">每月285万额度</p>
         <div style="height: 15px">&nbsp;</div>
-        <p class="info">AI对话默认使用基础4o mini模型</p>
-        <p class="info">可选高级4o模型</p>
+        <p class="info">AI对话默认使用GPT-5.4-mini模型</p>
+        <p class="info">AI对话可选高级5.4模型</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI识题可用高级4o OCR+工作流</p>
-        <p class="info">AI识题可用DeepSeek r1 MIX+工作流</p>
+        <p class="info">AI识题可用高级5.4 OCR+工作流</p>
         <p class="info">AI识题默认AM自动融合工作流</p>
         <p class="info">-</p>
-        <p class="info">-</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI笔记使用基础4o mini模型</p>
+        <p class="info">AI笔记使用GPT-5.4-mini模型</p>
         <div style="height: 8px">&nbsp;</div>
         <p class="info">-</p>
         <div style="height: 20px">&nbsp;</div>
@@ -164,16 +154,14 @@ async function getAuthList() {
         <p class="card_title">高级授权&nbsp;AFA+</p>
         <p class="quota">每月1140万额度</p>
         <div style="height: 15px">&nbsp;</div>
-        <p class="info">AI对话可选基础4o mini模型</p>
-        <p class="info">AI对话默认高级4o模型</p>
+        <p class="info">AI对话可选GPT-5.4-mini模型</p>
+        <p class="info">AI对话默认高级5.4 模型</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI识题可用高级4o OCR+工作流</p>
-        <p class="info">AI识题可用DeepSeek r1 MIX+工作流</p>
+        <p class="info">AI识题可用高级5.4 OCR+工作流</p>
         <p class="info">AI识题默认AAM融合自动增强工作流</p>
-        <p class="info">即将可用*AI识题o3-mini GPT工作流</p>
-        <p class="info">-</p>
+        <p class="info">即将可用*AI识题o4-mini GPT工作流</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI笔记使用基础4o mini模型</p>
+        <p class="info">AI笔记使用GPT-5.4-mini模型</p>
         <div style="height: 8px">&nbsp;</div>
         <p class="info">-</p>
         <div style="height: 20px">&nbsp;</div>
@@ -183,16 +171,14 @@ async function getAuthList() {
         <p class="card_title">超级授权&nbsp;AFA++</p>
         <p class="quota">每月0.513亿额度</p>
         <div style="height: 15px">&nbsp;</div>
-        <p class="info">AI对话可选基础4o mini模型</p>
-        <p class="info">AI对话默认高级4o模型</p>
+        <p class="info">AI对话可选GPT-5.4-mini模型</p>
+        <p class="info">AI对话默认高级5.4模型</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI识题可用高级4o OCR+工作流</p>
-        <p class="info">AI识题可用DeepSeek r1 MIX+工作流</p>
+        <p class="info">AI识题可用高级5.4 OCR+工作流</p>
         <p class="info">AI识题默认AAM融合自动增强工作流</p>
-        <p class="info">即将可用*AI识题o3-mini GPT工作流</p>
-        <p class="info">即将可用*AI识题逻辑o3 GPT工作流</p>
+        <p class="info">即将可用*AI识题o4-mini GPT工作流</p>
         <div style="height: 8px">&nbsp;</div>
-        <p class="info">AI笔记使用基础4o mini模型</p>
+        <p class="info">AI笔记使用GPT-5.4-mini模型</p>
         <div style="height: 8px">&nbsp;</div>
         <p class="info">贴文发布权限</p>
         <div style="height: 20px">&nbsp;</div>
@@ -212,7 +198,10 @@ async function getAuthList() {
       <div v-for="(afa,i) in afaList" :key="i" class="auth_card">
         <p v-if="afa.rank==2" class="quota" >普通授权<img alt="vip_rank" src="../../assets/vip/AFA.svg" style="height: 18px;"/></p>
         <p v-if="afa.rank==4" class="quota">高级授权<img alt="vip_rank" src="../../assets/vip/AFA+.svg" style="height: 18px;"/></p>
+        <p v-if="afa.rank==5" class="quota">学生授权<img alt="vip_rank" src="../../assets/vip/AFA+.svg" style="height: 18px;"/></p>
         <p v-if="afa.rank==6" class="quota">超级授权<img alt="vip_rank" src="../../assets/vip/AFA++.svg" style="height: 18px;"/></p>
+        <p v-if="afa.rank==10" class="quota">教师授权<img alt="vip_rank" src="../../assets/vip/AFA++.svg" style="height: 18px;"/></p>
+        <p v-if="afa.rank==12" class="quota">管理员授权<img alt="vip_rank" src="../../assets/vip/AFA++.svg" style="height: 18px;"/></p>
         <p>剩余额度：{{afa.quota}}</p>
         <p>{{afa.start_time}} ~ {{afa.end_time}}</p>
       </div>
@@ -230,19 +219,19 @@ async function getAuthList() {
       <p class="info">高级功能授权由站长给予，需要与站长沟通获得，站内不存在营业行为，授权资格通过授权码兑换。</p>
       <p class="quota">使用各种模型的额度花费</p>
       <p class="info">
-        基础4o mini的额度使用/输入token倍率为1倍；<br>
-        基础4o mini的额度使用/输出token倍率为4倍。<br>
-        深度思考r1的额度使用/输入token倍率为4倍；<br>
-        深度思考r1的额度使用/输出token倍率为15倍；<br>
-        高级4o的额度使用/输入token倍率为18倍；<br>
-        高级4o的额度使用/输出token倍率为70倍。<br>
-        逻辑增强o3 mini的额度使用/输入token倍率为20倍；<br>
-        逻辑增强o3 mini的额度使用/输出token倍率为80倍；<br>
-        逻辑增强o3的额度使用/输入token倍率为100倍；<br>
-        逻辑增强o3的额度使用/输出token倍率为400倍；<br>
+        基础的额度使用/输入token倍率为1倍；<br>
+        基础模型的额度使用/输出token倍率为4倍。<br>
+        深度思考模型的额度使用/输入token倍率为4倍；<br>
+        深度思考模型的额度使用/输出token倍率为15倍；<br>
+        高级模型的额度使用/输入token倍率为18倍；<br>
+        高级模型的额度使用/输出token倍率为70倍。<br>
+        逻辑增强模型的额度使用/输入token倍率为20倍；<br>
+        逻辑增强模型的额度使用/输出token倍率为80倍；<br>
+        逻辑增强顶级模型的额度使用/输入token倍率为100倍；<br>
+        逻辑增强顶级模型的额度使用/输出token倍率为400倍；<br>
       </p>
       <p class="quota">Advanced Auto MIX(AAM)融合自动增强工作流</p>
-      <p class="info">使用较低清晰度的图片上传给大模型，通过OCR对高清图像进行识别并添加进prompt，并智能选择：DeepSeek R1 GPT+/o3-mini GPT+/4o OCR+工作流为用户提供最稳定、最准确、最具性价比的回答。拥有目前行业中最高的AI多模态识别准确率，并能至高降低额度使用量56%.</p>
+      <p class="info">使用较低清晰度的图片上传给大模型，通过OCR对高清图像进行识别并添加进prompt，并智能选择工作流为用户提供最稳定、最准确、最具性价比的回答。拥有目前行业中最高的AI多模态识别准确率，并能至高降低额度使用量56%.</p>
       <p class="quota">OCR+工作流</p>
       <p class="info">使用OCR识别图像内容生成文字，再交给大语言模型，结合文字识别图片内容，以增强题目内容识别准确度，目前OCR+工作流都已支持融合功能。</p>
       <p class="quota">逻辑增强 GPT+工作流</p>

@@ -315,9 +315,9 @@ function tickToHTML(elem) {
   const {question = "", answer = ""} = elem
   let html;
   if (question === "") {
-    html = `<div data-w-e-type="tick" data-w-e-is-inline data-w-e-is-void data-question="" data-answer="${answer}"></div>`
+    html = `<div style="width: fit-content;height: fit-content;display: block" data-w-e-type="tick" data-w-e-is-inline data-w-e-is-void data-question="" data-answer="${answer}"></div>`
   } else {
-    html = `<div data-w-e-type="tick" data-w-e-is-inline data-w-e-is-void data-question="${question}" data-answer="${answer}"></div>`
+    html = `<div style="width: fit-content;height: fit-content;display: block" data-w-e-type="tick" data-w-e-is-inline data-w-e-is-void data-question="${question}" data-answer="${answer}"></div>`
   }
   return html
 }

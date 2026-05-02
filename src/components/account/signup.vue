@@ -33,14 +33,14 @@ async function check(){
           id.value = content.value;
           content.value = ""
           sys_mess.style.color='rgba(0, 0, 0, 0.85)';
-          sys_mess.innerHTML = "您的账号已经通过验证，接下来请输入您想设置的密码"
+          sys_mess.innerHTML = "您的账号已经通过验证，接下来请输入您的密码"
           placeholder.value = "密码"
         }
       }else if(response.data.response=='have_this_account'){
         const sys_mess = document.getElementById("sys_mess")
         if (sys_mess != null) {
           sys_mess.style.color='rgba(209, 0, 0, 0.85)';
-          sys_mess.innerHTML = "您的账号已被注册，账号作为您独一无二的识别码，不被允许重复，请您务必更换"
+          sys_mess.innerHTML = "您的账号已被注册，账号作为您独一无二的识别码，不可以重复，请您务必更换"
         }
       }else if(response.data.response=='id_is_bad'){
         const sys_mess = document.getElementById("sys_mess")
@@ -79,7 +79,7 @@ async function check(){
           password.value = content.value;
           content.value = ""
           sys_mess.style.color='rgba(0, 0, 0, 0.85)';
-          sys_mess.innerHTML = "您的密码核验成功，接下来为你的账户起个响亮的名字吧"
+          sys_mess.innerHTML = "您的密码核验成功，接下来请你输入用户名"
           placeholder.value = "名字"
         }
       }else if(response.data.response=='password_is_bad'){
@@ -146,7 +146,7 @@ async function check(){
         const sys_mess = document.getElementById("sys_mess")
         if (sys_mess != null) {
           sys_mess.style.color='rgba(209, 0, 0, 0.85)';
-          sys_mess.innerHTML = "您的用户名已被注册，用户名作为您最显著的特征，不被允许重复，请您务必更换"
+          sys_mess.innerHTML = "您的用户名已被注册，用户名不允许重复，请您务必更换"
         }
       }else if(response.data.response=='name_is_bad'){
         const sys_mess = document.getElementById("sys_mess")

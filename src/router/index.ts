@@ -11,11 +11,16 @@ import Tab_note_view from '../components/tab_note/tab_note_view.vue'
 import Tab_manual from '../components/tab_manual.vue'
 import Note_ai from '../components/note_ai/note_ai.vue'
 import Beat_question from "../components/beat_question/beat_question.vue";
-import Xian_basic from "../xian_components/xian_basic.vue";
 import Adv_fun_auth from "../components/account/adv_fun_auth.vue";
-import Low_code_home from "../components/low_code/low_code_home.vue";
-import Huffman from "../components/low_code/huffman.vue";
-import Web_view_maker from "../components/low_code/web_view_maker.vue";
+import Fsf_data from "../components/fsf_data.vue";
+import Ai_classes from "../components/ai_classes/ai_classes.vue";
+import Book_view_edit from "../components/ai_classes/book_view_edit.vue";
+import Book_add from "../components/ai_classes/book_add.vue";
+import Rag_ai_messages from "../components/ai_classes/rag_ai_messages.vue";
+import Class_manage from "../components/class_manage/class_manage.vue";
+import Teacher_manage from "../components/class_manage/teacher_manage.vue";
+import Student_manage from "../components/class_manage/student_manage.vue";
+import Class_member_manage from "../components/class_manage/class_member_manage.vue";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -55,20 +60,35 @@ const router = createRouter({
             path: "/beat_question",
             component: bqAiRouteCheck()
         }, {
-            path: "/xian_de_zhu",
-            component: Xian_basic
-        }, {
             path: "/afa",
             component: afaRouteCheck()
         }, {
-            path: "/low_code",
-            component: Low_code_home
+            path: "/fsf",
+            component: Fsf_data
         }, {
-            path: "/huffman",
-            component: Huffman
-        }, {
-            path: "/web_view_maker",
-            component: Web_view_maker
+            path: "/ai_classes",
+            component: Ai_classes
+        },{
+            path: "/book_edit",
+            component : Book_view_edit
+        },{
+            path: "/book_add",
+            component: Book_add
+        },{
+            path: "/rag_ai_messages",
+            component: Rag_ai_messages
+        },{
+            path: "/class_manage",
+            component: Class_manage
+        },{
+            path: "/teacher_manage",
+            component: Teacher_manage
+        },{
+            path: "/student_manage",
+            component: Student_manage
+        },{
+            path: "/class_member_manage",
+            component: Class_member_manage
         }]
 })
 

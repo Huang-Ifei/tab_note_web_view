@@ -69,7 +69,7 @@ async function post(messages: {}[]) {
             headers: {'Content-Type': 'application/json;charset=utf-8'},
             body: JSON.stringify({
               messages: messages,
-              model: 'gpt-4o-mini',
+              model: 'gpt-4.1-mini',
               id: getLocalData('id'),
               token: tk,
             }),
@@ -116,7 +116,7 @@ async function post(messages: {}[]) {
     alert("请等待加载完成，若出错请刷新网页")
   }
 }
-
+const cdn_ms_id = ref("")
 function decodeJsonToShow(decodeValue: string) {
   console.log(decodeValue)
   //如果是末尾条，添加返回的ai表id：
@@ -125,6 +125,8 @@ function decodeJsonToShow(decodeValue: string) {
   } else if (props.tryDC && decodeValue.startsWith(`{"computerName":`)) {
     answer.value = ""
     process_info.value = JSON.parse(decodeValue);
+  } else if (decodeValue.startsWith('{"cdn_ms_id"：')){
+    cdn_ms_id.value = JSON.parse(decodeValue).cdn_ms_id
   } else {
     try {
       const ss = JSON.parse(decodeValue).message.content

@@ -75,9 +75,9 @@ function openNewWindow(s: string) {
           <!--标题-->
           <div class="todo-title">
             计划/待办
-            <button @click="emit('doClose')" class="close_button">
-              <img src="../../assets/close.svg" @click="emit('doClose',false)">
-            </button>
+<!--            <button @click="emit('doClose',false)" class="close_button">-->
+<!--              <img src="../../assets/close.svg">-->
+<!--            </button>-->
           </div>
         </div>
 

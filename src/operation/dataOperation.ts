@@ -5,6 +5,10 @@ import {JSEncrypt} from "jsencrypt";
 import axios from "axios";
 import router from "../router";
 import katex from 'katex';
+import { marked } from "marked";
+import { markedHighlight } from "marked-highlight";
+import hljs from "highlight.js";
+import "highlight.js/styles/github.css";
 
 export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -175,7 +179,6 @@ export function escapeHTML(st: string): string {
         .replace(/ /g, "&nbsp;")
         .replace(/\t/g, "&#9;")
 
-
     const n: number = htmlString.length
     let i = 0
     //新语句存储器
@@ -230,7 +233,7 @@ export function escapeHTML(st: string): string {
                 x++
             }
             i = x
-            newString += `<h4 style="color: #213547;padding: 0;margin: 0">${title}</h4>`
+            newString += `<h4 style="color: #213547;padding: 0;margin: 0">${title.replace(/\*\*/g, "")}</h4>`
         }  else if ((i === 0 || htmlString[i - 1] === '\n') && (htmlString[i] === '#' && htmlString[i + 1] === '#' && htmlString[i + 2] === '#')) {
             let title = ""
             let x = i + 3
@@ -240,7 +243,7 @@ export function escapeHTML(st: string): string {
                 x++
             }
             i = x
-            newString += `<h3 style="color: #213547;padding: 0;margin: 0">${title}</h3>`
+            newString += `<h3 style="color: #213547;padding: 0;margin: 0">${title.replace(/\*\*/g, "")}</h3>`
         }  else if ((i === 0 || htmlString[i - 1] === '\n') && (htmlString[i] === '#' && htmlString[i + 1] === '#')) {
             let title = ""
             let x = i + 2
@@ -250,7 +253,17 @@ export function escapeHTML(st: string): string {
                 x++
             }
             i = x
-            newString += `<h2 style="color: #213547;padding: 0;margin: 0">${title}</h2>`
+            newString += `<h2 style="color: #213547;padding: 0;margin: 0">${title.replace(/\*\*/g, "")}</h2>`
+        }  else if ((i === 0 || htmlString[i - 1] === '\n') && (htmlString[i] === '#')) {
+            let title = ""
+            let x = i + 1
+            //将回车之前的内容并为代码名称
+            while (x < n && htmlString[x] != '\n') {
+                title += htmlString[x];
+                x++
+            }
+            i = x
+            newString += `<h1 style="color: #213547;font-size: 2rem;padding: 0;margin: 0">${title.replace(/\*\*/g, "")}</h1>`
         }   else if (htmlString[i] === '\n' && htmlString[i + 1] === '*' && htmlString.substring(i + 2, i + 8) === '&nbsp;') {
             newString += "\n·&nbsp;"
             i = i + 7
@@ -370,6 +383,75 @@ export function escapeHTML(st: string): string {
             } else {
                 i = x + 1
             }
+        } else if (htmlString[i-1] + htmlString[i] + htmlString[i+1]+ htmlString[i+2] + htmlString[i+3]+ htmlString[i+4]+ htmlString[i+5]+ htmlString[i+6] === `\n|&nbsp;`){
+            //表格解析
+            newString += `<table style="overflow: auto;border: #8e8e8e solid 1px;border-collapse: collapse;"><tr>`
+            let x = i+1
+            let headString = ""
+            //第一行
+            while (x < n && htmlString[x]+htmlString[x+1] != '|\n') {
+                headString += htmlString[x];
+                x++;
+            }
+            //如果读取第一行的时候超出不再继续
+            if (x >= n){
+                newString += htmlString[i];
+                i++;
+            }else{
+                x++
+                //分割|变为每个格子
+                let headStringArr = headString.split('&nbsp;|&nbsp;')
+                //去掉加粗
+                for(let i = 0; i < headStringArr.length; i++) {
+                    newString += `<th style="padding: 8px;overflow: auto;background: #2a4b92;color: white;border: #8e8e8e solid 1px;border-collapse: collapse;">`+headStringArr[i].replace(/\*\*/g, "").replace(/&nbsp;&nbsp;&nbsp;&nbsp;/g, "")+`</th>`
+                }
+                //超出退掉
+                if (x >= n){
+                    i++;
+                }else{
+                    //不存在分割线就推掉
+                    if ((htmlString[x]+htmlString[x+1]+htmlString[x+2]+htmlString[x+3] == '\n|--') || (htmlString.substring(x,x+9) == '\n|&nbsp;-')) {
+                        x++;
+                        newString += "</tr>";
+                        while (x < n && htmlString[x] != '\n') {
+                            x++;
+                        }
+                        x+=2
+                        let allBody = ""
+                        //表格底应该是|加上两个回车
+                        while (x < n && htmlString[x]+htmlString[x+1]+htmlString[x+2] != '|\n\n') {
+                            allBody += htmlString[x];
+                            x++;
+                        }
+                        if (x >= n){
+                            newString += "</table>";
+                        }else{
+                            let bodyLineArr = allBody.split("|\n|")
+                            for(let i = 0; i < bodyLineArr.length; i++) {
+                                newString += "<tr>";
+                                let lineArr = bodyLineArr[i].split("|&nbsp;")
+                                for(let j = 0; j < lineArr.length; j++) {
+                                    newString += `<td style="padding: 8px;overflow: auto;border: #8e8e8e solid 1px;border-collapse: collapse;">`+lineArr[j].replace(/&nbsp;&nbsp;&nbsp;&nbsp;/g, "")+`</td>`
+                                }
+                                newString += "</tr>";
+                            }
+                            newString += "</table>";
+
+                            i = x+1;
+                        }
+
+                    }else{
+                        i = x
+                        newString += "</tr></table>";
+                    }
+                }
+            }
+        } else if (htmlString.substring(i,i+5) ===`\n---\n`){
+            newString += `\n<hr style="color: #5a5a5a" size="1px">`
+            i = i+4;
+        }  else if (htmlString.substring(i,i+11) ===`\n---&nbsp;\n`){
+            newString += `\n<hr style="color: #5a5a5a" size="1px">`
+            i = i+10;
         } else {
             newString += htmlString[i]
         }
@@ -498,4 +580,20 @@ export async function deleteAccount() {
 
     await router.push("/")
     window.location.reload()
+}
+
+const mdInstance = marked.use(markedHighlight({
+    langPrefix: 'hljs language-',
+    highlight(code: string, lang: string) {
+        if (lang && hljs.getLanguage(lang)) {
+            return hljs.highlight(code, { language: lang }).value
+        }
+        return hljs.highlightAuto(code).value
+    }
+}))
+mdInstance.setOptions({ breaks: true })
+
+export function renderMd(text: string): string {
+    if (!text) return ''
+    return mdInstance.parse(text) as string
 }

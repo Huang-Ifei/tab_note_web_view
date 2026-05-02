@@ -3,11 +3,11 @@ import resize_textarea from "../weight/resize_textarea.vue";
 import {onBeforeMount, onBeforeUnmount, Ref, ref} from "vue";
 import {
   delay, deleteAccount,
-  escapeHTML,
   escapeHTMLWithOutConsole,
   getAccountImg,
   getLocalData, getTokenData,
-  isApp
+  isApp,
+  renderMd
 } from "../../operation/dataOperation.ts";
 import {getAddress, getWholeAddress} from "../../operation/address.ts";
 import axios from "axios";
@@ -40,7 +40,7 @@ const ai_ms_id = ref("")
 const text = ref("");
 const streamText = ref("")
 const isLoading = ref(false)
-const model = ref("gpt-4o-mini")
+const model = ref("gpt-5.4-mini")
 
 //监听大小
 onBeforeMount(() => {
@@ -128,7 +128,7 @@ async function post() {
     alert("请等待加载完成，若出错请刷新网页")
   }
 }
-
+const cdn_ms_id = ref("")
 function decodeJsonToShow(decodeValue: string, allValue: Ref<string>) {
   //如果是末尾条，添加返回的ai表id：
   if (decodeValue.startsWith('{"response":"')) {
@@ -136,6 +136,8 @@ function decodeJsonToShow(decodeValue: string, allValue: Ref<string>) {
 
   } else if (decodeValue.startsWith('{"ai_ms_id":"')) {
     ai_ms_id.value = JSON.parse(decodeValue).ai_ms_id
+  } else if (decodeValue.startsWith('{"cdn_ms_id"：')){
+    cdn_ms_id.value = JSON.parse(decodeValue).cdn_ms_id
   } else {
     try {
       allValue.value += JSON.parse(decodeValue).message.content
@@ -337,7 +339,7 @@ async function getRank() {
   if (response.data.rank <= 0) {
     await router.push("afa")
   }else if (response.data.rank > 2) {
-    setModel("gpt-4o")
+    setModel("gpt-5.4")
   }
 }
 
@@ -378,8 +380,8 @@ function setModel(s:string) {
 
       </div>
       <button onclick="location.href='login'" id="usr">
-        <div @click="router.push('login')" style="width: auto;height: auto;">
-          <img id="usrImage" :src="getAccountImg()" style="width: 50px;margin-top: 5px;height: auto" alt="image"/>
+        <div @click="router.push('login')" style="width: auto;height: auto;padding-top: 5px">
+          <img :src="getAccountImg()" style="width: 50px;height: 40px;padding: 0;margin: 0" alt="image"/>
         </div>
         <a href="/login" style="width: 100%;text-align: center;margin: 5px;color: #1a1a1a">
           {{ getLocalData('name') }}
@@ -403,7 +405,7 @@ function setModel(s:string) {
                   <img @click="redoAiMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
                        alt="copy"/>
                 </div>
-                <div v-html="escapeHTML(value.content.toString())" class="content">
+                <div v-html="renderMd(value.content.toString())" class="content">
                 </div>
               </div>
             </transition>
@@ -436,7 +438,7 @@ function setModel(s:string) {
           <loading v-if="isLoading"/>
           <div v-if="streamText!=''" class="model_talk">
             <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
-            <div v-html="escapeHTML(streamText)" class="content">
+            <div v-html="renderMd(streamText)" class="content">
             </div>
           </div>
         </div>
@@ -499,7 +501,7 @@ function setModel(s:string) {
                   <img @click="redoAiMessage(ii)" class="copy_img" src="../../assets/forward_media_gray.svg"
                        alt="copy"/>
                 </div>
-                <div v-html="escapeHTML(value.content.toString())" class="content">
+                <div v-html="renderMd(value.content.toString())" class="content">
                 </div>
               </div>
             </transition>
@@ -532,7 +534,7 @@ function setModel(s:string) {
           <loading v-if="isLoading"/>
           <div v-if="streamText!=''" class="model_talk">
             <img class="usr_img" :src="getAddress()+'/image?name=ai.jpg'" alt="AI"/>
-            <div v-html="escapeHTML(streamText)" class="content">
+            <div v-html="renderMd(streamText)" class="content">
             </div>
           </div>
         </div>
@@ -550,6 +552,7 @@ function setModel(s:string) {
 </template>
 
 <style scoped>
+@import "../../operation/ai-content.css";
 .small_right_choice-enter-active,
 .small_right_choice-leave-active {
   transition: opacity 0.25s ease;
@@ -593,8 +596,7 @@ function setModel(s:string) {
   position: relative;
   padding: 10px 10px 10px 10px;
   overflow-wrap: break-word;
-  overflow-x: hidden;
-  width: fit-content;
+  word-break: break-word;
   max-width: calc(100% - 30px);
   display: inline;
   margin: 5px;

@@ -111,7 +111,7 @@ async function handleCloseTouchEnd() {
 }
 
 const scrollContainer = ref<HTMLDivElement | null>(null);
-const max_value = 3;
+const max_value = 4;
 let choice = 0;
 let startX = 0;
 let currentX = 0;
@@ -177,13 +177,13 @@ async function handleScrollEnd() {
         await router.push('ai_assistant');
         break;
       case 1:
-        await router.push('beat_question');
+        await router.push('ai_classes');
         break;
       case 2:
-        await router.push('note_ai');
+        await router.push('beat_question');
         break;
       case 3:
-        await router.push('low_code');
+        await router.push('note_ai');
         break;
     }
   }
@@ -216,9 +216,9 @@ async function getRank() {
             style="width: 100%;height: 3rem;display: flex;flex-direction: row; align-items:center;justify-content:flex-end">
           <img v-if="rank==2" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA.svg"
                style="width: 5rem;margin-right: 0.4rem;margin-top: 0.9rem"/>
-          <img v-if="rank==4" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA+.svg"
+          <img v-if="rank==4 || rank==5" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA+.svg"
                style="width: 5rem;margin-right: 0.4rem;margin-top: 0.9rem"/>
-          <img v-if="rank==6" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA++.svg"
+          <img v-if="rank>=6" @click.stop="router.push('afa')" alt="vip_rank" src="../../assets/vip/AFA++.svg"
                style="width: 5rem;margin-right: 0.4rem;margin-top: 0.9rem"/>
           <img v-if="!isApp()" @touchstart.stop @touchmove.stop @touchend.stop @click.stop="router.push('login')"
                style="height: 3rem;width: 3rem;border-radius: 3rem;margin-right: 40px" :src="imageURL" alt="image"/>
@@ -240,6 +240,25 @@ async function getRank() {
             <p style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">
               超超超超超智慧！<br>
               超超超超超快速！
+            </p>
+          </div>
+          <div @touchstart.stop @touchmove.stop @touchend.stop @click.stop="router.push('ai_classes')"
+               class="others_action">
+            <img alt="AI Code" style="height: 100%;width: auto;border-radius: 15px"
+                 src="../../assets/post/ai_book.png"/>
+            <p v-if="rank == 5 || rank == 10 || rank == 12" style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">
+              AI教学平台
+            </p>
+            <p v-else style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">
+              AI知识库
+            </p>
+            <p v-if="rank == 5 || rank == 10 || rank == 12" style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">
+              教学相长，<br>
+              助力高效学习！
+            </p>
+            <p v-else style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">
+              基于选定书本作答，<br>
+              专业、简洁、高效！
             </p>
           </div>
           <div @touchstart.stop @touchmove.stop @touchend.stop @click.stop="router.push('beat_question')"
@@ -266,18 +285,6 @@ async function getRank() {
               快问快答，高效速记！
             </p>
           </div>
-<!--          <div @touchstart.stop @touchmove.stop @touchend.stop @click.stop="router.push('low_code')"-->
-<!--               class="others_action">-->
-<!--            <img alt="AI Code" style="height: 100%;width: auto;border-radius: 15px"-->
-<!--                 src="../../assets/post/low_code.png"/>-->
-<!--            <p style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">-->
-<!--              低代码平台-->
-<!--            </p>-->
-<!--            <p style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">-->
-<!--              期末好助手<br>-->
-<!--              轻松上手 改变生活-->
-<!--            </p>-->
-<!--          </div>-->
           <div style="min-width: 30px;max-width: 30px;width: 30px">
             &nbsp;&nbsp;&nbsp;
           </div>
@@ -298,6 +305,25 @@ async function getRank() {
             <p style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">
               超超超超超智慧！<br>
               超超超超超快速！
+            </p>
+          </div>
+          <div @click.stop="router.push('ai_classes')" class="others_action"
+               style="min-width: calc(100vw - 80px);">
+            <img alt="AI Code" style="height: 100%;width: auto;border-radius: 15px"
+                 src="../../assets/post/ai_book.png"/>
+            <p v-if="rank == 5 || rank == 10 || rank == 12" style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">
+              AI教学平台
+            </p>
+            <p v-else style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">
+              AI知识库
+            </p>
+            <p v-if="rank == 5 || rank == 10 || rank == 12" style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">
+              教学相长，<br>
+              助力高效学习！
+            </p>
+            <p v-else style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">
+              基于选定书本作答，<br>
+              专业、简洁、高效！
             </p>
           </div>
           <div @click.stop="router.push('beat_question')"
@@ -324,18 +350,6 @@ async function getRank() {
               快问快答，高效速记！
             </p>
           </div>
-<!--          <div @click.stop="router.push('low_code')" class="others_action"-->
-<!--               style="min-width: calc(100vw - 80px);">-->
-<!--            <img alt="AI Code" style="height: 100%;width: auto;border-radius: 15px"-->
-<!--                 src="../../assets/post/low_code.png"/>-->
-<!--            <p style="color: white;position: absolute;font-size: 1.7rem;font-weight: bold;margin-top: 20px;margin-left: 8%">-->
-<!--              低代码平台-->
-<!--            </p>-->
-<!--            <p style="color: white;position: absolute;font-size: 1.1rem;margin-top: calc(1.8rem + 35px);margin-left: 8%">-->
-<!--              期末好助手<br>-->
-<!--              轻松上手 改变生活-->
-<!--            </p>-->
-<!--          </div>-->
           <div style="min-width: 30px;max-width: 30px;width: 30px">
             &nbsp;&nbsp;&nbsp;
           </div>
@@ -357,8 +371,8 @@ async function getRank() {
                 onclick="location.href='/add_tab_note'">
           新建贴文
         </button>
-        <button @click="router.push('low_code')" @touchstart.stop @touchmove.stop @touchend.stop class="none_button">
-          低代码平台
+        <button @click="router.push('ai_classes')" @touchstart.stop @touchmove.stop @touchend.stop class="none_button">
+          AI教学平台
         </button>
         <button @touchstart.stop @touchmove.stop @touchend.stop class="none_button"
                 @click="emit('todoView',!props.todo)">
@@ -480,7 +494,6 @@ async function getRank() {
 
 .icons {
   left: auto;
-  position: marker;
   width: 100%;
   display: flex;
   justify-content: right;

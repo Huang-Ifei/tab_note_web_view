@@ -1,10 +1,10 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import Compressor from "compressorjs";
 import {onBeforeUnmount, onMounted, onUnmounted, Ref, ref} from "vue";
 import axios from "axios";
 import {addressOperation, getAddress, getWholeAddress} from "../../operation/address.ts";
-import {delay, deleteAccount, escapeHTML, getLocalData, getTokenData} from "../../operation/dataOperation.ts";
+import {delay, deleteAccount, getLocalData, getTokenData, renderMd} from "../../operation/dataOperation.ts";
 import Bq_title from "./bq_title.vue";
 import router from "../../router";
 import Loading from "../weight/loading.vue";
@@ -21,21 +21,35 @@ const imageSrc = ref("")
 const isLoading = ref(false);
 const dxstj: Ref<dxstjJson[]> = ref([{text: "", question: "", answer: ""}])
 const text = ref("")
+const vector_hit_text = ref("")
 const dxstj_choice = ref(0)
 const imgName = ref("")
 const imgNameHigh = ref("")
 const aiAnswer = ref("")
 const allValue = ref("")
 const thinking = ref("")
+const actionNow = ref("AI识题")
 
 function initView() {
+  actionNow.value = "AI识题"
   aiAnswer.value = ""
   allValue.value = ""
   thinking.value = ""
   text.value = ""
+  vector_hit_text.value = ""
   dxstj_choice.value = 0
   dxstj.value = [{text: "", question: "", answer: ""}]
 }
+
+function initViewWithOutText() {
+  aiAnswer.value = ""
+  allValue.value = ""
+  thinking.value = ""
+  vector_hit_text.value = ""
+  dxstj_choice.value = 0
+  dxstj.value = [{text: "", question: "", answer: ""}]
+}
+
 
 async function handleFileChange(event: Event) {
   initView();
@@ -61,10 +75,10 @@ async function handleFileChange(event: Event) {
             console.log(base64String);
             imgNameHigh.value = await insertTabNoteImg(base64String);
 
-            imgName.value = imgNameHigh.value+"_LQ"
+            imgName.value = imgNameHigh.value + "_LQ"
             if (imgNameHigh.value !== "" && imgName.value !== "") {
-              //开始获取大学搜题酱信息
-              await getDXSTJ()
+              //开始获取答案，先使用缓存
+              await getVC()
             }
           };
           reader.readAsDataURL(result instanceof Blob ? result : new Blob([result]));
@@ -86,49 +100,9 @@ function clickInputImg() {
   document?.getElementById('add_new')?.click()
 }
 
-
-// async function getDXSTJ() {
-//   aiAnswer.value = ""
-//   allValue.value = ""
-//   thinking.value = ""
-//   text.value = ""
-//   dxstj_choice.value = 0
-//   dxstj.value = [{text: "", question: "", answer: ""}]
-//   try {
-//     const axiosResponse = await axios.post(getAddress() + "/ai/dxstj", {
-//       id: getLocalData('id'),
-//       token: await getTokenData(),
-//       img: imageSrc.value
-//     })
-//     console.log(axiosResponse.data)
-//     if (axiosResponse.data.response === 'success' && !axiosResponse.data.questionList[0].answer.includes('当前登录已经失效') ) {
-//       text.value = axiosResponse.data.text
-//       console.log(text.value)
-//       text.value = text.value.replace(/-\|\|\|-/g, "\n");
-//       console.log(text.value)
-//       dxstj.value = axiosResponse.data.questionList
-//       await post(model.value, dxstj.value)
-//     } else if (axiosResponse.data.questionList[0].answer.includes('当前登录已经失效')) {
-//       dxstj.value = [{
-//         text: "",
-//         question: "<p style='padding: 10px'>大学搜题酱已变更验证信息，我们正在努力抢修中，暂时停止提供大学搜题酱答案</p>",
-//         answer: ""
-//       }]
-//       await post(model.value, [{text: "", question: "<p style='padding: 10px'>大学搜题酱已变更验证信息，我们正在努力抢修中，暂时停止提供大学搜题酱答案</p>", answer: ""}])
-//     } else {
-//       dxstj.value = [{text: "", question: "<p style='padding: 10px'>大学搜题酱搜索失败</p>", answer: ""}]
-//       await post(model.value, [{text: "", question: "<p style='padding: 10px'>大学搜题酱搜索失败</p>", answer: ""}])
-//     }
-//     //刷新历史记录
-//     historyBQ.value = []
-//     await getBQList()
-//   } catch (e) {
-//     console.error(e)
-//   }
-// }
-
-async function getDXSTJ() {
+async function getVC() {
   try {
+    initViewWithOutText()
     await post(model.value, [{text: "", question: "", answer: ""}])
     // //刷新历史记录
     historyBQ.value = []
@@ -158,6 +132,7 @@ async function insertTabNoteImg(s: string): Promise<string> {
 async function post(model: string, dxstjJsonArray: dxstjJson[]) {
   isLoading.value = true
   try {
+    actionNow.value = "正在向服务器发送请求"
     const tk = await getTokenData()
     // 发起 POST 请求
     const response = await fetch(
@@ -176,6 +151,7 @@ async function post(model: string, dxstjJsonArray: dxstjJson[]) {
           }),
         }
     );
+    actionNow.value = "GPT-4.1正在识图中..."
 
     if (response.body != null) {
       // 请求成功，处理返回的数据
@@ -216,24 +192,41 @@ async function post(model: string, dxstjJsonArray: dxstjJson[]) {
     console.error('Error fetching data:', error);
   }
 }
-
+const cdn_ms_id = ref("")
 function decodeJsonToShow(decodeValue: string, allValue: Ref<string>) {
   //如果是末尾条，添加返回的ai表id：
   if (decodeValue.startsWith('{"response":"')) {
+    actionNow.value = "答题完毕"
     console.log(JSON.parse(decodeValue).response)
     try {
       aiAnswer.value = allValue.value;
     } catch (e) {
       console.error("done but:" + e)
     }
+  } else if (decodeValue.startsWith('{"cdn_ms_id"：')){
+    cdn_ms_id.value = JSON.parse(decodeValue).cdn_ms_id
   } else {
     try {
-      if (JSON.parse(decodeValue).message.content) {
-        aiAnswer.value += JSON.parse(decodeValue).message.content;
-        allValue.value += JSON.parse(decodeValue).message.content;
-      }
-      if (JSON.parse(decodeValue).message.reasoning_content) {
-        thinking.value += JSON.parse(decodeValue).message.reasoning_content
+      //如果是缓存命中
+      if (JSON.parse(decodeValue).model === "vector_cache") {
+        allValue.value = JSON.parse(decodeValue).message.content;
+        text.value = JSON.parse(decodeValue).message.text;
+        vector_hit_text.value = JSON.parse(decodeValue).message.vector_hit_text;
+      } else {
+        //普通回报
+        if (JSON.parse(decodeValue).message.content) {
+          if (JSON.parse(decodeValue).model.startsWith("gpt") && (actionNow.value === "思考中..." || actionNow.value === "思考超时，强制作答中...")) {
+            actionNow.value = "思考超时，强制作答中..."
+          } else {
+            actionNow.value = "作答中..."
+          }
+          aiAnswer.value += JSON.parse(decodeValue).message.content;
+          allValue.value += JSON.parse(decodeValue).message.content;
+        }
+        if (JSON.parse(decodeValue).message.reasoning_content) {
+          actionNow.value = "思考中..."
+          thinking.value += JSON.parse(decodeValue).message.reasoning_content
+        }
       }
     } catch (e) {
       console.error("get mess but:" + e)
@@ -290,26 +283,6 @@ onUnmounted(() => {
   bqHistoryElement?.removeEventListener('touchmove', handleTouchMove);
   bqHistoryElement?.removeEventListener('touchend', handleTouchEnd);
 });
-
-
-//同步历史记录
-// async function insertBQ() {
-//   const tk = await getTokenData()
-//   const axiosResponse = await axios.post(getAddress() + "/ai/insertBQ", {
-//     usr_id: getLocalData("id"),
-//     token: tk,
-//     text: text.value,
-//     ai_answer: aiAnswer.value,
-//     dxstj: dxstj.value,
-//     img: getWholeAddress() + "/tabNoteImg?name=" + imgName.value
-//   })
-//   if (axiosResponse.data.response == "success") {
-//     console.log("上传历史记录成功")
-//
-//   } else {
-//     alert("上传历史记录失败")
-//   }
-// }
 
 //历史
 type BQForList = {
@@ -387,8 +360,7 @@ async function getRank() {
 
 function choiceO1Mini() {
   if (rank.value > 3) {
-    alert("o1-mini GPT工作流现在正在内测阶段，可能会出现错误，请谨慎使用")
-    model.value = 'o1-mini'
+    model.value = 'o4-mini'
   } else {
     model.value = 'AM'
   }
@@ -425,31 +397,31 @@ onBeforeUnmount(() => {
   <!--拍照界面-->
   <div class="shot_view">
     <div v-if="imageSrc==''">
-      <img alt="" @click="model='gpt-4o'" v-if="model==='AAM'" style="width: 130px;margin-bottom: 5px"
-           src="../../assets/vip/AAM.svg">
-      <img alt="" @click="model='gpt-4o'" v-if="model==='AM'" style="width: 130px;margin-bottom: 5px"
-           src="../../assets/vip/AM.svg">
-      <img alt="" @click="choiceO1Mini()" v-if="model==='gpt-4o'" style="width: 130px;margin-bottom: 5px"
-           src="../../assets/vip/GPT4o.svg">
-      <img alt="" @click="model='AAM'" v-if="model==='o1-mini'" style="width: 130px;margin-bottom: 5px"
-           src="../../assets/vip/o1miniGPT.svg">
+      <img v-if="model==='AAM'" alt="" src="../../assets/vip/AAM.svg" style="width: 130px;margin-bottom: 5px"
+           @click="model='gpt-4.1'">
+      <img v-if="model==='AM'" alt="" src="../../assets/vip/AM.svg" style="width: 130px;margin-bottom: 5px"
+           @click="model='gpt-4.1'">
+      <img v-if="model==='gpt-4.1'" alt="" src="../../assets/vip/GPT4.1.svg" style="width: 130px;margin-bottom: 5px"
+           @click="choiceO1Mini()">
+      <img v-if="model==='o4-mini'" alt="" src="../../assets/vip/o4miniGPT.svg" style="width: 130px;margin-bottom: 5px"
+           @click="model='AAM'">
     </div>
     <button v-if="imageSrc==''" id="add" @click="clickInputImg">
-      <input id="add_new" type="file" accept="image/*" @change="handleFileChange($event)"/>
-      <img alt="相机" style="width: 70px;height: 70px" src="../../assets/camera.svg"/>
+      <input id="add_new" accept="image/*" type="file" @change="handleFileChange($event)"/>
+      <img alt="相机" src="../../assets/camera.svg" style="width: 70px;height: 70px"/>
     </button>
     <div class="bq_history_background">
-      <div id="bq_history" class="bq_history" :style="{height:'calc('+bqHistoryHeight+'% - 10px)'}">
-        <img v-if="bqHistoryHeight>75" @click="bqHistoryHeight=20" src="../../assets/down.svg"
-             style="width: 100%;height: 20px">
-        <img v-if="bqHistoryHeight<75" @click="bqHistoryHeight=100" src="../../assets/up.svg"
-             style="width: 100%;height: 20px">
+      <div id="bq_history" :style="{height:'calc('+bqHistoryHeight+'% - 10px)'}" class="bq_history">
+        <img v-if="bqHistoryHeight>75" src="../../assets/down.svg" style="width: 100%;height: 20px"
+             @click="bqHistoryHeight=20">
+        <img v-if="bqHistoryHeight<75" src="../../assets/up.svg" style="width: 100%;height: 20px"
+             @click="bqHistoryHeight=100">
         <h3 style="margin: 0 10px;padding: 0;font-size: 18px">
           历史记录
         </h3>
         <div id="bq_history_items" style="overflow: auto;max-height: calc(100% - 48px)" @touchstart.stop>
           <div style="min-height: 10px"></div>
-          <div v-for="(bq,ii) in historyBQ" :key="ii" @click="getBQ(bq.bq_id,bq.img)" class="bq_history_item">
+          <div v-for="(bq,ii) in historyBQ" :key="ii" class="bq_history_item" @click="getBQ(bq.bq_id,bq.img)">
             <img :src="addressOperation(bq.img)"
                  style="width: 100%;height: 20vh;border-radius: 8px; object-fit: cover;">
             <p>{{ bq.date_time }}</p>
@@ -465,59 +437,58 @@ onBeforeUnmount(() => {
       <div style="min-height: 54px">
 
       </div>
-      <img alt="背景的图片"
-           style="max-width: calc(100vw - 20px);max-height: 60vh;padding: 0;top:64px;position: absolute;filter: blur(20px)"
-           :src="imageSrc"/>
-      <img alt="上传的图片"
-           style="max-width: calc(100vw - 20px);max-height: 60vh;padding: 0;margin-top:10px;position: sticky;border-radius: 8px;z-index: 11"
-           :src="imageSrc"/>
+      <img :src="imageSrc"
+           alt="背景的图片"
+           style="max-width: calc(100vw - 20px);max-height: 60vh;padding: 0;top:64px;position: absolute;filter: blur(20px)"/>
+
+      <img :src="imageSrc"
+           alt="上传的图片"
+           style="max-width: calc(100vw - 20px);max-height: 60vh;padding: 0;margin-top:10px;position: sticky;border-radius: 8px;z-index: 11"/>
+
       <div class="show_items" style="margin-top: 10px">
         <div class="action_choice">
-          AI识题
+          <p v-if="vector_hit_text==''">{{ actionNow }}</p>
+          <img v-if="vector_hit_text!=''" src="../../assets/TVCBoost.svg"
+               style="width: 40%;height: auto;max-width: 180px;margin-bottom: 0;margin-top: 10px" alt="TVCBoostIcon">
+
+          <div style="margin-bottom: 10px" v-if="vector_hit_text!=''">
+            <p style="font-weight: bold">以下内容来自TabNote智慧缓存，请您判断题目与答案是否正确？</p>
+            <div style="display: flex;flex-direction: row;">
+              <button style="width: calc(50% - 5px);margin-right: 10px;background: #0c98ff;color: white"
+                      @click="vector_hit_text=''">
+                正确
+              </button>
+              <button style="width: calc(50% - 5px);background: #dd0000;color: white" @click="getVC()">
+                错误，继续使用AI生成！
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <p v-if="text!=''||vector_hit_text!=''" style="font-weight: bold;margin-top: 10px">题目：</p>
+        <div v-if="text!=''&&vector_hit_text==''" class="content" v-html="renderMd(text)">
+
+        </div>
+        <div v-if="vector_hit_text!=''" class="content" v-html="renderMd(vector_hit_text)">
+
         </div>
         <loading v-if="isLoading" style="padding: 10px"/>
         <div v-if="thinking!=''" style="color: #8d8d8d;font-size: 12px;margin-bottom: 0;padding: 20px 20px 0;"
-             v-html="escapeHTML(thinking)">
+             v-html="renderMd(thinking)">
 
         </div>
-        <div v-html="escapeHTML(aiAnswer)" class="content">
+        <p style="font-weight: bold;margin-top: 10px">答案：</p>
+        <div class="content" v-html="renderMd(aiAnswer)">
 
         </div>
       </div>
-      <div style="min-height: 10px">
-      </div>
-      <!--      <div class="show_items">-->
-      <!--        <div class="action_choice">-->
-      <!--          大学搜题酱-->
-      <!--        </div>-->
-      <!--        <div style="overflow: auto;display: flex;flex-direction: row">-->
-      <!--          <div v-for="(json,ii) in dxstj" :key="ii" class="action_choice"-->
-      <!--               style="padding:8px 14px;font-size: 12px;background: white"-->
-      <!--               @click="dxstj_choice=ii;console.log(dxstj_choice)">-->
-      <!--            <input type="hidden" :value="json">-->
-      <!--            <p v-if="ii==dxstj_choice" style="color: #1a98ee;">{{ ii + 1 }}</p>-->
-      <!--            <p v-else style="color: #1c1c1c;">{{ ii + 1 }}</p>-->
-      <!--          </div>-->
-      <!--        </div>-->
-
-      <!--        <div class="answer_items">-->
-      <!--          <p style="font-weight: bold;font-size: 17px">题目：</p>-->
-      <!--          <div v-html="dxstj[dxstj_choice].question">-->
-
-      <!--          </div>-->
-      <!--          <p style="font-weight: bold;margin-top: 5px;font-size: 17px">答案：</p>-->
-      <!--          <div v-html="dxstj[dxstj_choice].answer">-->
-
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--      </div>-->
       <div style="min-height: 54px">
       </div>
     </div>
   </transition>
   <!--关闭按钮-->
-  <div @click="imageSrc='';getBQList()" v-if="imageSrc!=''" class="close">
-    <img alt="关闭" style="width: 32px;height: 32px;padding: 4px" src="../../assets/close.svg"/>
+  <div v-if="imageSrc!=''" class="close" @click="imageSrc='';getBQList()">
+    <img alt="关闭" src="../../assets/close.svg" style="width: 32px;height: 32px;padding: 4px"/>
   </div>
 </template>
 
@@ -544,6 +515,7 @@ img {
 </style>
 
 <style scoped>
+@import "../../operation/ai-content.css";
 .bq_history_item {
   width: calc(100% - 40px);
   height: fit-content;
@@ -612,7 +584,7 @@ img {
 .content {
   padding: 10px 10px 10px 10px;
   overflow-wrap: break-word;
-  width: fit-content;
+  word-break: break-word;
   max-width: calc(100% - 20px);
   display: inline-block;
 }
@@ -683,7 +655,7 @@ img {
 .action_choice {
   background: rgba(255, 255, 255, 0.8);
   padding: 5px 15px;
-  border-radius: 100px;
+  border-radius: 15px;
   cursor: pointer;
   margin: 5px 5px;
   min-width: fit-content;

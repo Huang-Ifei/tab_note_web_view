@@ -1,0 +1,109 @@
+.content :deep(p) {
+  display: inline;
+  margin: 0;
+}
+
+.content :deep(p) + .content :deep(p) {
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.content :deep(pre) {
+  background: #1e1e2e;
+  border-radius: 6px;
+  padding: 0;
+  margin: 6px 0;
+  overflow-x: auto;
+}
+
+.content :deep(pre code) {
+  display: block;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #cdd6f4;
+}
+
+.content :deep(code) {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 13px;
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+}
+
+.content :deep(pre code) {
+  background: none;
+  padding: 12px;
+  color: #cdd6f4;
+}
+
+.content :deep(pre .hljs-keyword) { color: #cba6f7; }
+.content :deep(pre .hljs-string) { color: #a6e3a1; }
+.content :deep(pre .hljs-number) { color: #fab387; }
+.content :deep(pre .hljs-comment) { color: #6c7086; font-style: italic; }
+.content :deep(pre .hljs-function) { color: #89b4fa; }
+.content :deep(pre .hljs-title) { color: #89b4fa; }
+.content :deep(pre .hljs-built_in) { color: #f9e2af; }
+.content :deep(pre .hljs-type) { color: #fab387; }
+.content :deep(pre .hljs-attr) { color: #89dceb; }
+.content :deep(pre .hljs-variable) { color: #cdd6f4; }
+.content :deep(pre .hljs-operator) { color: #89dceb; }
+.content :deep(pre .hljs-literal) { color: #fab387; }
+.content :deep(pre .hljs-symbol) { color: #f5c2e7; }
+.content :deep(pre .hljs-params) { color: #fab387; }
+.content :deep(pre .hljs-meta) { color: #f5c2e7; }
+.content :deep(pre .hljs-selector-class) { color: #f9e2af; }
+.content :deep(pre .hljs-selector-tag) { color: #cba6f7; }
+.content :deep(pre .hljs-selector-id) { color: #89b4fa; }
+.content :deep(pre .hljs-property) { color: #89dceb; }
+.content :deep(pre .hljs-subst) { color: #cdd6f4; }
+.content :deep(pre .hljs-section) { color: #89b4fa; }
+.content :deep(pre .hljs-regexp) { color: #f38ba8; }
+.content :deep(pre .hljs-template-variable) { color: #f5c2e7; }
+
+.content :deep(ul),
+.content :deep(ol) {
+  padding-left: 20px;
+  margin: 4px 0;
+}
+
+.content :deep(blockquote) {
+  border-left: 3px solid #d0d0d0;
+  margin: 6px 0;
+  padding-left: 10px;
+  color: #666;
+}
+
+.content :deep(table) {
+  border-collapse: collapse;
+  margin: 6px 0;
+  width: 100%;
+}
+
+.content :deep(th),
+.content :deep(td) {
+  border: 1px solid #d0d0d0;
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.content :deep(th) {
+  background: #0034a8;
+  color: white;
+  font-weight: 600;
+}
+
+.content :deep(h1),
+.content :deep(h2),
+.content :deep(h3),
+.content :deep(h4),
+.content :deep(h5),
+.content :deep(h6) {
+  margin: 8px 0 4px;
+}
+
+.content :deep(a) {
+  color: #009bff;
+  text-decoration: underline;
+}

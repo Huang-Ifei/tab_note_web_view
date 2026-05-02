@@ -1,9 +1,21 @@
 <script setup lang="ts">
 
-import {isApp} from "../../operation/dataOperation.ts";
+import {getLocalData, isApp} from "../../operation/dataOperation.ts";
 import router from "../../router";
+import {ref} from "vue";
+import axios from "axios";
+import {getAddress} from "../../operation/address.ts";
 
 const emit = defineEmits(['leftClose','todoView'])
+
+getRank()
+
+const rank = ref(0)
+
+async function getRank() {
+  const response = await axios.get(getAddress() + "/vip/rank?id=" + getLocalData("id"))
+  rank.value = response.data.rank
+}
 
 </script>
 
@@ -14,7 +26,7 @@ const emit = defineEmits(['leftClose','todoView'])
       <div @click="emit('todoView',true)" class="choice_button" style="padding-top: 20px" v-if="!isApp()">
         待办/计划
       </div>
-      <div @click="router.push('add_tab_note')" class="choice_button">
+      <div v-if="rank>=6" @click="router.push('add_tab_note')" class="choice_button">
         新建贴文
       </div>
       <div @click="router.push('ai_assistant')" class="choice_button">
@@ -26,9 +38,9 @@ const emit = defineEmits(['leftClose','todoView'])
       <div @click="router.push('note_ai')" class="choice_button">
         AI笔记
       </div>
-      <div @click="router.push('low_code')" class="choice_button">
-        低代码平台
-      </div>
+<!--      <div @click="router.push('low_code')" class="choice_button">-->
+<!--        低代码平台-->
+<!--      </div>-->
     </div>
   </div>
 </template>
