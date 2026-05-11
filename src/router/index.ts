@@ -21,6 +21,11 @@ import Class_manage from "../components/class_manage/class_manage.vue";
 import Teacher_manage from "../components/class_manage/teacher_manage.vue";
 import Student_manage from "../components/class_manage/student_manage.vue";
 import Class_member_manage from "../components/class_manage/class_member_manage.vue";
+import Homework_class_select from "../components/homework/homework_class_select.vue";
+import Homework_list from "../components/homework/homework_list.vue";
+import Homework_create from "../components/homework/homework_create.vue";
+import Homework_detail from "../components/homework/homework_detail.vue";
+import Homework_submissions from "../components/homework/homework_submissions.vue";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -89,6 +94,21 @@ const router = createRouter({
         },{
             path: "/class_member_manage",
             component: Class_member_manage
+        },{
+            path: "/homework_class_select",
+            component: Homework_class_select
+        },{
+            path: "/homework_list",
+            component: Homework_list
+        },{
+            path: "/homework_create",
+            component: Homework_create
+        },{
+            path: "/homework_detail",
+            component: Homework_detail
+        },{
+            path: "/homework_submissions",
+            component: Homework_submissions
         }]
 })
 

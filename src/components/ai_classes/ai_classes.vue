@@ -12,12 +12,25 @@
       </div>
     </div>
 
-    <!-- 课堂任务部分 -->
+    <!-- 课堂作业部分 -->
     <div style="min-height: 65px"></div>
-<!--    <div class="section" style="">-->
-<!--      <h2 class="section-title">课堂任务</h2>-->
-<!--      <div class="empty-div"></div>-->
-<!--    </div>-->
+    <div v-if="rank == 5 || rank == 10" class="section">
+      <div class="section-header">
+        <h2 class="section-title">课堂作业</h2>
+      </div>
+      <div class="book-list" style="flex-wrap: nowrap; overflow-x: auto;">
+        <div v-for="cls in homeworkClassPreview" :key="cls.class_id" class="book-item" style="width: 140px; padding-top: 5px; margin-top: 0;height: auto; flex-shrink: 0;"
+             @click="router.push('/homework_list?class_id=' + cls.class_id)">
+          <div class="book-cover-container" style="width: 140px; height: 80px; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center;">
+            <span style="color: white; font-size: 16px; font-weight: bold; text-align: center; padding: 8px;">{{ cls.class_name }}</span>
+          </div>
+          <div class="book-info">
+            <h3 class="book-title">{{ cls.class_name }}</h3>
+            <p class="book-author">{{ cls.description || '暂无描述' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- AI知识库部分 -->
     <div class="section">
@@ -51,6 +64,7 @@ const bookList = ref<any[]>([]);
 const isLoading = ref(false);
 const index = ref(0);
 const rank = ref(0);
+const homeworkClassPreview = ref<any[]>([]);
 
 async function getRank() {
   try {
@@ -59,6 +73,9 @@ async function getRank() {
       headers: { token: tk }
     })
     rank.value = response.data.rank
+    if (rank.value >= 5) {
+      loadHomeworkClassPreview()
+    }
   } catch (e) {
     console.error('获取VIP等级失败', e)
   }
@@ -119,6 +136,25 @@ function routerPushBook(bookId:string){
     router.push('/rag_ai_messages?book_id=' + bookId)
   } else{
     router.push('/book_edit?book_id=' + bookId)
+  }
+}
+
+async function loadHomeworkClassPreview() {
+  try {
+    const tk = await getTokenData()
+    const address = getAddress()
+    const body: any = { usr_id: getLocalData('id'), token: tk }
+    let res: any
+    if (rank.value >= 10) {
+      res = await axios.post(address + '/classManage/classList', { ...body, index: 0 })
+    } else {
+      res = await axios.post(address + '/classManage/studentClasses', { ...body, student_usr_id: getLocalData('id') })
+    }
+    if (res.data?.success) {
+      homeworkClassPreview.value = res.data.classes || []
+    }
+  } catch (e) {
+    console.error('加载班级列表失败', e)
   }
 }
 </script>
